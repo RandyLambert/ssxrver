@@ -5,7 +5,7 @@
 
 namespace sserver
 {
-namespace CurrentThread
+namespace CurrentThread//目前程序所在线程的数据，专门分了个命名空间
 {
   extern __thread int t_cachedTid;
   extern __thread char t_tidString[32];
@@ -24,22 +24,22 @@ namespace CurrentThread
 
   inline const char* tidString() // for logging
   {
-    return t_tidString;
+    return t_tidString;//tid的字符串表
   }
 
   inline int tidStringLength() // for logging
   {
-    return t_tidStringLength;
+    return t_tidStringLength;//字符串表长
   }
 
   inline const char* name()
   {
-    return t_threadName;
+    return t_threadName;//线程名
   }
 
-  bool isMainThread();
+  bool isMainThread();//判断是否在主线程
 
-  void sleepUsec(int64_t usec);
+  void sleepUsec(int64_t usec);//睡眠
 }
 }
 

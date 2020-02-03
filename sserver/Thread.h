@@ -18,12 +18,13 @@ public:
     Thread &operator=(const Thread&) = delete; //禁止拷贝构造
 
     explicit Thread(const ThreadFunc&, const string& name = string());
+    explicit Thread(ThreadFunc&&, const string& name = string());
     ~Thread();
 
-    void start();
+    void start();//开始初始化线程
     int join(); // return pthread_join()
 
-    bool started() const { return started_; }
+    bool started() const { return started_; } //是否打开
     // pthread_t pthreadId() const { return pthreadId_; }
     pid_t tid() const { return *tid_; }
     const string& name() const { return name_; }

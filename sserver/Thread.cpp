@@ -1,11 +1,10 @@
 #include "Thread.h"
+#include "Timestamp.h"
 #include "CurrentThread.h"
 #include "Exception.h"
 /* #include "Logging.h" */
 
-#include <type_traits>
 #include <memory>
-
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -63,7 +62,7 @@ ThreadNameInitializer init;
 //相当于一个全局变量，这个对象的构造先与main函数，一开始就进入到构造函数之中
 //然后将主线程的名称改为main，缓存当前线程的tid到当前变量中
 
-struct ThreadData
+struct ThreadData//一个结构体，做为参数如pthread_create去，相当于直接传进去一个ThreadData类
 {
   typedef sserver::Thread::ThreadFunc ThreadFunc;
   ThreadFunc func_;
@@ -78,11 +77,11 @@ struct ThreadData
       wkTid_(tid)
   { }
 
-  void runInThread()
+  void runInThread()//真正创建线程后,穿进去的函数会直接调用他
   {
-    pid_t tid = sserver::CurrentThread::tid();
+    pid_t tid = sserver::CurrentThread::tid();//返回现在线程的tid
 
-    shared_ptr<pid_t> ptid = wkTid_.lock();
+    shared_ptr<pid_t> ptid = wkTid_.lock();//weak_ptr的使用
     if (ptid)
     {
       *ptid = tid;
@@ -120,7 +119,7 @@ struct ThreadData
     }
   }
 };
-
+/*****************************************************************************/
 void* startThread(void* obj)
 {
   ThreadData* data = static_cast<ThreadData*>(obj);
@@ -134,7 +133,7 @@ void* startThread(void* obj)
 
 using namespace sserver;
 
-void CurrentThread::cacheTid()
+void CurrentThread::cacheTid()//缓存tid
 {
   if (t_cachedTid == 0)
   {
@@ -156,6 +155,7 @@ void CurrentThread::sleepUsec(int64_t usec)
   ::nanosleep(&ts, NULL);//nanosleep有好处，使用usleep会影响系统调用 
 }
 
+/********************************************************************************/
 AtomicInt32 Thread::numCreated_;
 
 Thread::Thread(const ThreadFunc& func, const string& n)
@@ -169,6 +169,16 @@ Thread::Thread(const ThreadFunc& func, const string& n)
   setDefaultName();
 }
 
+Thread::Thread(ThreadFunc&& func, const string& n)
+  : started_(false),
+    joined_(false),
+    pthreadId_(0),
+    tid_(new pid_t(0)),
+    func_(std::move(func)),
+    name_(n)
+{
+  setDefaultName();
+}
 
 Thread::~Thread()
 {
@@ -188,13 +198,13 @@ void Thread::setDefaultName()
     name_ = buf;
   }
 }
-
-void Thread::start()
+//这里有一个宏，值得注意
+void Thread::start()//线程开始
 {
   assert(!started_);
   started_ = true;
   // FIXME: move(func_)
-  detail::ThreadData* data = new detail::ThreadData(func_, name_, tid_);
+  detail::ThreadData* data = new detail::ThreadData(func_, name_, tid_);//作为参数传进去
   if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))//线程的入口函数
   {
     started_ = false;
@@ -205,7 +215,7 @@ void Thread::start()
 
 int Thread::join()
 {
-  assert(started_); 
+  assert(started_); //断定线程已经打开
   assert(!joined_); //要在线程打开的并且还没有join的时候join
   joined_ = true;
   return pthread_join(pthreadId_, NULL);
