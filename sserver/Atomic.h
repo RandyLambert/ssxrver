@@ -6,13 +6,13 @@ namespace sserver
 namespace detail
 {
 //模拟java原子操作的api，使用这些原子操作要加上-match=cpu-type，锁的开销大于原子操作
-template<typename T>
+template <typename T>
 class AtomicIntegerT
 {
 public:
-    AtomicIntegerT(const AtomicIntegerT &) = delete; //阻止拷贝构造
+    AtomicIntegerT(const AtomicIntegerT &) = delete;            //阻止拷贝构造
     AtomicIntegerT &operator=(const AtomicIntegerT &) = delete; //阻止拷贝构造
-    
+
     AtomicIntegerT()
         : value_(0)
     {
@@ -61,12 +61,12 @@ public:
 
     T decrementAndGet()
     {
-        return addAndGet(-1);//--i
+        return addAndGet(-1); //--i
     }
 
     void add(T x)
     {
-        getAndAdd(x);//先获取，在+
+        getAndAdd(x); //先获取，在+
     }
 
     void increment()
@@ -82,7 +82,7 @@ public:
     T getAndSet(T newValue)
     {
         // in gcc >= 4.7: __atomic_store_n(&value, newValue, __ATOMIC_SEQ_CST)
-        return __sync_lock_test_and_set(&value_, newValue);//原子赋值操作
+        return __sync_lock_test_and_set(&value_, newValue); //原子赋值操作
         //先返回原来的值，在把值负为新值
     }
 
@@ -95,9 +95,9 @@ private:
     //而不是使用保存在寄存器中的备份，是他前面的指令刚刚从该出读取过数据，而且读取的数
     //据立刻被保存，防止多线程出问题
 };
-}
+} // namespace detail
 
 typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
 typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
-}
+} // namespace sserver
 #endif

@@ -13,10 +13,9 @@ bool sserver::Condition::waitForSeconds(int seconds)
     /*CLOCK_MONOTONIC:从系统启动这一刻起开始计时,不受系统时间被用户改变的影响 */
     /*CLOCK_PROCESS_CPUTIME_ID:本进程到当前代码系统CPU花费的时间 */
     /*CLOCK_THREAD_CPUTIME_ID:本线程到当前代码系统CPU花费的时间 */
-    
+
     abstime.tv_sec += seconds;
-    MutexLock::UnassignGuard ug(mutex_);//解锁在加锁的类
+    MutexLock::UnassignGuard ug(mutex_); //解锁在加锁的类
     return ETIMEDOUT == pthread_cond_timedwait(&pcond_, mutex_.getPthreadMutex(), &abstime);
     //线程阻塞在这里,如果返回超时的，是true其他是false
 }
-

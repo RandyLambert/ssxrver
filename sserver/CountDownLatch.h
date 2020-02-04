@@ -9,13 +9,12 @@
 namespace sserver
 {
 
-class CountDownLatch 
+class CountDownLatch
 {
 public:
-
     explicit CountDownLatch(int count);
     CountDownLatch(const CountDownLatch &) = delete; //防止拷贝构造
-    CountDownLatch& operator=(const CountDownLatch &) = delete;
+    CountDownLatch &operator=(const CountDownLatch &) = delete;
     void wait();
 
     void countDown();
@@ -28,5 +27,5 @@ private:
     int count_;
 };
 
-}
-#endif  // SSERVER_COUNTDOWNLATCH_H
+} // namespace sserver
+#endif // SSERVER_COUNTDOWNLATCH_H

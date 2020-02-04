@@ -6,24 +6,24 @@
 namespace sserver
 {
 //运用了__thread和类
-template<typename T>
-class ThreadLocalSingleton 
+template <typename T>
+class ThreadLocalSingleton
 {
 public:
-    ThreadLocalSingleton(const ThreadLocalSingleton&) = delete ;
-    ThreadLocalSingleton& operator=(const ThreadLocalSingleton&) = delete ;
+    ThreadLocalSingleton(const ThreadLocalSingleton &) = delete;
+    ThreadLocalSingleton &operator=(const ThreadLocalSingleton &) = delete;
 
-    static T& instance()//返回单对象的引用
+    static T &instance() //返回单对象的引用
     {
-        if (!t_value_)//如果指针为空创建对象
+        if (!t_value_) //如果指针为空创建对象
         {
             t_value_ = new T();
-            deleter_.set(t_value_);//这里的set，把刚申请内存的指针设置进去
+            deleter_.set(t_value_); //这里的set，把刚申请内存的指针设置进去
         }
         return *t_value_;
     }
 
-    static T* pointer()//返回指针
+    static T *pointer() //返回指针
     {
         return t_value_;
     }
@@ -32,12 +32,13 @@ private:
     ThreadLocalSingleton();
     ~ThreadLocalSingleton();
 
-    static void destructor(void* obj)//摧毁
+    static void destructor(void *obj) //摧毁
     {
         assert(obj == t_value_);
         typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1]; //判断是不完全类型在编译就能发现
-        T_must_be_complete_type dummy; (void) dummy;
-        delete t_value_;//不需要显示调用
+        T_must_be_complete_type dummy;
+        (void)dummy;
+        delete t_value_; //不需要显示调用
         t_value_ = 0;
     }
 
@@ -55,24 +56,24 @@ private:
             pthread_key_delete(pkey_);
         }
 
-        void set(T* newObj)//把指针设定进来
+        void set(T *newObj) //把指针设定进来
         {
             assert(pthread_getspecific(pkey_) == NULL);
-            pthread_setspecific(pkey_, newObj);//通过key获取他
+            pthread_setspecific(pkey_, newObj); //通过key获取他
         }
 
         pthread_key_t pkey_;
     };
 
-    static __thread T* t_value_;//每个线程都有这个指针
-    static Deleter deleter_;//Deleter主要为了销毁的对象
+    static __thread T *t_value_; //每个线程都有这个指针
+    static Deleter deleter_;     //Deleter主要为了销毁的对象
 };
 
-template<typename T>
-__thread T* ThreadLocalSingleton<T>::t_value_ = 0;
+template <typename T>
+__thread T *ThreadLocalSingleton<T>::t_value_ = 0;
 
-template<typename T>
+template <typename T>
 typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
 
-}
+} // namespace sserver
 #endif
