@@ -14,7 +14,7 @@ using namespace sserver::detail;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wtautological-compare"
 #else
-#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic ignored "-Wtype-limits" //暂且忽略掉这个编译选项
 #endif
 
 namespace sserver
@@ -23,11 +23,11 @@ namespace detail
 {
 
 const char digits[] = "9876543210123456789";
-const char *zero = digits + 9;//上面的数组偏移第9位，值为0
-static_assert(sizeof(digits) == 20);
+const char *zero = digits + 9; //上面的数组偏移第9位，值为0
+static_assert(sizeof(digits) == 20, "digits");
 
 const char digitsHex[] = "0123456789ABCDEF";
-static_assert(sizeof digitsHex == 17);
+static_assert(sizeof digitsHex == 17, "digitshex");
 
 // Efficient Integer to String Conversions, by Matthew Wilson.
 //这个函数实现将一个整数转换成字符串
@@ -97,16 +97,16 @@ void FixedBuffer<SIZE>::cookieEnd()
 
 void LogStream::staticCheck()
 {
-    static_assert(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10);
-    static_assert(kMaxNumericSize - 10 > std::numeric_limits<long double>::digits10);
-    static_assert(kMaxNumericSize - 10 > std::numeric_limits<long>::digits10);
-    static_assert(kMaxNumericSize - 10 > std::numeric_limits<long long>::digits10);
+    static_assert(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10, "LogStream");
+    static_assert(kMaxNumericSize - 10 > std::numeric_limits<long double>::digits10, "LogStream");
+    static_assert(kMaxNumericSize - 10 > std::numeric_limits<long>::digits10, "LogStream");
+    static_assert(kMaxNumericSize - 10 > std::numeric_limits<long long>::digits10, "LogStream");
 }
 
 template <typename T>
 void LogStream::formatInteger(T v)
 {
-    if (buffer_.avail() >= kMaxNumericSize)
+    if (buffer_.avail() >= kMaxNumericSize) //当前缓冲区足够大，将整数转换为字符串存进去
     {
         size_t len = convert(buffer_.current(), v);
         buffer_.add(len);
@@ -189,7 +189,7 @@ LogStream &LogStream::operator<<(double v)
 template <typename T>
 Fmt::Fmt(const char *fmt, T val)
 {
-    static_assert(std::is_arithmetic<T>::value == true);
+    static_assert(std::is_arithmetic<T>::value == true, "Fmt"); //断言T一定是算数运算符
 
     length_ = snprintf(buf_, sizeof buf_, fmt, val);
     assert(static_cast<size_t>(length_) < sizeof buf_);
@@ -197,7 +197,7 @@ Fmt::Fmt(const char *fmt, T val)
 
 // Explicit instantiations
 
-template Fmt::Fmt(const char *fmt, char);
+template Fmt::Fmt(const char *fmt, char); //特化这些算数类型，显示实例化
 
 template Fmt::Fmt(const char *fmt, short);
 template Fmt::Fmt(const char *fmt, unsigned short);

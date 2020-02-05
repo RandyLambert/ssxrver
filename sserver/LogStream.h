@@ -16,7 +16,7 @@ namespace detail
 const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000 * 1000;
 
-template <int SIZE>
+template <int SIZE> //非类型参数，不是传递类型而是传递值
 class FixedBuffer
 {
 public:
@@ -25,7 +25,7 @@ public:
     FixedBuffer()
         : cur_(data_)
     {
-        setCookie(cookieStart);
+        setCookie(cookieStart); //穿进去是还没有使用，暂时没用
     }
 
     ~FixedBuffer()
@@ -35,40 +35,47 @@ public:
 
     void append(const char * /*restrict*/ buf, size_t len)
     {
-        // FIXME: append partially
-        if (static_cast<size_t>(avail()) > len)
+        if (static_cast<size_t>(avail()) > len) //当前可用的空间大于len，则就可以将其添加进去
         {
             memcpy(cur_, buf, len);
             cur_ += len;
         }
+        else
+        { //如果小于，只要缓冲区不等于0，则将部分大小放入缓冲区，但是最后一位不能占，因为可能会放结束符'\0'
+            if (static_cast<size_t>(avail()) > 0)
+            {
+                memcpy(cur_, buf, static_cast<size_t>(avail()) - 1);
+                cur_ += (static_cast<size_t>(avail()) - 1);
+            }
+        }
     }
 
-    const char *data() const { return data_; }
+    const char *data() const { return data_; } //首地址，current-data是缓冲区所有的数据
     int length() const { return static_cast<int>(cur_ - data_); }
 
     // write to data_ directly
-    char *current() { return cur_; }
+    char *current() { return cur_; } //目前缓冲区使用的位置，end-current是当前可用空间
     int avail() const { return static_cast<int>(end() - cur_); }
     void add(size_t len) { cur_ += len; }
 
-    void reset() { cur_ = data_; }
-    void bzero() { ::bzero(data_, sizeof data_); }
+    void reset() { cur_ = data_; }                 //重置，只需要把指针移到开头，不需要清零
+    void bzero() { ::bzero(data_, sizeof data_); } //清零
 
     // for used by GDB
-    const char *debugString();
-    void setCookie(void (*cookie)()) { cookie_ = cookie; }
+    const char *debugString();                             //给cur位置加上'\0'，相当于是加结束符，变成字符串
+    void setCookie(void (*cookie)()) { cookie_ = cookie; } //函数就是将函数指针指向传递进去的指针
     // for used by unit test
     std::string asString() const { return std::string(data_, length()); }
 
 private:
-    const char *end() const { return data_ + sizeof data_; }
+    const char *end() const { return data_ + sizeof data_; } //整个缓冲区size位的下一位
     // Must be outline function for cookies.
     static void cookieStart();
     static void cookieEnd();
 
-    void (*cookie_)();
-    char data_[SIZE];
-    char *cur_;
+    void (*cookie_)(); //函数指针
+    char data_[SIZE];  //缓冲区大小通过模板传递
+    char *cur_;        //指向缓冲区最后一个位置的下一个
 };
 
 } // namespace detail
@@ -82,13 +89,13 @@ public:
     LogStream(const LogStream &) = delete;
     LogStream &operator=(const LogStream &) = delete;
 
-    self &operator<<(bool v)
+    self &operator<<(bool v) //bool类型是真存1假存0
     {
         buffer_.append(v ? "1" : "0", 1);
         return *this;
     }
 
-    self &operator<<(short);
+    self &operator<<(short); //处理所有类型
     self &operator<<(unsigned short);
     self &operator<<(int);
     self &operator<<(unsigned int);
@@ -154,7 +161,7 @@ private:
     void staticCheck();
 
     template <typename T>
-    void formatInteger(T);
+    void formatInteger(T); //成员模板
 
     Buffer buffer_;
 
@@ -164,8 +171,8 @@ private:
 class Fmt // : boost::noncopyable
 {
 public:
-    template <typename T>
-    Fmt(const char *fmt, T val);
+    template <typename T>        //成员模板
+    Fmt(const char *fmt, T val); //把整数val，按照fmt的格式进行格式化到buf中
 
     const char *data() const { return buf_; }
     int length() const { return length_; }

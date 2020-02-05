@@ -9,7 +9,8 @@ namespace sserver
 class TimeZone; //前置申明
 
 class Logger
-{
+{ //整个操作过程：先构造无名的Logger对象，在通过这个对象调用stream()函数，
+  //在返回一个LogStream对象，在通过这个对象调运插入运算符
 public:
   enum LogLevel
   {
