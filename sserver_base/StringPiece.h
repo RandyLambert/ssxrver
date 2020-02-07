@@ -185,11 +185,6 @@ template <typename T>
 }
 */
 
-
-
-
-
-
 #endif
 
 // allow StringPiece to be logged
