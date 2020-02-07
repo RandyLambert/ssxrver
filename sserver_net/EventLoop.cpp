@@ -83,7 +83,7 @@ EventLoop::EventLoop() //调用构造函数创建对象
     t_loopInThisThread = this;
   }
   wakeupChannel_->setReadCallback(
-      boost::bind(&EventLoop::handleRead, this));
+      std::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
   wakeupChannel_->enableReading();
 }
@@ -113,17 +113,17 @@ void EventLoop::loop()//io线程
     ++iteration_;
     if (Logger::logLevel() <= Logger::TRACE)
     {
-      printActiveChannels();
+      printActiveChannels();//日志处理
     }
     // TODO sort channel by priority
     eventHandling_ = true;
     for (ChannelList::iterator it = activeChannels_.begin();
          it != activeChannels_.end(); ++it)
     {
-      currentActiveChannel_ = *it;
-      currentActiveChannel_->handleEvent(pollReturnTime_);
+      currentActiveChannel_ = *it;//当前遍历的通道
+      currentActiveChannel_->handleEvent(pollReturnTime_);//处理事件
     }
-    currentActiveChannel_ = NULL;
+    currentActiveChannel_ = NULL;//全部处理完
     eventHandling_ = false;
     doPendingFunctors();
   }
