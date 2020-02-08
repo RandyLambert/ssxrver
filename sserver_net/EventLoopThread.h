@@ -1,5 +1,5 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
@@ -8,44 +8,44 @@
 //
 // This is a public header file, it must only include public header files.
 
-#ifndef MUDUO_NET_EVENTLOOPTHREAD_H
-#define MUDUO_NET_EVENTLOOPTHREAD_H
+#ifndef SSERVER_EVENTLOOPTHREAD_H
+#define SSERVER_EVENTLOOPTHREAD_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
+#include "../sserver_base/Condition.h"
+#include "../sserver_base/Mutex.h"
+#include "../sserver_base/Thread.h"
 
-#include <boost/noncopyable.hpp>
-
-namespace muduo
+namespace sserver
 {
 namespace net
 {
 
 class EventLoop;
 
-class EventLoopThread : boost::noncopyable
+class EventLoopThread
 {
- public:
-  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+public:
+  typedef std::function<void(EventLoop *)> ThreadInitCallback;
 
-  EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback());
+  EventLoopThread(const EventLoopThread &) = delete;
+  EventLoopThread &operator=(const EventLoopThread &) = delete;
+
+  EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback()); //可以传递一个回调函数
   ~EventLoopThread();
-  EventLoop* startLoop();
+  EventLoop *startLoop(); //启动线程，在这个线程里创建一个eventloop对象，该线程成为io线程
 
- private:
-  void threadFunc();
+private:
+  void threadFunc(); //线程函数
 
-  EventLoop* loop_;
-  bool exiting_;
+  EventLoop *loop_; //loop_指针指向一个eventloop对象
+  bool exiting_;    //是否退出
   Thread thread_;
   MutexLock mutex_;
   Condition cond_;
-  ThreadInitCallback callback_;
+  ThreadInitCallback callback_; //会带哦函数在eventloop::loop时间循环之前被调用初始话
 };
 
-}
-}
+} // namespace net
+} // namespace sserver
 
-#endif  // MUDUO_NET_EVENTLOOPTHREAD_H
-
+#endif // SSERVER_EVENTLOOPTHREAD_H

@@ -60,8 +60,8 @@ inline double timeDifference(Timestamp high, Timestamp low) //计算时间差
     return static_cast<double>(diff) / Timestamp::kMicroSecondsPerSecond;
 }
 
-inline Timestamp addTime(Timestamp timestamp, double seconds) //增加多少秒
-{
+inline Timestamp addTime(Timestamp timestamp, double seconds) //将timestamp这个时间对象，增加多少秒
+{                                                             //可以直接传值，因为timestamp只有一个八个字节的整数，直接用值传递反而更快
     int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);
     return Timestamp(timestamp.microSecondsSinceEpoch() + delta);
 }

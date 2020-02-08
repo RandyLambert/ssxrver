@@ -1,22 +1,19 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/InetAddress.h>
-
-#include <muduo/base/Logging.h>
-#include <muduo/net/Endian.h>
-#include <muduo/net/SocketsOps.h>
+#include "InetAddress.h"
+#include "../sserver_base/Logging.h"
+#include "Endian.h"
+#include "SocketsOps.h"
 
 #include <netdb.h>
-#include <strings.h>  // bzero
+#include <strings.h> // bzero
 #include <netinet/in.h>
-
-#include <boost/static_assert.hpp>
 
 // INADDR_ANY use (type)value casting.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -37,10 +34,10 @@ static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
 //         in_addr_t       s_addr;     /* address in network byte order */
 //     };
 
-using namespace muduo;
-using namespace muduo::net;
+using namespace sserver;
+using namespace sserver::net;
 
-BOOST_STATIC_ASSERT(sizeof(InetAddress) == sizeof(struct sockaddr_in));
+static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in),"inetaddress");
 
 InetAddress::InetAddress(uint16_t port, bool loopbackOnly)
 {
@@ -57,14 +54,14 @@ InetAddress::InetAddress(StringArg ip, uint16_t port)
   sockets::fromIpPort(ip.c_str(), port, &addr_);
 }
 
-string InetAddress::toIpPort() const
+std::string InetAddress::toIpPort() const
 {
   char buf[32];
   sockets::toIpPort(buf, sizeof buf, addr_);
   return buf;
 }
 
-string InetAddress::toIp() const
+std::string InetAddress::toIp() const
 {
   char buf[32];
   sockets::toIp(buf, sizeof buf, addr_);
@@ -78,11 +75,11 @@ uint16_t InetAddress::toPort() const
 
 static __thread char t_resolveBuffer[64 * 1024];
 
-bool InetAddress::resolve(StringArg hostname, InetAddress* out)
+bool InetAddress::resolve(StringArg hostname, InetAddress *out)
 {
   assert(out != NULL);
   struct hostent hent;
-  struct hostent* he = NULL;
+  struct hostent *he = NULL;
   int herrno = 0;
   bzero(&hent, sizeof(hent));
 
@@ -90,7 +87,7 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
   if (ret == 0 && he != NULL)
   {
     assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
-    out->addr_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);
+    out->addr_.sin_addr = *reinterpret_cast<struct in_addr *>(he->h_addr);
     return true;
   }
   else

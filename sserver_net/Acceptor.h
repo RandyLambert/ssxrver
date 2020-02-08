@@ -1,5 +1,5 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
@@ -8,16 +8,14 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_ACCEPTOR_H
-#define MUDUO_NET_ACCEPTOR_H
+#ifndef SSERVER_ACCEPTOR_H
+#define SSERVER_ACCEPTOR_H
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
+#include <functional>
+#include "Channel.h"
+#include "Socket.h"
 
-#include <muduo/net/Channel.h>
-#include <muduo/net/Socket.h>
-
-namespace muduo
+namespace sserver
 {
 namespace net
 {
@@ -28,11 +26,14 @@ class InetAddress;
 ///
 /// Acceptor of incoming TCP connections.
 ///
-class Acceptor : boost::noncopyable
+class Acceptor 
 {
  public:
-  typedef boost::function<void (int sockfd,
+  typedef std::function<void (int sockfd,
                                 const InetAddress&)> NewConnectionCallback;
+
+  Acceptor(const Acceptor&) = delete;
+  Acceptor& operator=(const Acceptor&) = delete;
 
   Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
   ~Acceptor();
@@ -57,4 +58,4 @@ class Acceptor : boost::noncopyable
 }
 }
 
-#endif  // MUDUO_NET_ACCEPTOR_H
+#endif  // SSERVER_ACCEPTOR_H

@@ -1,5 +1,5 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
@@ -8,19 +8,16 @@
 //
 // This is a public header file, it must only include public header files.
 
-#ifndef MUDUO_NET_TCPSERVER_H
-#define MUDUO_NET_TCPSERVER_H
+#ifndef SSERVER_TCPSERVER_H
+#define SSERVER_TCPSERVER_H
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Types.h>
-#include <muduo/net/TcpConnection.h>
+#include "../sserver_base/Atomic.h"
+/* #include "../sserver_base/Types.h" */
+#include "TcpConnection.h"
 
 #include <map>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-
-namespace muduo
+#include <memory>
+namespace sserver
 {
 namespace net
 {
@@ -28,15 +25,16 @@ namespace net
 class Acceptor;
 class EventLoop;
 class EventLoopThreadPool;
+    using std::string;
 
 ///
 /// TCP server, supports single-threaded and thread-pool models.
 ///
 /// This is an interface class, so don't expose too much details.
-class TcpServer : boost::noncopyable
+class TcpServer 
 {
  public:
-  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+  typedef std::function<void(EventLoop*)> ThreadInitCallback;
   enum Option
   {
     kNoReusePort,
@@ -44,6 +42,8 @@ class TcpServer : boost::noncopyable
   };
 
   //TcpServer(EventLoop* loop, const InetAddress& listenAddr);
+  TcpServer(const TcpServer&) = delete;
+  TcpServer& operator=(const TcpServer&) = delete;
   TcpServer(EventLoop* loop,
             const InetAddress& listenAddr,
             const string& nameArg,
@@ -68,7 +68,7 @@ class TcpServer : boost::noncopyable
   void setThreadInitCallback(const ThreadInitCallback& cb)
   { threadInitCallback_ = cb; }
   /// valid after calling start()
-  boost::shared_ptr<EventLoopThreadPool> threadPool()
+  std::shared_ptr<EventLoopThreadPool> threadPool()
   { return threadPool_; }
 
   /// Starts the server if it's not listenning.
@@ -105,8 +105,8 @@ class TcpServer : boost::noncopyable
   EventLoop* loop_;  // the acceptor loop
   const string hostport_;
   const string name_;
-  boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
-  boost::shared_ptr<EventLoopThreadPool> threadPool_;
+  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+  std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
@@ -120,4 +120,4 @@ class TcpServer : boost::noncopyable
 }
 }
 
-#endif  // MUDUO_NET_TCPSERVER_H
+#endif  // SSERVER_TCPSERVER_H

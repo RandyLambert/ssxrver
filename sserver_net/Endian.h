@@ -1,5 +1,5 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
@@ -8,18 +8,18 @@
 //
 // This is a public header file, it must only include public header files.
 
-#ifndef MUDUO_NET_ENDIAN_H
-#define MUDUO_NET_ENDIAN_H
+#ifndef SSERVER_ENDIAN_H
+#define SSERVER_ENDIAN_H
 
 #include <stdint.h>
 #include <endian.h>
 
-namespace muduo
+namespace sserver
 {
 namespace net
 {
 namespace sockets
-{
+{ //封装了自己序转换函数(全局函数，位于net::sockets的名称空间中)
 
 // the inline assembler code makes type blur,
 // so we disable warnings for a while.
@@ -30,7 +30,7 @@ namespace sockets
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 inline uint64_t hostToNetwork64(uint64_t host64)
 {
-  return htobe64(host64);
+  return htobe64(host64);//主机转网络字节序，不可移植的
 }
 
 inline uint32_t hostToNetwork32(uint32_t host32)
@@ -45,7 +45,7 @@ inline uint16_t hostToNetwork16(uint16_t host16)
 
 inline uint64_t networkToHost64(uint64_t net64)
 {
-  return be64toh(net64);
+  return be64toh(net64);//大端转主机
 }
 
 inline uint32_t networkToHost32(uint32_t net32)
@@ -64,9 +64,8 @@ inline uint16_t networkToHost16(uint16_t net16)
 #pragma GCC diagnostic warning "-Wold-style-cast"
 #endif
 
+} // namespace sockets
+} // namespace net
+} // namespace sserver
 
-}
-}
-}
-
-#endif  // MUDUO_NET_ENDIAN_H
+#endif // SSERVER_ENDIAN_H

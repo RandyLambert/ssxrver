@@ -1,5 +1,5 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
@@ -8,16 +8,16 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_POLLER_EPOLLPOLLER_H
-#define MUDUO_NET_POLLER_EPOLLPOLLER_H
+#ifndef SSERVER_POLLER_EPOLLPOLLER_H
+#define SSERVER_POLLER_EPOLLPOLLER_H
 
-#include <muduo/net/Poller.h>
+#include "../Poller.h"
 
 #include <vector>
 
 struct epoll_event;
 
-namespace muduo
+namespace sserver
 {
 namespace net
 {
@@ -27,27 +27,27 @@ namespace net
 ///
 class EPollPoller : public Poller
 {
- public:
-  EPollPoller(EventLoop* loop);
+public:
+  EPollPoller(EventLoop *loop);
   virtual ~EPollPoller();
 
-  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-  virtual void updateChannel(Channel* channel);
-  virtual void removeChannel(Channel* channel);
+  virtual Timestamp poll(int timeoutMs, ChannelList *activeChannels);
+  virtual void updateChannel(Channel *channel);
+  virtual void removeChannel(Channel *channel);
 
- private:
+private:
   static const int kInitEventListSize = 16;
 
   void fillActiveChannels(int numEvents,
-                          ChannelList* activeChannels) const;
-  void update(int operation, Channel* channel);
+                          ChannelList *activeChannels) const;
+  void update(int operation, Channel *channel);
 
   typedef std::vector<struct epoll_event> EventList;
 
   int epollfd_;
-  EventList events_;
+  EventList events_; //实际上返回的事件列表
 };
 
-}
-}
-#endif  // MUDUO_NET_POLLER_EPOLLPOLLER_H
+} // namespace net
+} // namespace sserver
+#endif // SSERVER_POLLER_EPOLLPOLLER_H

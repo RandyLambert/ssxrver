@@ -8,17 +8,15 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_POLLER_H
-#define MUDUO_NET_POLLER_H
+#ifndef SSERVER_POLLER_H
+#define SSERVER_POLLER_H
 
 #include <map>
 #include <vector>
-#include <boost/noncopyable.hpp>
+#include "../sserver_base/Timestamp.h"
+#include "EventLoop.h"
 
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/EventLoop.h>
-
-namespace muduo
+namespace sserver
 {
 namespace net
 {
@@ -29,43 +27,45 @@ class Channel;
 /// Base class for IO Multiplexing
 ///
 /// This class doesn't own the Channel objects.
-class Poller : boost::noncopyable
+class Poller
 {
- public:
-  typedef std::vector<Channel*> ChannelList;
+public:
+  typedef std::vector<Channel *> ChannelList;
 
-  Poller(EventLoop* loop);
+  Poller(const Poller &) = delete;
+  Poller &operator=(const Poller &) = delete;
+  Poller(EventLoop *loop);
   virtual ~Poller();
 
   /// Polls the I/O events.
   /// Must be called in the loop thread.
-  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels) = 0;
+  virtual Timestamp poll(int timeoutMs, ChannelList *activeChannels) = 0;
 
   /// Changes the interested I/O events.
   /// Must be called in the loop thread.
-  virtual void updateChannel(Channel* channel) = 0;
+  virtual void updateChannel(Channel *channel) = 0; //三个纯虚函数
 
   /// Remove the channel, when it destructs.
   /// Must be called in the loop thread.
-  virtual void removeChannel(Channel* channel) = 0;
+  virtual void removeChannel(Channel *channel) = 0;
 
-  virtual bool hasChannel(Channel* channel) const;
+  virtual bool hasChannel(Channel *channel) const;
 
-  static Poller* newDefaultPoller(EventLoop* loop);
+  static Poller *newDefaultPoller(EventLoop *loop);
 
   void assertInLoopThread() const
   {
     ownerLoop_->assertInLoopThread();
   }
 
- protected:
-  typedef std::map<int, Channel*> ChannelMap;
-  ChannelMap channels_;
+protected:
+  typedef std::map<int, Channel *> ChannelMap;
+  ChannelMap channels_; //监听检测通道
 
- private:
-  EventLoop* ownerLoop_;
+private:
+  EventLoop *ownerLoop_; //poller所属的eventloop
 };
 
-}
-}
-#endif  // MUDUO_NET_POLLER_H
+} // namespace net
+} // namespace sserver
+#endif // SSERVER_POLLER_H

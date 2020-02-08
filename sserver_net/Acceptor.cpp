@@ -1,27 +1,26 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/Acceptor.h>
+#include "Acceptor.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/SocketsOps.h>
+#include "../sserver_base/Logging.h"
+#include "EventLoop.h"
+#include "InetAddress.h"
+#include "SocketsOps.h"
 
-#include <boost/bind.hpp>
 
 #include <errno.h>
 #include <fcntl.h>
 //#include <sys/types.h>
 //#include <sys/stat.h>
 
-using namespace muduo;
-using namespace muduo::net;
+using namespace sserver;
+using namespace sserver::net;
 
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport)
   : loop_(loop),
@@ -35,7 +34,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusepor
   acceptSocket_.setReusePort(reuseport);
   acceptSocket_.bindAddress(listenAddr);
   acceptChannel_.setReadCallback(
-      boost::bind(&Acceptor::handleRead, this));
+      std::bind(&Acceptor::handleRead, this));
 }
 
 Acceptor::~Acceptor()

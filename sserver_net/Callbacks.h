@@ -8,31 +8,31 @@
 //
 // This is a public header file, it must only include public header files.
 
-#ifndef MUDUO_NET_CALLBACKS_H
-#define MUDUO_NET_CALLBACKS_H
+#ifndef SSERVER_CALLBACKS_H
+#define SSERVER_CALLBACKS_H
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
-#include <muduo/base/Timestamp.h>
-
-namespace muduo
+#include "../sserver_base/Timestamp.h"
+#include <boost/implicit_cast.hpp>
+namespace sserver
 {
 
 // Adapted from google-protobuf stubs/common.h
 // see License in muduo/base/Types.h
-template<typename To, typename From>
-inline ::boost::shared_ptr<To> down_pointer_cast(const ::boost::shared_ptr<From>& f)
+template <typename To, typename From>
+    inline ::std::shared_ptr<To> down_pointer_cast(const ::std::shared_ptr<From> &f)
 {
-  if (false)
-  {
-    implicit_cast<From*, To*>(0);
-  }
+    if (false)
+    {
+        boost::implicit_cast<From *, To *>(0);
+    }
 
 #ifndef NDEBUG
-  assert(f == NULL || dynamic_cast<To*>(get_pointer(f)) != NULL);
+    assert(f == NULL || dynamic_cast<To *>(get_pointer(f)) != NULL);
 #endif
-  return ::boost::static_pointer_cast<To>(f);
+    return ::std::static_pointer_cast<To>(f);
 }
 
 namespace net
@@ -42,24 +42,25 @@ namespace net
 
 class Buffer;
 class TcpConnection;
-typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
-typedef boost::function<void()> TimerCallback;
-typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
-typedef boost::function<void (const TcpConnectionPtr&)> CloseCallback;
-typedef boost::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
-typedef boost::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::function<void()> TimerCallback;
+typedef std::function<void(const TcpConnectionPtr &)> ConnectionCallback;
+typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
+typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
+typedef std::function<void(const TcpConnectionPtr &, size_t)> HighWaterMarkCallback;
 
 // the data has been read to (buf, len)
-typedef boost::function<void (const TcpConnectionPtr&,
-                              Buffer*,
-                              Timestamp)> MessageCallback;
+typedef std::function<void(const TcpConnectionPtr &,
+                           Buffer *,
+                           Timestamp)>
+    MessageCallback;
 
-void defaultConnectionCallback(const TcpConnectionPtr& conn);
-void defaultMessageCallback(const TcpConnectionPtr& conn,
-                            Buffer* buffer,
+void defaultConnectionCallback(const TcpConnectionPtr &conn);
+void defaultMessageCallback(const TcpConnectionPtr &conn,
+                            Buffer *buffer,
                             Timestamp receiveTime);
 
-}
-}
+} // namespace net
+} // namespace sserver
 
-#endif  // MUDUO_NET_CALLBACKS_H
+#endif // SSERVER_CALLBACKS_H

@@ -8,16 +8,16 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_POLLER_POLLPOLLER_H
-#define MUDUO_NET_POLLER_POLLPOLLER_H
+#ifndef SSERVER_POLLER_POLLPOLLER_H
+#define SSERVER_POLLER_POLLPOLLER_H
 
-#include <muduo/net/Poller.h>
+#include "../Poller.h"
 
 #include <vector>
 
 struct pollfd;
 
-namespace muduo
+namespace sserver
 {
 namespace net
 {
@@ -40,10 +40,10 @@ class PollPoller : public Poller
   void fillActiveChannels(int numEvents,
                           ChannelList* activeChannels) const;
 
-  typedef std::vector<struct pollfd> PollFdList;
+  typedef std::vector<struct pollfd> PollFdList;//一个数组
   PollFdList pollfds_;
 };
 
 }
 }
-#endif  // MUDUO_NET_POLLER_POLLPOLLER_H
+#endif  // SSERVER_POLLER_POLLPOLLER_H

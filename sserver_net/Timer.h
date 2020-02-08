@@ -1,5 +1,5 @@
 // Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
+// http://code.google.com/p/sserver/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
@@ -8,49 +8,49 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_TIMER_H
-#define MUDUO_NET_TIMER_H
+#ifndef SSERVER_NET_TIMER_H
+#define SSERVER_NET_TIMER_H
 
-#include <boost/noncopyable.hpp>
+#include "../sserver_base/Atomic.h"
+#include "../sserver_base/Timestamp.h"
+#include "Callbacks.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/Callbacks.h>
-
-namespace muduo
+namespace sserver
 {
 namespace net
 {
-///
-/// Internal class for timer event.
-///
-class Timer : boost::noncopyable
+//
+//Internal class for timer event.
+
+class Timer //对定时操作的高层次抽象
 {
- public:
-  Timer(const TimerCallback& cb, Timestamp when, double interval)
-    : callback_(cb),
-      expiration_(when),
-      interval_(interval),
-      repeat_(interval > 0.0),
-      sequence_(s_numCreated_.incrementAndGet())
-  { }
+public:
+  Timer(const Timer &) = delete;
+  Timer &operator=(const Timer &) = delete;
+  Timer(const TimerCallback &cb, Timestamp when, double interval)
+      : callback_(cb),
+        expiration_(when),
+        interval_(interval), //构造函数
+        repeat_(interval > 0.0),
+        sequence_(s_numCreated_.incrementAndGet()) //先加后获取
+  {
+  }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  Timer(TimerCallback&& cb, Timestamp when, double interval)
-    : callback_(std::move(cb)),
-      expiration_(when),
-      interval_(interval),
-      repeat_(interval > 0.0),
-      sequence_(s_numCreated_.incrementAndGet())
-  { }
-#endif
+  Timer(TimerCallback &&cb, Timestamp when, double interval)
+      : callback_(std::move(cb)),
+        expiration_(when),
+        interval_(interval),
+        repeat_(interval > 0.0),
+        sequence_(s_numCreated_.incrementAndGet())
+  {
+  }
 
-  void run() const
+  void run() const //调用回调函数
   {
     callback_();
   }
 
-  Timestamp expiration() const  { return expiration_; }
+  Timestamp expiration() const { return expiration_; }
   bool repeat() const { return repeat_; }
   int64_t sequence() const { return sequence_; }
 
@@ -58,15 +58,15 @@ class Timer : boost::noncopyable
 
   static int64_t numCreated() { return s_numCreated_.get(); }
 
- private:
-  const TimerCallback callback_;
-  Timestamp expiration_;
-  const double interval_;
-  const bool repeat_;
-  const int64_t sequence_;
+private:
+  const TimerCallback callback_; //定时器回调函数
+  Timestamp expiration_;         //下一次超时时刻
+  const double interval_;        //超时时间间隔，如果为一次行定时器，该值为0
+  const bool repeat_;            //时候重复
+  const int64_t sequence_;       //定时器序号
 
-  static AtomicInt64 s_numCreated_;
+  static AtomicInt64 s_numCreated_; //定时器技术，当前已经创建的定时器数量
 };
-}
-}
-#endif  // MUDUO_NET_TIMER_H
+} // namespace net
+} // namespace sserver
+#endif // SSERVER_NET_TIMER_H
