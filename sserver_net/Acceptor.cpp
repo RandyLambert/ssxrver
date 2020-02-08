@@ -13,7 +13,6 @@
 #include "InetAddress.h"
 #include "SocketsOps.h"
 
-
 #include <errno.h>
 #include <fcntl.h>
 //#include <sys/types.h>
@@ -22,53 +21,53 @@
 using namespace sserver;
 using namespace sserver::net;
 
-Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport)
-  : loop_(loop),
-    acceptSocket_(sockets::createNonblockingOrDie()),
-    acceptChannel_(loop, acceptSocket_.fd()),
-    listenning_(false),
-    idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
-{
-  assert(idleFd_ >= 0);
-  acceptSocket_.setReuseAddr(true);
+Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport)
+    : loop_(loop),
+      acceptSocket_(sockets::createNonblockingOrDie()), //创建了一个套接字，监听套接字
+      acceptChannel_(loop, acceptSocket_.fd()),         //关注这个套接字的时间
+      listenning_(false),
+      idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)) //预先准备一个空闲文件描述符
+{                                                        //构造函数，直接就调用了socket，bind，然后设置用户的回调函数
+  assert(idleFd_ >= 0);                                  //断言这个文件描述符设定成功
+  acceptSocket_.setReuseAddr(true);                      //设置地址重复利用，重启服务器时有用
   acceptSocket_.setReusePort(reuseport);
   acceptSocket_.bindAddress(listenAddr);
-  acceptChannel_.setReadCallback(
+  acceptChannel_.setReadCallback( //设置读的回调函数
       std::bind(&Acceptor::handleRead, this));
 }
 
 Acceptor::~Acceptor()
 {
-  acceptChannel_.disableAll();
-  acceptChannel_.remove();
-  ::close(idleFd_);
+  acceptChannel_.disableAll(); //把所有事件都disable掉
+  acceptChannel_.remove();     //才remove
+  ::close(idleFd_);            //关掉fd
 }
 
-void Acceptor::listen()
+void Acceptor::listen() //然后listen
 {
   loop_->assertInLoopThread();
-  listenning_ = true;
+  listenning_ = true; //监听状态
   acceptSocket_.listen();
-  acceptChannel_.enableReading();
+  acceptChannel_.enableReading(); //关注这个套接字，当有事件发生，回调构造函数中那个回调函数
 }
 
 void Acceptor::handleRead()
 {
   loop_->assertInLoopThread();
-  InetAddress peerAddr;
+  InetAddress peerAddr; //准备一个对等方地址
   //FIXME loop until no more
   int connfd = acceptSocket_.accept(&peerAddr);
-  if (connfd >= 0)
+  if (connfd >= 0) //得到了一个链接
   {
     // string hostport = peerAddr.toIpPort();
     // LOG_TRACE << "Accepts of " << hostport;
-    if (newConnectionCallback_)
+    if (newConnectionCallback_) //回调上层的用户函数
     {
       newConnectionCallback_(connfd, peerAddr);
     }
     else
     {
-      sockets::close(connfd);
+      sockets::close(connfd); //如果上层没有设定回调函数，就把这个套接字关闭
     }
   }
   else
@@ -77,13 +76,12 @@ void Acceptor::handleRead()
     // Read the section named "The special problem of
     // accept()ing when you can't" in libev's doc.
     // By Marc Lehmann, author of livev.
-    if (errno == EMFILE)
+    if (errno == EMFILE) //文件描述符太多了
     {
-      ::close(idleFd_);
-      idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
-      ::close(idleFd_);
+      ::close(idleFd_);                                   //关闭空闲的文件描述符
+      idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL); //是他接收
+      ::close(idleFd_);                                   //接收完之后在把他关闭，因为使用的是LT模式，不这样accept会一直触发
       idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
     }
   }
 }
-

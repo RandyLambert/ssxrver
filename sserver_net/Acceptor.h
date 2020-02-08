@@ -25,37 +25,41 @@ class InetAddress;
 
 ///
 /// Acceptor of incoming TCP connections.
-///
-class Acceptor 
+/// 用于接受tcp套接字的链接
+class Acceptor
 {
- public:
-  typedef std::function<void (int sockfd,
-                                const InetAddress&)> NewConnectionCallback;
+public:
+  typedef std::function<void(int sockfd,
+                             const InetAddress &)>
+      NewConnectionCallback;
 
-  Acceptor(const Acceptor&) = delete;
-  Acceptor& operator=(const Acceptor&) = delete;
+  Acceptor(const Acceptor &) = delete;
+  Acceptor &operator=(const Acceptor &) = delete;
 
-  Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
+  Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport);
   ~Acceptor();
 
-  void setNewConnectionCallback(const NewConnectionCallback& cb)
-  { newConnectionCallback_ = cb; }
+  void setNewConnectionCallback(const NewConnectionCallback &cb)
+  {
+    newConnectionCallback_ = cb;
+  }
 
   bool listenning() const { return listenning_; }
   void listen();
 
- private:
+private:
   void handleRead();
 
-  EventLoop* loop_;
-  Socket acceptSocket_;
-  Channel acceptChannel_;
+  EventLoop *loop_;       //accept所属的eventloop
+  Socket acceptSocket_;   //是listening socket（即server socket）
+  Channel acceptChannel_; //channel用于观察此socket的readable事件，并会带哦accept::handleread(),后者调用accept(2)来接受新连接，并回调用户callback
+  //通道回去观察accept的可读事件
   NewConnectionCallback newConnectionCallback_;
-  bool listenning_;
+  bool listenning_; //所属的eventloop是否处于监听状态
   int idleFd_;
 };
 
-}
-}
+} // namespace net
+} // namespace sserver
 
-#endif  // SSERVER_ACCEPTOR_H
+#endif // SSERVER_ACCEPTOR_H

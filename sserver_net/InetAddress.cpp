@@ -52,6 +52,7 @@ InetAddress::InetAddress(StringArg ip, uint16_t port)
 {
   bzero(&addr_, sizeof addr_);
   sockets::fromIpPort(ip.c_str(), port, &addr_);
+  //ip端口转换为addr
 }
 
 std::string InetAddress::toIpPort() const
@@ -61,7 +62,7 @@ std::string InetAddress::toIpPort() const
   return buf;
 }
 
-std::string InetAddress::toIp() const
+std::string InetAddress::toIp() const//只转换ip
 {
   char buf[32];
   sockets::toIp(buf, sizeof buf, addr_);
