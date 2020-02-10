@@ -32,7 +32,7 @@ class TimerId;
 /// A best efforts timer queue.
 /// No guarantee that the callback will be on time.
 ///
-class TimerQueue //相当于一个定时器的管理类， 内部维护了一个列表，定时器列表
+class TimerQueue //相当于一个定时器的管理类， 内部维护了一个列表，定时器列表，实际上他只关注最早的定时器
 {
   //timerqueue数据结构的选择，能快速的根据当前时间找到已到期的定时器，也要高效的添加和删除timer
   //因为可以使用二插搜索树，用map或者set

@@ -52,7 +52,7 @@ void setNonBlockAndCloseOnExec(int sockfd) //将文件描述符变为非阻塞
 
 const struct sockaddr *sockets::sockaddr_cast(const struct sockaddr_in *addr)
 {
-  return static_cast<const struct sockaddr *>(boost::implicit_cast<const void *>(addr));
+  return static_cast<const struct sockaddr *>(boost::implicit_cast<const void *>(addr)); //implicit_catt显式的隐式转换
 }
 
 struct sockaddr *sockets::sockaddr_cast(struct sockaddr_in *addr)

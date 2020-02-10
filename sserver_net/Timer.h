@@ -27,12 +27,13 @@ class Timer //对定时操作的高层次抽象
 public:
   Timer(const Timer &) = delete;
   Timer &operator=(const Timer &) = delete;
+
   Timer(const TimerCallback &cb, Timestamp when, double interval)
       : callback_(cb),
         expiration_(when),
         interval_(interval), //构造函数
         repeat_(interval > 0.0),
-        sequence_(s_numCreated_.incrementAndGet()) //先加后获取
+        sequence_(s_numCreated_.incrementAndGet()) //先加后获取，原子操作，如果有多个计时器同时生成，也不会出问题
   {
   }
 
@@ -65,7 +66,7 @@ private:
   const bool repeat_;            //时候重复
   const int64_t sequence_;       //定时器序号
 
-  static AtomicInt64 s_numCreated_; //定时器技术，当前已经创建的定时器数量
+  static AtomicInt64 s_numCreated_; //定时器计数，当前已经创建的定时器数量
 };
 } // namespace net
 } // namespace sserver

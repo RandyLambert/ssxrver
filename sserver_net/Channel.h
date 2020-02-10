@@ -83,7 +83,7 @@ public:
   int events() const { return events_; }          //channel注册了那些时间保存在events中
   void set_revents(int revt) { revents_ = revt; } // used by pollers
   // int revents() const { return revents_; }
-  bool isNoneEvent() const { return events_ == kNoneEvent; } //判断是否没有时间
+  bool isNoneEvent() const { return events_ == kNoneEvent; } //判断是否没有事件
 
   void enableReading() //关注读事件，或者加入这个事件
   {
@@ -127,7 +127,7 @@ private:
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
 
-  static const int kNoneEvent;  //没有时间
+  static const int kNoneEvent;  //没有关注事件
   static const int kReadEvent;  //POLLIN | POLLPRI（紧急事件），默认LT
   static const int kWriteEvent; //POLLOUT写
 

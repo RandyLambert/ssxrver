@@ -80,7 +80,7 @@ void Channel::handleEvent(Timestamp receiveTime) //事件到来了，调用handl
   }
 }
 
-void Channel::handleEventWithGuard(Timestamp receiveTime)
+void Channel:: handleEventWithGuard(Timestamp receiveTime)
 {
   eventHandling_ = true;
   LOG_TRACE << reventsToString();

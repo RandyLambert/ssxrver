@@ -39,7 +39,7 @@ public:
   Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport);
   ~Acceptor();
 
-  void setNewConnectionCallback(const NewConnectionCallback &cb)
+  void setNewConnectionCallback(const NewConnectionCallback &cb) //设置新连接来了需要处理的回调函数，比如：打印新连接啥啥啥来了
   {
     newConnectionCallback_ = cb;
   }

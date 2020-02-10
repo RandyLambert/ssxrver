@@ -24,15 +24,15 @@ using namespace sserver::net;
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reuseport)
     : loop_(loop),
       acceptSocket_(sockets::createNonblockingOrDie()), //创建了一个套接字，监听套接字
-      acceptChannel_(loop, acceptSocket_.fd()),         //关注这个套接字的时间
+      acceptChannel_(loop, acceptSocket_.fd()),         //关注这个套接字的事件
       listenning_(false),
-      idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)) //预先准备一个空闲文件描述符
+      idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)) //预先准备一个空闲文件描述符，当文件描述符不够用的时候有用
 {                                                        //构造函数，直接就调用了socket，bind，然后设置用户的回调函数
   assert(idleFd_ >= 0);                                  //断言这个文件描述符设定成功
   acceptSocket_.setReuseAddr(true);                      //设置地址重复利用，重启服务器时有用
-  acceptSocket_.setReusePort(reuseport);
-  acceptSocket_.bindAddress(listenAddr);
-  acceptChannel_.setReadCallback( //设置读的回调函数
+  acceptSocket_.setReusePort(reuseport);                 //端口复用
+  acceptSocket_.bindAddress(listenAddr);                 //绑定地址
+  acceptChannel_.setReadCallback(                        //设置读的回调函数
       std::bind(&Acceptor::handleRead, this));
 }
 
@@ -48,7 +48,7 @@ void Acceptor::listen() //然后listen
   loop_->assertInLoopThread();
   listenning_ = true; //监听状态
   acceptSocket_.listen();
-  acceptChannel_.enableReading(); //关注这个套接字，当有事件发生，回调构造函数中那个回调函数
+  acceptChannel_.enableReading(); //epoll关注这个套接字的读事件，当有事件发生，回调构造函数中那个回调函数
 }
 
 void Acceptor::handleRead()

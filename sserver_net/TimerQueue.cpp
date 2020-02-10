@@ -153,7 +153,7 @@ void TimerQueue::addTimerInLoop(Timer *timer) //不会跨线程调用，不需�
 
 void TimerQueue::cancelInLoop(TimerId timerId) //不会跨线程调用，不需要对临界资源进行保护
 {
-  loop_->assertInLoopThread();
+  loop_->assertInLoopThread(); //断言在该线程中
   assert(timers_.size() == activeTimers_.size());
   ActiveTimer timer(timerId.timer_, timerId.sequence_);
   //查找该定时器
@@ -166,10 +166,10 @@ void TimerQueue::cancelInLoop(TimerId timerId) //不会跨线程调用，不需�
     delete it->first; // FIXME: no delete please，如果用可unique_ptr就不需要手动删除了
     activeTimers_.erase(it);
   }
-  else if (callingExpiredTimers_)//如果不在列表中
+  else if (callingExpiredTimers_) //如果不在列表中
   {
     //已经到期，并且正在调用回调函数的定时器
-    cancelingTimers_.insert(timer);//插入到cancelingTimers
+    cancelingTimers_.insert(timer); //插入到cancelingTimers，因为有的定时器多次执行，加入到cancelingTimers_中会使虽然过期的他也能被取消
   }
   assert(timers_.size() == activeTimers_.size());
 }
@@ -183,7 +183,7 @@ void TimerQueue::handleRead() //实际上只关注最早的定时器
   //获取该时刻之前所有的定时器列表(即超时定时器列表)
   std::vector<Entry> expired = getExpired(now); //这个时刻可能好几个定时器超时了，都得处理
 
-  callingExpiredTimers_ = true;//处于处理到期定时器时间
+  callingExpiredTimers_ = true; //处于处理到期定时器时间
   cancelingTimers_.clear();
   // safe to callback outside critical section
   for (std::vector<Entry>::iterator it = expired.begin();
@@ -225,22 +225,22 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 }
 
 void TimerQueue::reset(const std::vector<Entry> &expired, Timestamp now)
-{
+{//执行重复执行定时器的函数
   Timestamp nextExpire;
 
   for (std::vector<Entry>::const_iterator it = expired.begin();
        it != expired.end(); ++it)
   {
     ActiveTimer timer(it->second, it->second->sequence());
-    //如果是重复的定时器，并且是为取消的定时器，则重启该定时器
+    //如果是重复的定时器，并且是未取消的定时器，则重启该定时器
     if (it->second->repeat() && cancelingTimers_.find(timer) == cancelingTimers_.end())
-    {//如果没有被取消，而且是重复的定时器，就重启
+    { //如果没有被取消，而且是重复的定时器，就重启
       it->second->restart(now);
       insert(it->second);
     }
     else
     {
-      // 一次性定时器或者已被取消的定时器不能重置，因此删除该定时器
+      // 一次性定时器或者已被取消的定时器是不能重置，因此删除该定时器
       // FIXME move to a free list
       delete it->second; // FIXME: no delete please
     }

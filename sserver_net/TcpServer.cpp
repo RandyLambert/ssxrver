@@ -8,33 +8,35 @@
 
 #include "TcpServer.h"
 
-#include <sserver/base/Logging.h>
-#include <sserver/net/Acceptor.h>
-#include <sserver/net/EventLoop.h>
-#include <sserver/net/EventLoopThreadPool.h>
-#include <sserver/net/SocketsOps.h>
+#include "../sserver_base/Logging.h"
+#include "Acceptor.h"
+#include "EventLoop.h"
+#include "EventLoopThreadPool.h"
+#include "SocketsOps.h"
+#include <boost/get_pointer.hpp>
 
-
-#include <stdio.h>  // snprintf
+#include <stdio.h> // snprintf
 
 using namespace sserver;
 using namespace sserver::net;
 
-TcpServer::TcpServer(EventLoop* loop,
-                     const InetAddress& listenAddr,
-                     const string& nameArg,
+TcpServer::TcpServer(EventLoop *loop,
+                     const InetAddress &listenAddr,
+                     const string &nameArg,
                      Option option)
-  : loop_(CHECK_NOTNULL(loop)),
-    hostport_(listenAddr.toIpPort()),
-    name_(nameArg),
-    acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
-    threadPool_(new EventLoopThreadPool(loop)),
-    connectionCallback_(defaultConnectionCallback),
-    messageCallback_(defaultMessageCallback),
-    nextConnId_(1)
+    : loop_(CHECK_NOTNULL(loop)),
+      hostport_(listenAddr.toIpPort()),
+      name_(nameArg),
+      acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
+      threadPool_(new EventLoopThreadPool(loop)),
+      connectionCallback_(defaultConnectionCallback),
+      messageCallback_(defaultMessageCallback),
+      nextConnId_(1)
 {
+  //accepter::handleread函数中会调用tcpserver::newconnection
+  //_1对应的是socket文件描述符，_2对应等待是对等方的地址（inetaddress）
   acceptor_->setNewConnectionCallback(
-      std::bind(&TcpServer::newConnection, this, _1, _2));
+      std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 TcpServer::~TcpServer()
@@ -43,12 +45,12 @@ TcpServer::~TcpServer()
   LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
   for (ConnectionMap::iterator it(connections_.begin());
-      it != connections_.end(); ++it)
+       it != connections_.end(); ++it)
   {
     TcpConnectionPtr conn = it->second;
     it->second.reset();
     conn->getLoop()->runInLoop(
-      std::bind(&TcpConnection::connectDestroyed, conn));
+        std::bind(&TcpConnection::connectDestroyed, conn));
     conn.reset();
   }
 }
@@ -59,26 +61,29 @@ void TcpServer::setThreadNum(int numThreads)
   threadPool_->setThreadNum(numThreads);
 }
 
+//该函数多次调用是无害的
+//该函数可以跨线程调用
 void TcpServer::start()
 {
   if (started_.getAndSet(1) == 0)
-  {
-    threadPool_->start(threadInitCallback_);
+  {                                          //因为他咋判断没有启动后才会调用
+    threadPool_->start(threadInitCallback_); //传递了一个线程初始化的回调函数
 
-    assert(!acceptor_->listenning());
+    assert(!acceptor_->listenning()); //断言是否处于监听状态（判断Accept是否调用了listen）
     loop_->runInLoop(
-        std::bind(&Acceptor::listen, get_pointer(acceptor_)));
+        std::bind(&Acceptor::listen, boost::get_pointer(acceptor_))); //get_pointer可以返回智能指针的原生指针
   }
 }
-
-void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
+//创建一个tcpconnection对象
+void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr)
 {
-  loop_->assertInLoopThread();
-  EventLoop* ioLoop = threadPool_->getNextLoop();
-  char buf[32];
+  loop_->assertInLoopThread(); //断言在io线程
+  //按照轮叫的方式选择一个eventloop
+  EventLoop *ioLoop = threadPool_->getNextLoop(); //选出来了那个io线程
+  char buf[32];                                   //缓冲区
   snprintf(buf, sizeof buf, ":%s#%d", hostport_.c_str(), nextConnId_);
   ++nextConnId_;
-  string connName = name_ + buf;
+  string connName = name_ + buf; //表示当前连接的名称
 
   LOG_INFO << "TcpServer::newConnection [" << name_
            << "] - new connection [" << connName
@@ -86,27 +91,28 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   InetAddress localAddr(sockets::getLocalAddr(sockfd));
   // FIXME poll with zero timeout to double confirm the new connection
   // FIXME use make_shared if necessary
-  TcpConnectionPtr conn(new TcpConnection(ioLoop,
+  //创建了一个Tcpconnection对象
+  TcpConnectionPtr conn(new TcpConnection(ioLoop, //所属的loop
                                           connName,
                                           sockfd,
                                           localAddr,
                                           peerAddr));
   connections_[connName] = conn;
-  conn->setConnectionCallback(connectionCallback_);
+  conn->setConnectionCallback(connectionCallback_); //设置回调函数
   conn->setMessageCallback(messageCallback_);
   conn->setWriteCompleteCallback(writeCompleteCallback_);
   conn->setCloseCallback(
-      std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
-  ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+      std::bind(&TcpServer::removeConnection, this, std::placeholders::_1)); // FIXME: unsafe
+  ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));    //转到ioloop所属的线程调用他进行连接
 }
 
-void TcpServer::removeConnection(const TcpConnectionPtr& conn)
+void TcpServer::removeConnection(const TcpConnectionPtr &conn)
 {
   // FIXME: unsafe
   loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
 
-void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
+void TcpServer::removeConnectionInLoop(const TcpConnectionPtr &conn)
 {
   loop_->assertInLoopThread();
   LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
@@ -114,8 +120,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   size_t n = connections_.erase(conn->name());
   (void)n;
   assert(n == 1);
-  EventLoop* ioLoop = conn->getLoop();
+  EventLoop *ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
       std::bind(&TcpConnection::connectDestroyed, conn));
 }
-

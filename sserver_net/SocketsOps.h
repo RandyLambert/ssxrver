@@ -18,7 +18,7 @@ namespace sserver
 namespace net
 {
 namespace sockets
-{ //封装了socket相关的系统调用（全局函数）
+{ //封装了socket相关的系统调用（全局函数）和套接字类的函数共同使用
 
 ///
 /// Creates a non-blocking socket file descriptor,

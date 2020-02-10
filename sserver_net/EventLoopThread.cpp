@@ -23,6 +23,16 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback &cb)
 {
 }
 
+//main函数实例调用
+//EventLoop* loop = loopThread.startLoop();
+////异步调用runInThread,即将runInThread添加到loop对象所在的io线程，让该io线程执行
+//loop->runInLoop(runInThread);
+//sleep(1);
+////runAfter内部也调用了runInLoop，所以这里也是异步调用
+//loop->runAfter(2,runInThread);
+//sleep(3);
+//loop->quit();
+
 EventLoopThread::~EventLoopThread()
 {
   exiting_ = true;

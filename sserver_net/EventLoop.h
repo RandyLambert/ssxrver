@@ -159,16 +159,16 @@ private:
   bool looping_;                /* atomic因为他是bool类型，在linux下bool类型是原子操作，所以不需要锁 */
   bool quit_;                   /* atomic and shared between threads, okay on x86, I guess. */
   bool eventHandling_;          /* atomic */
-  bool callingPendingFunctors_; /* atomic */
+  bool callingPendingFunctors_; /* atomic 处于io线程的计算操作位置*/
   int64_t iteration_;
   const pid_t threadId_; //当前对象所属线程id
   Timestamp pollReturnTime_;
   std::unique_ptr<Poller> poller_;
   std::unique_ptr<TimerQueue> timerQueue_;
-  int wakeupFd_;          //用于eventfd
+  int wakeupFd_; //用于eventfd
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
-  std::unique_ptr<Channel> wakeupChannel_;//该通道会被纳入poller_来管理
+  std::unique_ptr<Channel> wakeupChannel_; //该通道会被纳入poller_来管理
   std::any context_;
 
   // scratch variables

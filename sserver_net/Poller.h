@@ -59,8 +59,8 @@ public:
   }
 
 protected:
-  typedef std::map<int, Channel *> ChannelMap;
-  ChannelMap channels_; //监听检测通道
+  typedef std::map<int, Channel *> ChannelMap; //fd和事件指针
+  ChannelMap channels_;                        //监听检测通道
 
 private:
   EventLoop *ownerLoop_; //poller所属的eventloop

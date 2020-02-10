@@ -25,16 +25,16 @@ namespace net
 class Acceptor;
 class EventLoop;
 class EventLoopThreadPool;
-    using std::string;
+using std::string;
 
 ///
 /// TCP server, supports single-threaded and thread-pool models.
 ///
 /// This is an interface class, so don't expose too much details.
-class TcpServer 
+class TcpServer
 {
- public:
-  typedef std::function<void(EventLoop*)> ThreadInitCallback;
+public:
+  typedef std::function<void(EventLoop *)> ThreadInitCallback;
   enum Option
   {
     kNoReusePort,
@@ -42,17 +42,17 @@ class TcpServer
   };
 
   //TcpServer(EventLoop* loop, const InetAddress& listenAddr);
-  TcpServer(const TcpServer&) = delete;
-  TcpServer& operator=(const TcpServer&) = delete;
-  TcpServer(EventLoop* loop,
-            const InetAddress& listenAddr,
-            const string& nameArg,
+  TcpServer(const TcpServer &) = delete;
+  TcpServer &operator=(const TcpServer &) = delete;
+  TcpServer(EventLoop *loop, //构造函数
+            const InetAddress &listenAddr,
+            const string &nameArg,
             Option option = kNoReusePort);
-  ~TcpServer();  // force out-line dtor, for scoped_ptr members.
+  ~TcpServer(); // force out-line dtor, for scoped_ptr members.
 
-  const string& hostport() const { return hostport_; }
-  const string& name() const { return name_; }
-  EventLoop* getLoop() const { return loop_; }
+  const string &hostport() const { return hostport_; }
+  const string &name() const { return name_; }
+  EventLoop *getLoop() const { return loop_; }
 
   /// Set the number of threads for handling input.
   ///
@@ -64,60 +64,72 @@ class TcpServer
   /// - 1 means all I/O in another thread.
   /// - N means a thread pool with N threads, new connections
   ///   are assigned on a round-robin basis.
-  void setThreadNum(int numThreads);
-  void setThreadInitCallback(const ThreadInitCallback& cb)
-  { threadInitCallback_ = cb; }
+  void setThreadNum(int numThreads);                       //实际上就是调用线程池这个类的setthreadnum，设置线程池中的io线程数量，但是不包括主的io线程，比如你设置了3个，实际上加上主的io线程是四个
+  void setThreadInitCallback(const ThreadInitCallback &cb) //通过这个函数设置，线程池初始化的回调函数
+  {
+    threadInitCallback_ = cb;
+  }
   /// valid after calling start()
   std::shared_ptr<EventLoopThreadPool> threadPool()
-  { return threadPool_; }
+  {
+    return threadPool_;
+  }
 
   /// Starts the server if it's not listenning.
   ///
   /// It's harmless to call it multiple times.
   /// Thread safe.
-  void start();
+  void start(); //启动线程池
 
   /// Set connection callback.
   /// Not thread safe.
-  void setConnectionCallback(const ConnectionCallback& cb)
-  { connectionCallback_ = cb; }
+  //设置连接到来或链接关闭的回调函数
+  void setConnectionCallback(const ConnectionCallback &cb)
+  {
+    connectionCallback_ = cb;
+  }
 
   /// Set message callback.
   /// Not thread safe.
-  void setMessageCallback(const MessageCallback& cb)
-  { messageCallback_ = cb; }
+  //设置消息回调函数
+  void setMessageCallback(const MessageCallback &cb)
+  {
+    messageCallback_ = cb;
+  }
 
   /// Set write complete callback.
   /// Not thread safe.
-  void setWriteCompleteCallback(const WriteCompleteCallback& cb)
-  { writeCompleteCallback_ = cb; }
+  void setWriteCompleteCallback(const WriteCompleteCallback &cb)
+  {
+    writeCompleteCallback_ = cb;
+  }
 
- private:
+private:
   /// Not thread safe, but in loop
-  void newConnection(int sockfd, const InetAddress& peerAddr);
+  void newConnection(int sockfd, const InetAddress &peerAddr);
   /// Thread safe.
-  void removeConnection(const TcpConnectionPtr& conn);
+  void removeConnection(const TcpConnectionPtr &conn);
   /// Not thread safe, but in loop
-  void removeConnectionInLoop(const TcpConnectionPtr& conn);
+  void removeConnectionInLoop(const TcpConnectionPtr &conn);
 
-  typedef std::map<string, TcpConnectionPtr> ConnectionMap;
+  typedef std::map<string, TcpConnectionPtr> ConnectionMap; //连接列表是一个map容器key是链接名称，value是链接对象的指针
 
-  EventLoop* loop_;  // the acceptor loop
-  const string hostport_;
-  const string name_;
+  EventLoop *loop_;                    // the acceptor loop
+  const string hostport_;              //服务端口
+  const string name_;                  //服务名
   std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
   std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
   ThreadInitCallback threadInitCallback_;
-  AtomicInt32 started_;
+  AtomicInt32 started_; //是否启动
   // always in loop thread
-  int nextConnId_;
-  ConnectionMap connections_;
+  int nextConnId_;            //下一个链接id
+  ConnectionMap connections_; //连接列表
 };
 
-}
-}
+} // namespace net
+} // namespace sserver
 
-#endif  // SSERVER_TCPSERVER_H
+#endif // SSERVER_TCPSERVER_H

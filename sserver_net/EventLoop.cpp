@@ -27,9 +27,9 @@ __thread EventLoop *t_loopInThisThread = 0; //初始化是空指针
 
 const int kPollTimeMs = 10000;
 
-int createEventfd()
+int createEventfd() //初始化weakupfd用于唤醒线程
 {
-  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC); //重点
   if (evtfd < 0)
   {
     LOG_SYSERR << "Failed in eventfd";
@@ -67,7 +67,7 @@ EventLoop::EventLoop() //调用构造函数创建对象
       threadId_(CurrentThread::tid()),
       poller_(Poller::newDefaultPoller(this)), //构造了一个Poller实体对象，是ppoller或者epoller，通过newdefaultpoller函数来判断
       timerQueue_(new TimerQueue(this)),
-      wakeupFd_(createEventfd()),
+      wakeupFd_(createEventfd()), //创建一个eventfd
       wakeupChannel_(new Channel(this, wakeupFd_)),
       currentActiveChannel_(NULL)
 {
@@ -79,12 +79,12 @@ EventLoop::EventLoop() //调用构造函数创建对象
   }
   else
   {
-    t_loopInThisThread = this;
+    t_loopInThisThread = this; //否则将刚创建的线程付给指针
   }
   wakeupChannel_->setReadCallback(
-      std::bind(&EventLoop::handleRead, this)); //注册wakeup回调
+      std::bind(&EventLoop::handleRead, this)); //注册wakeup的回调函数
   // we are always reading the wakeupfd
-  wakeupChannel_->enableReading();
+  wakeupChannel_->enableReading(); //在这里纳入到poller管理，以便于唤醒
 }
 
 EventLoop::~EventLoop() //析构函数变量滞空
@@ -120,11 +120,11 @@ void EventLoop::loop() //io线程
          it != activeChannels_.end(); ++it)
     {
       currentActiveChannel_ = *it;                         //当前遍历的通道
-      currentActiveChannel_->handleEvent(pollReturnTime_); //处理事件
+      currentActiveChannel_->handleEvent(pollReturnTime_); //处理事件，一般一些io操作
     }
     currentActiveChannel_ = NULL; //全部处理完
     eventHandling_ = false;
-    doPendingFunctors(); //让io线程也能执行一些任务，可以添加一些计算任务来让他们执行
+    doPendingFunctors(); //让io线程除了io操作，也能执行一些任务，可以添加一些计算任务比较小的，来让他们执行
   }
 
   LOG_TRACE << "EventLoop " << this << " stop looping";
@@ -164,7 +164,7 @@ void EventLoop::queueInLoop(const Functor &cb) //将任务添加到队列中
     pendingFunctors_.push_back(cb); //将任务添加到队列中
   }
 
-  //调用queuelnloop的线程不是当前io线程需要唤醒
+  //调用queuelnloop的线程不是当前io线程，为了让任务执行，需要唤醒那个io线程，不然任务很可能因此阻塞
   //或者调用queuelnloop的线程是当前io线程，并且此时正在调用pending functor，需要唤醒
   //只有当前io线程的事件回调中调用queueinloop才不需要唤醒
   if (!isInLoopThread() || callingPendingFunctors_)
@@ -173,7 +173,7 @@ void EventLoop::queueInLoop(const Functor &cb) //将任务添加到队列中
   }
 }
 
-TimerId EventLoop::runAt(const Timestamp &time, const TimerCallback &cb)//同下
+TimerId EventLoop::runAt(const Timestamp &time, const TimerCallback &cb) //同下
 {
   return timerQueue_->addTimer(cb, time, 0.0);
 }
@@ -272,19 +272,19 @@ void EventLoop::abortNotInLoopThread()
             << ", current thread id = " << CurrentThread::tid();
 }
 
-void EventLoop::wakeup() //一个线程唤醒io线程
+void EventLoop::wakeup() //一个线程可以唤醒另一个io线程
 {
   uint64_t one = 1;
-  ssize_t n = sockets::write(wakeupFd_, &one, sizeof one); //写入
+  ssize_t n = sockets::write(wakeupFd_, &one, sizeof one); //写入，给wakeupfd写入数据，一定就唤醒了
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
   }
 }
 
-void EventLoop::handleRead()
+void EventLoop::handleRead() //weakup操作
 {
-  uint64_t one = 1;
+  uint64_t one = 1;                                       //象征性的读一些数据
   ssize_t n = sockets::read(wakeupFd_, &one, sizeof one); //调用read函数
   if (n != sizeof one)
   {
@@ -295,10 +295,10 @@ void EventLoop::handleRead()
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;
-  callingPendingFunctors_ = true;
+  callingPendingFunctors_ = true;//现在状态处于PendingFunctors_
 
   {
-    MutexLockGuard lock(mutex_);     //保护临街区
+    MutexLockGuard lock(mutex_);     //保护临界区
     functors.swap(pendingFunctors_); //进行交换，避免了死锁出现
     //这样一方面减小了临界区的长度（意味着不会阻塞其他线程的queueinloop()）,
     //另一方面，也避免了死锁，（因为functor可能会在次调用queueinloop()）

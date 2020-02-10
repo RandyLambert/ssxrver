@@ -11,7 +11,6 @@
 #ifndef SSERVER_SOCKET_H
 #define SSERVER_SOCKET_H
 
-
 // struct tcp_info is in <netinet/tcp.h>
 struct tcp_info;
 
@@ -30,33 +29,34 @@ class InetAddress;
 ///
 /// It closes the sockfd when desctructs.
 /// It's thread safe, all operations are delagated to OS.
-class Socket 
-{
- public:
+class Socket
+{ //封装的套接字类，以类的形式管理套接字
+public:
   explicit Socket(int sockfd)
-    : sockfd_(sockfd)
-  { }
+      : sockfd_(sockfd)
+  {
+  }
 
   // Socket(Socket&&) // move constructor in C++11
-  ~Socket();//调用close，不会忘记关闭文件描述符
-  Socket(const Socket&) = delete ;
-  Socket& operator=(const Socket&) =delete;
+  ~Socket(); //调用close，不会忘记关闭文件描述符
+  Socket(const Socket &) = delete;
+  Socket &operator=(const Socket &) = delete;
 
-  int fd() const { return sockfd_; }//返回fd
+  int fd() const { return sockfd_; } //返回fd
   // return true if success.
-  bool getTcpInfo(struct tcp_info*) const;
-  bool getTcpInfoString(char* buf, int len) const;
+  bool getTcpInfo(struct tcp_info *) const;
+  bool getTcpInfoString(char *buf, int len) const;
 
   /// abort if address in use
-  void bindAddress(const InetAddress& localaddr);
+  void bindAddress(const InetAddress &localaddr); //监听套接字和地址绑定
   /// abort if address in use
-  void listen();
+  void listen(); //监听
 
   /// On success, returns a non-negative integer that is
   /// a descriptor for the accepted socket, which has been
   /// set to non-blocking and close-on-exec. *peeraddr is assigned.
   /// On error, -1 is returned, and *peeraddr is untouched.
-  int accept(InetAddress* peeraddr);
+  int accept(InetAddress *peeraddr); //连接
 
   void shutdownWrite();
 
@@ -82,10 +82,10 @@ class Socket
   ///tcp keepalive是指定期探测连接是否存在，如果应用层有心跳包，这个选项可以不必设置
   void setKeepAlive(bool on);
 
- private:
-  const int sockfd_;//就一个变量sockfd_
+private:
+  const int sockfd_; //就一个变量sockfd_
 };
 
-}
-}
-#endif  // SSERVER_SOCKET_H
+} // namespace net
+} // namespace sserver
+#endif // SSERVER_SOCKET_H

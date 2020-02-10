@@ -29,9 +29,9 @@ static_assert(EPOLLHUP == POLLHUP, "epoll");
 
 namespace
 {
-const int kNew = -1; //三种状态对应是啥，刚构造一个channel对象，初始化时是-1，还没有添加到poll或epoll中被关注
-const int kAdded = 1;
-const int kDeleted = 2;
+const int kNew = -1;    //三种状态对应是啥，刚构造一个channel对象，初始化时是-1，还没有添加到poll或epoll中被关注
+const int kAdded = 1;   //在epollwait上关注
+const int kDeleted = 2; //删除
 } // namespace
 
 EPollPoller::EPollPoller(EventLoop *loop)
@@ -83,8 +83,8 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList *activeChannels)
   return now;
 }
 
-void EPollPoller::fillActiveChannels(int numEvents,                     //返回事件个数
-                                     ChannelList *activeChannels) const //把返回的事件放到这个事件列表中
+void EPollPoller::fillActiveChannels(int numEvents,                     //返回活跃事件个数
+                                     ChannelList *activeChannels) const //把返回活跃的事件放到这个事件列表中
 {
   assert(static_cast<size_t>(numEvents) <= events_.size());
   for (int i = 0; i < numEvents; ++i)
@@ -101,8 +101,8 @@ void EPollPoller::fillActiveChannels(int numEvents,                     //返回
   }
 }
 
-void EPollPoller::updateChannel(Channel *channel) //从channel的update开始调用eventloop的updata，最后调用这个的update
-{
+void EPollPoller::updateChannel(Channel *channel)                             //从channel的update开始调用eventloop的updata，最后调用这个的update
+{                                                                             //update不一定是注册事件，也可能是更新事件
   Poller::assertInLoopThread();                                               //断言处于io线程
   LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events(); //调试
   const int index = channel->index();                                         //index有三种状态
@@ -120,18 +120,18 @@ void EPollPoller::updateChannel(Channel *channel) //从channel的update开始调
       assert(channels_.find(fd) != channels_.end()); //断言是已经添加的
       assert(channels_[fd] == channel);              //需要重新添加关注
     }
-    channel->set_index(kAdded);     //表示这个状态是已经添加的状态
-    update(EPOLL_CTL_ADD, channel); //既然是已经添加的状态，就要把他添加到epoll中
+    channel->set_index(kAdded);     //设置状态
+    update(EPOLL_CTL_ADD, channel); //就要把他添加到epoll中
   }
   else
   {
     // update existing one with EPOLL_CTL_MOD/DEL
     int fd = channel->fd();
     (void)fd;
-    assert(channels_.find(fd) != channels_.end()); //断言fd不等于end
-    assert(channels_[fd] == channel);
+    assert(channels_.find(fd) != channels_.end()); //断言fd找到了
+    assert(channels_[fd] == channel);              //断言fd对应的事件
     assert(index == kAdded);
-    if (channel->isNoneEvent()) //剔除epoll事件
+    if (channel->isNoneEvent()) //判断是如何更改，如果啥事件也没有，说明从epoll关注事件中剔除他
     {
       update(EPOLL_CTL_DEL, channel); //del
       channel->set_index(kDeleted);   //这里状态需要改变，处理kdeleted，仅仅表示是没有在epoll中关注，并不表示从channelmap中移除了，想要在次关注，执行上面代码
@@ -148,18 +148,18 @@ void EPollPoller::removeChannel(Channel *channel)
   Poller::assertInLoopThread();
   int fd = channel->fd();
   LOG_TRACE << "fd = " << fd;
-  assert(channels_.find(fd) != channels_.end());
+  assert(channels_.find(fd) != channels_.end()); //断言要移动的事件在所关注的事件集中
   assert(channels_[fd] == channel);
-  assert(channel->isNoneEvent()); //断言已经没有要帮助的时间
-  int index = channel->index();
-  assert(index == kAdded || index == kDeleted);//等于断言他在通道中，如果是new，说明没在通道，没法删
-  size_t n = channels_.erase(fd);//从map中移除
+  assert(channel->isNoneEvent());               //断言已经没有要关注的事件
+  int index = channel->index();                 //返回关注的是啥事件
+  assert(index == kAdded || index == kDeleted); //等于断言他在通道中，如果是new，说明没在通道，没法删
+  size_t n = channels_.erase(fd);               //从map中移除
   (void)n;
-  assert(n == 1);
+  assert(n == 1); //断言删除成功
 
-  if (index == kAdded)//如果是kadded，还得从epoll的关注中移除
+  if (index == kAdded) //如果是kadded，说明现在还在epollwait上面关注着，还得从epoll的关注中移除
   {
-    update(EPOLL_CTL_DEL, channel);
+    update(EPOLL_CTL_DEL, channel); //删除
   }
   channel->set_index(kNew);
 }
@@ -171,7 +171,7 @@ void EPollPoller::update(int operation, Channel *channel)
   event.events = channel->events(); //关注的是这个事件
   event.data.ptr = channel;
   int fd = channel->fd();
-  if (::epoll_ctl(epollfd_, operation, fd, &event) < 0) //核心就是调用epoll_ctl
+  if (::epoll_ctl(epollfd_, operation, fd, &event) < 0) //核心就是调用epoll_ctl，更改挂的fd状态
   {
     if (operation == EPOLL_CTL_DEL)
     {

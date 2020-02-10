@@ -65,7 +65,7 @@ void Socket::bindAddress(const InetAddress &addr)
 
 void Socket::listen()
 {
-    sockets::listenOrDie(sockfd_);
+    sockets::listenOrDie(sockfd_); //直接调用全局函数，如果监听失败直接退出，传进去监听套接字
 }
 
 int Socket::accept(InetAddress *peeraddr) //使得上层应用更好使用
