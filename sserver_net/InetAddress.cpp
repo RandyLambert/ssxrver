@@ -37,7 +37,7 @@ static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
 using namespace sserver;
 using namespace sserver::net;
 
-static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in),"inetaddress");
+static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in), "inetaddress");
 
 InetAddress::InetAddress(uint16_t port, bool loopbackOnly)
 {
@@ -62,7 +62,7 @@ std::string InetAddress::toIpPort() const
   return buf;
 }
 
-std::string InetAddress::toIp() const//只转换ip
+std::string InetAddress::toIp() const //只转换ip
 {
   char buf[32];
   sockets::toIp(buf, sizeof buf, addr_);

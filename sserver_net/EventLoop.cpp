@@ -20,8 +20,10 @@
 using namespace sserver;
 using namespace sserver::net;
 
-namespace
-{ //当前线程eventloop对象指针
+//应用编程（直接使用c c++ 以及网络库代码，不使用系统调用）
+//系统编程 (c c++ 系统调用)
+namespace //匿名的命名空间，建议在cpp文件中使用
+{         //当前线程eventloop对象指针
   //线程局部存储
 __thread EventLoop *t_loopInThisThread = 0; //初始化是空指针
 
@@ -42,15 +44,15 @@ int createEventfd() //初始化weakupfd用于唤醒线程
 class IgnoreSigPipe
 {
 public:
-  IgnoreSigPipe()
+  IgnoreSigPipe() //程序的构造函数
   {
-    ::signal(SIGPIPE, SIG_IGN);
+    ::signal(SIGPIPE, SIG_IGN); //忽略信号SIGPIPE，我们的服务器不能因为一个客户端不正常退出而挂掉
     // LOG_TRACE << "Ignore SIGPIPE";
   }
 };
 #pragma GCC diagnostic error "-Wold-style-cast"
 
-IgnoreSigPipe initObj;
+IgnoreSigPipe initObj; //这个类在构造的时候就调用了signal(SIGPIPE, SIG_IGN);
 } // namespace
 
 EventLoop *EventLoop::getEventLoopOfCurrentThread()
@@ -295,7 +297,7 @@ void EventLoop::handleRead() //weakup操作
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;
-  callingPendingFunctors_ = true;//现在状态处于PendingFunctors_
+  callingPendingFunctors_ = true; //现在状态处于PendingFunctors_
 
   {
     MutexLockGuard lock(mutex_);     //保护临界区

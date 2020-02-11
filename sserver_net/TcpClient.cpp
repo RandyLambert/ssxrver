@@ -14,9 +14,8 @@
 #include "EventLoop.h"
 #include "SocketsOps.h"
 
-
 #include <boost/get_pointer.hpp>
-#include <stdio.h>  // snprintf
+#include <stdio.h> // snprintf
 
 using namespace sserver;
 using namespace sserver::net;
@@ -39,57 +38,62 @@ namespace net
 namespace detail
 {
 
-void removeConnection(EventLoop* loop, const TcpConnectionPtr& conn)
+void removeConnection(EventLoop *loop, const TcpConnectionPtr &conn)
 {
-    loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn));
+    loop->queueInLoop(std::bind(&TcpConnection::connectDestroyed, conn)); //调用了connectdestroyed
 }
 
-void removeConnector(const ConnectorPtr& connector)
+void removeConnector(const ConnectorPtr &connector)
 {
     //connector->
 }
 
-}
-}
-}
+} // namespace detail
+} // namespace net
+} // namespace sserver
 
-TcpClient::TcpClient(EventLoop* loop,
-                     const InetAddress& serverAddr,
-                     const string& name)
+//connector 主动发起连接
+//tcpclient 包含了一个connector对象
+
+TcpClient::TcpClient(EventLoop *loop,
+                     const InetAddress &serverAddr,
+                     const string &name)
     : loop_(CHECK_NOTNULL(loop)),
-    connector_(new Connector(loop, serverAddr)),
-    name_(name),
-    connectionCallback_(defaultConnectionCallback),
-    messageCallback_(defaultMessageCallback),
-    retry_(false),
-    connect_(true),
-    nextConnId_(1)
+      connector_(new Connector(loop, serverAddr)),
+      name_(name),
+      connectionCallback_(defaultConnectionCallback),
+      messageCallback_(defaultMessageCallback),
+      retry_(false),
+      connect_(true),
+      nextConnId_(1)
 {
-    connector_->setNewConnectionCallback(
-                                         std::bind(&TcpClient::newConnection, this, std::placeholders::_1));
+    connector_->setNewConnectionCallback(                                   //设置连接成功回调函数
+        std::bind(&TcpClient::newConnection, this, std::placeholders::_1)); //一旦连接成功，回调newconnectin
     // FIXME setConnectFailedCallback
     LOG_INFO << "TcpClient::TcpClient[" << name_
-        << "] - connector " << boost::get_pointer(connector_);
+             << "] - connector " << boost::get_pointer(connector_);
 }
 
 TcpClient::~TcpClient()
 {
     LOG_INFO << "TcpClient::~TcpClient[" << name_
-        << "] - connector " << boost::get_pointer(connector_);
+             << "] - connector " << boost::get_pointer(connector_);
     TcpConnectionPtr conn;
     bool unique = false;
     {
         MutexLockGuard lock(mutex_);
         unique = connection_.unique();
-        conn = connection_;
+        conn = connection_; //这里将connection保存到conn中
     }
     if (conn)
     {
         assert(loop_ == conn->getLoop());
         // FIXME: not 100% safe, if we are in different thread
+        //重新设置TcpConnection中的closeCallback_为detail::removeConnection
         CloseCallback cb = std::bind(&detail::removeConnection, loop_, std::placeholders::_1);
+        //这里调用detail中的removeconnection不能调用tcpcliect的removeconnection，因为connection具有重连功能
         loop_->runInLoop(
-                         std::bind(&TcpConnection::setCloseCallback, conn, cb));
+            std::bind(&TcpConnection::setCloseCallback, conn, cb));
         if (unique)
         {
             conn->forceClose();
@@ -97,6 +101,7 @@ TcpClient::~TcpClient()
     }
     else
     {
+        //这种情况，说明connector处于未连接状态，将connector_停止
         connector_->stop();
         // FIXME: HACK
         loop_->runAfter(1, std::bind(&detail::removeConnector, connector_));
@@ -107,11 +112,11 @@ void TcpClient::connect()
 {
     // FIXME: check state
     LOG_INFO << "TcpClient::connect[" << name_ << "] - connecting to "
-        << connector_->serverAddress().toIpPort();
+             << connector_->serverAddress().toIpPort();
     connect_ = true;
-    connector_->start();
+    connector_->start(); //发起连接
 }
-
+//用于连接已建立的情况下，关闭连接
 void TcpClient::disconnect()
 {
     connect_ = false;
@@ -124,7 +129,7 @@ void TcpClient::disconnect()
         }
     }
 }
-
+//停止connector_
 void TcpClient::stop()
 {
     connect_ = false;
@@ -147,21 +152,21 @@ void TcpClient::newConnection(int sockfd)
                                             connName,
                                             sockfd,
                                             localAddr,
-                                            peerAddr));
+                                            peerAddr)); //连接建立成功就生成一个tcpconnectin对象
 
     conn->setConnectionCallback(connectionCallback_);
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(
-                           std::bind(&TcpClient::removeConnection, this, std::placeholders::_1)); // FIXME: unsafe
+        std::bind(&TcpClient::removeConnection, this, std::placeholders::_1)); // FIXME: unsafe
     {
         MutexLockGuard lock(mutex_);
-        connection_ = conn;
+        connection_ = conn; //保存tcpconnection
     }
-    conn->connectEstablished();
+    conn->connectEstablished(); //这里回调connectionCallback_
 }
 
-void TcpClient::removeConnection(const TcpConnectionPtr& conn)
+void TcpClient::removeConnection(const TcpConnectionPtr &conn)
 {
     loop_->assertInLoopThread();
     assert(loop_ == conn->getLoop());
@@ -176,8 +181,8 @@ void TcpClient::removeConnection(const TcpConnectionPtr& conn)
     if (retry_ && connect_)
     {
         LOG_INFO << "TcpClient::connect[" << name_ << "] - Reconnecting to "
-            << connector_->serverAddress().toIpPort();
+                 << connector_->serverAddress().toIpPort();
+        //这里的重连是值连接建立成功之后被断开的重连
         connector_->restart();
     }
 }
-

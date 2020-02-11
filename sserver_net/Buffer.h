@@ -58,41 +58,41 @@ public:
   // implicit copy-ctor, move-ctor, dtor and assignment are fine
   // NOTE: implicit move-ctor is added in g++ 4.6
 
-  void swap(Buffer &rhs)
+  void swap(Buffer &rhs) //两个缓冲区交换，因为vector会扩容，导致指针无效，所以size_t来表示位置
   {
-    buffer_.swap(rhs.buffer_);
+    buffer_.swap(rhs.buffer_); //所以交换只需要包位置下标换一下就行
     std::swap(readerIndex_, rhs.readerIndex_);
     std::swap(writerIndex_, rhs.writerIndex_);
   }
 
-  size_t readableBytes() const
+  size_t readableBytes() const //返回可读大小
   {
     return writerIndex_ - readerIndex_;
   }
 
-  size_t writableBytes() const
+  size_t writableBytes() const //返回可写大小
   {
     return buffer_.size() - writerIndex_;
   }
 
-  size_t prependableBytes() const
+  size_t prependableBytes() const //返回预先空余大小
   {
     return readerIndex_;
   }
 
-  const char *peek() const
+  const char *peek() const //返回读的指针
   {
     return begin() + readerIndex_;
   }
 
-  const char *findCRLF() const
+  const char *findCRLF() const //寻找结束符
   {
     // FIXME: replace with memmem()?
     const char *crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF + 2);
     return crlf == beginWrite() ? NULL : crlf;
   }
 
-  const char *findCRLF(const char *start) const
+  const char *findCRLF(const char *start) const //从start处往后寻找结束符
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
@@ -101,13 +101,13 @@ public:
     return crlf == beginWrite() ? NULL : crlf;
   }
 
-  const char *findEOL() const
+  const char *findEOL() const //返回结束处
   {
     const void *eol = memchr(peek(), '\n', readableBytes());
     return static_cast<const char *>(eol);
   }
 
-  const char *findEOL(const char *start) const
+  const char *findEOL(const char *start) const //从start处返回结束处
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
@@ -118,7 +118,7 @@ public:
   // retrieve returns void, to prevent
   // string str(retrieve(readableBytes()), readableBytes());
   // the evaluation of two functions are unspecified
-  void retrieve(size_t len)
+  void retrieve(size_t len) //取回数据
   {
     assert(len <= readableBytes());
     if (len < readableBytes())
@@ -131,82 +131,82 @@ public:
     }
   }
 
-  void retrieveUntil(const char *end)
+  void retrieveUntil(const char *end) //取回直到某一个位置
   {
     assert(peek() <= end);
     assert(end <= beginWrite());
     retrieve(end - peek());
   }
 
-  void retrieveInt64()
+  void retrieveInt64() //取回八个字节
   {
     retrieve(sizeof(int64_t));
   }
 
-  void retrieveInt32()
+  void retrieveInt32() //4
   {
     retrieve(sizeof(int32_t));
   }
 
-  void retrieveInt16()
+  void retrieveInt16() //2
   {
     retrieve(sizeof(int16_t));
   }
 
-  void retrieveInt8()
+  void retrieveInt8() //1
   {
     retrieve(sizeof(int8_t));
   }
 
-  void retrieveAll()
+  void retrieveAll() //返回初始位置
   {
     readerIndex_ = kCheapPrepend;
     writerIndex_ = kCheapPrepend;
   }
 
-  string retrieveAllAsString()
+  string retrieveAllAsString() //把所有数据取回到一个字符串
   {
     return retrieveAsString(readableBytes());
     ;
   }
 
-  string retrieveAsString(size_t len)
+  string retrieveAsString(size_t len) //从可读处取len长度的字符串
   {
     assert(len <= readableBytes());
-    string result(peek(), len);
-    retrieve(len);
+    string result(peek(), len); //peek返回的是可读端首
+    retrieve(len);              //偏移到len处
     return result;
   }
 
-  StringPiece toStringPiece() const
+  StringPiece toStringPiece() const //转换为stringpiece
   {
     return StringPiece(peek(), static_cast<int>(readableBytes()));
   }
 
-  void append(const StringPiece &str)
+  void append(const StringPiece &str) //添加数据
   {
     append(str.data(), str.size());
   }
 
-  void append(const char * /*restrict*/ data, size_t len)
+  void append(const char * /*restrict*/ data, size_t len) //添加数据
   {
-    ensureWritableBytes(len);
+    ensureWritableBytes(len); //如果可用空间不足len，则扩充缓冲区位置到len以便可以完全放下数据
     std::copy(data, data + len, beginWrite());
     hasWritten(len);
   }
 
-  void append(const void * /*restrict*/ data, size_t len)
+  void append(const void * /*restrict*/ data, size_t len) //添加数据
   {
     append(static_cast<const char *>(data), len);
   }
-
+  //如果可用空间不足len，则扩充缓冲区位置到len以便可以完全放下数据
   void ensureWritableBytes(size_t len)
   {
-    if (writableBytes() < len)
+    if (writableBytes() < len) //入过可用空间小于len
     {
-      makeSpace(len);
+      makeSpace(len); //扩充空间操作
     }
-    assert(writableBytes() >= len);
+    assert(writableBytes() >= len); //断言数据可放的下
   }
 
   char *beginWrite()
@@ -234,28 +234,28 @@ public:
   ///
   /// Append int64_t using network endian
   ///
-  void appendInt64(int64_t x)
+  void appendInt64(int64_t x) //填充64位整数
   {
-    int64_t be64 = sockets::hostToNetwork64(x);
+    int64_t be64 = sockets::hostToNetwork64(x); //转网络字节序
     append(&be64, sizeof be64);
   }
 
   ///
   /// Append int32_t using network endian
   ///
-  void appendInt32(int32_t x)
+  void appendInt32(int32_t x) //填充32位整数
   {
     int32_t be32 = sockets::hostToNetwork32(x);
     append(&be32, sizeof be32);
   }
 
-  void appendInt16(int16_t x)
+  void appendInt16(int16_t x) //16
   {
     int16_t be16 = sockets::hostToNetwork16(x);
     append(&be16, sizeof be16);
   }
 
-  void appendInt8(int8_t x)
+  void appendInt8(int8_t x) //8
   {
     append(&x, sizeof x);
   }
@@ -264,10 +264,10 @@ public:
   /// Read int64_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
-  int64_t readInt64()
+  int64_t readInt64() //读取64位
   {
     int64_t result = peekInt64();
-    retrieveInt64();
+    retrieveInt64(); //读走的位置调整
     return result;
   }
 
@@ -304,8 +304,8 @@ public:
   {
     assert(readableBytes() >= sizeof(int64_t));
     int64_t be64 = 0;
-    ::memcpy(&be64, peek(), sizeof be64);
-    return sockets::networkToHost64(be64);
+    ::memcpy(&be64, peek(), sizeof be64);  //拷贝大小为64位的的到be64
+    return sockets::networkToHost64(be64); //转为主机字节序
   }
 
   ///
@@ -338,9 +338,9 @@ public:
   ///
   /// Prepend int64_t using network endian
   ///
-  void prependInt64(int64_t x)
+  void prependInt64(int64_t x) //在前面预留空间添加8个字节
   {
-    int64_t be64 = sockets::hostToNetwork64(x);
+    int64_t be64 = sockets::hostToNetwork64(x); //转网络
     prepend(&be64, sizeof be64);
   }
 
@@ -364,7 +364,7 @@ public:
     prepend(&x, sizeof x);
   }
 
-  void prepend(const void * /*restrict*/ data, size_t len)
+  void prepend(const void * /*restrict*/ data, size_t len) //通过这个函数来时间想前面预留空间加
   {
     assert(len <= prependableBytes());
     readerIndex_ -= len;
@@ -372,7 +372,7 @@ public:
     std::copy(d, d + len, begin() + readerIndex_);
   }
 
-  void shrink(size_t reserve)
+  void shrink(size_t reserve) //伸缩空间，保留reserve个字节
   {
     // FIXME: use vector::shrink_to_fit() in C++ 11 if possible.
     Buffer other;
@@ -403,17 +403,17 @@ private:
     return &*buffer_.begin();
   }
 
-  void makeSpace(size_t len)
+  void makeSpace(size_t len) //扩充空间
   {
-    if (writableBytes() + prependableBytes() < len + kCheapPrepend)
+    if (writableBytes() + prependableBytes() < len + kCheapPrepend) //判断扩充空间
     {
       // FIXME: move readable data
-      buffer_.resize(writerIndex_ + len);
+      buffer_.resize(writerIndex_ + len); //如果现存缓冲区不够用，进行resize扩容
     }
     else
     {
       // move readable data to the front, make space inside buffer
-      assert(kCheapPrepend < readerIndex_);
+      assert(kCheapPrepend < readerIndex_); //够用，进行移位存储下来
       size_t readable = readableBytes();
       std::copy(begin() + readerIndex_,
                 begin() + writerIndex_,
@@ -429,7 +429,7 @@ private:
   size_t readerIndex_;       //读位置
   size_t writerIndex_;       //写位置
 
-  static const char kCRLF[]; //"\r\n"
+  static const char kCRLF[]; //"\r\n"，http协议
 };
 
 } // namespace net

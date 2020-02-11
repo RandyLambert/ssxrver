@@ -82,7 +82,7 @@ int Socket::accept(InetAddress *peeraddr) //使得上层应用更好使用
 
 void Socket::shutdownWrite()
 {
-    sockets::shutdownWrite(sockfd_);
+    sockets::shutdownWrite(sockfd_); //全局函数
 }
 
 void Socket::setTcpNoDelay(bool on) //禁用或开启

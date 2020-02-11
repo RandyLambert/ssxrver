@@ -22,7 +22,7 @@ namespace sserver
 // Adapted from google-protobuf stubs/common.h
 // see License in muduo/base/Types.h
 template <typename To, typename From>
-    inline ::std::shared_ptr<To> down_pointer_cast(const ::std::shared_ptr<From> &f)
+inline ::std::shared_ptr<To> down_pointer_cast(const ::std::shared_ptr<From> &f)
 {
     if (false)
     {

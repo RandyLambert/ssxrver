@@ -121,9 +121,9 @@ private:
   std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
-  WriteCompleteCallback writeCompleteCallback_;
-  ThreadInitCallback threadInitCallback_;
-  AtomicInt32 started_; //是否启动
+  WriteCompleteCallback writeCompleteCallback_; //数据发送完毕，会调用此函数，tcpconnection中的回调函数在这里调用
+  ThreadInitCallback threadInitCallback_;       //io线程池中的线程在进入事件循环前，会调用此函数
+  AtomicInt32 started_;                         //是否启动
   // always in loop thread
   int nextConnId_;            //下一个链接id
   ConnectionMap connections_; //连接列表
