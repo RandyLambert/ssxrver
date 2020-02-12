@@ -19,40 +19,49 @@
 #include <stdio.h>
 
 namespace sserver
-{
+{ //http请求类封装
 namespace net
 {
 
-class HttpRequest 
+class HttpRequest
 {
 public:
     enum Method
     {
-        kInvalid, kGet, kPost, kHead, kPut, kDelete
+        kInvalid, //请求方法
+        kGet,
+        kPost,
+        kHead,
+        kPut,
+        kDelete
     };
     enum Version
     {
-        kUnknown, kHttp10, kHttp11
+        kUnknown,
+        kHttp10, //http版本
+        kHttp11
     };
 
     HttpRequest()
-        : method_(kInvalid),
-        version_(kUnknown)
+        : method_(kInvalid), //构造函数初始化
+          version_(kUnknown)
     {
     }
 
     void setVersion(Version v)
     {
-        version_ = v;
+        version_ = v; //设置版本
     }
 
     Version getVersion() const
-    { return version_; }
+    {
+        return version_;
+    }
 
-    bool setMethod(const char* start, const char* end)
+    bool setMethod(const char *start, const char *end)
     {
         assert(method_ == kInvalid);
-        std::string m(start, end);
+        std::string m(start, end); //根据这个字符串来判断
         if (m == "GET")
         {
             method_ = kGet;
@@ -77,16 +86,18 @@ public:
         {
             method_ = kInvalid;
         }
-        return method_ != kInvalid;
+        return method_ != kInvalid; //看是否请求成功
     }
 
     Method method() const
-    { return method_; }
-
-    const char* methodString() const
     {
-        const char* result = "UNKNOWN";
-        switch(method_)
+        return method_;
+    }
+
+    const char *methodString() const //请求方法转换为字符串
+    {
+        const char *result = "UNKNOWN";
+        switch (method_)
         {
         case kGet:
             result = "GET";
@@ -109,45 +120,55 @@ public:
         return result;
     }
 
-    void setPath(const char* start, const char* end)
+    void setPath(const char *start, const char *end) //设置路径
     {
-        path_.assign(start, end);
+        path_.assign(start, end); //设置到path
     }
 
-    const std::string& path() const
-    { return path_; }
+    const std::string &path() const
+    {
+        return path_;
+    }
 
-    void setQuery(const char* start, const char* end)
+    void setQuery(const char *start, const char *end)
     {
         query_.assign(start, end);
     }
 
-    const std::string& query() const
-    { return query_; }
+    const std::string &query() const
+    {
+        return query_;
+    }
 
-    void setReceiveTime(Timestamp t)
-    { receiveTime_ = t; }
+    void setReceiveTime(Timestamp t) //设置接收时间
+    {
+        receiveTime_ = t;
+    }
 
     Timestamp receiveTime() const
-    { return receiveTime_; }
-
-    void addHeader(const char* start, const char* colon, const char* end)
     {
-        std::string field(start, colon);
+        return receiveTime_;
+    }
+
+    void addHeader(const char *start, const char *colon, const char *end)
+    {                                    //添加一个头部信息
+        std::string field(start, colon); //header域
         ++colon;
-        while (colon < end && isspace(*colon))
+        //去除左空格
+        while (colon < end && isspace(*colon)) //header值
         {
             ++colon;
         }
         std::string value(colon, end);
-        while (!value.empty() && isspace(value[value.size()-1]))
+        //去除右空格
+        while (!value.empty() && isspace(value[value.size() - 1]))
         {
-            value.resize(value.size()-1);
+            value.resize(value.size() - 1);
         }
-        headers_[field] = value;
+        headers_[field] = value; //将value的值保存到headers
     }
 
-    std::string getHeader(const std::string& field) const
+    std::string getHeader(const std::string &field) const //根据头域返回值
     {
         std::string result;
         std::map<std::string, std::string>::const_iterator it = headers_.find(field);
@@ -158,12 +179,15 @@ public:
         return result;
     }
 
-    const std::map<std::string, std::string>& headers() const
-    { return headers_; }
+    const std::map<std::string, std::string> &headers() const
+    {
+        return headers_;
+    }
 
-    void swap(HttpRequest& that)
+    void swap(HttpRequest &that) //交换数据成员
     {
         std::swap(method_, that.method_);
+        std::swap(version_, that.version_); //加
         path_.swap(that.path_);
         query_.swap(that.query_);
         receiveTime_.swap(that.receiveTime_);
@@ -171,15 +195,15 @@ public:
     }
 
 private:
-    Method method_;
-    Version version_;
-    std::string path_;
+    Method method_;    //请求方法
+    Version version_;  //协议版本1.0/1.1
+    std::string path_; //请求路径
     std::string query_;
-    Timestamp receiveTime_;
-    std::map<std::string, std::string> headers_;
+    Timestamp receiveTime_;                      //请求时间
+    std::map<std::string, std::string> headers_; //header列表
 };
 
-}
-}
+} // namespace net
+} // namespace sserver
 
-#endif  // SSERVER_HTTP_HTTPREQUEST_H
+#endif // SSERVER_HTTP_HTTPREQUEST_H

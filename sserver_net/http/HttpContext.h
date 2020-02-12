@@ -19,14 +19,14 @@ namespace net
 {
 
 class HttpContext
-{
+{ //http协议解析类的封装
 public:
     enum HttpRequestParseState
     {
-        kExpectRequestLine,
-        kExpectHeaders,
-        kExpectBody,
-        kGotAll,
+        kExpectRequestLine, //正处于解析请求行的状态
+        kExpectHeaders,     //正处于解析头部状态
+        kExpectBody,        //正处于解析实体状态
+        kGotAll,            //全部解析完毕
     };
 
     HttpContext()
@@ -36,7 +36,7 @@ public:
 
     // default copy-ctor, dtor and assignment are fine
 
-    bool expectRequestLine() const
+    bool expectRequestLine() const //将状态设置为上述几个状态
     {
         return state_ == kExpectRequestLine;
     }
@@ -66,11 +66,12 @@ public:
         state_ = kGotAll;
     } // FIXME
 
+    //重置httpcontext状态
     void reset()
     {
-        state_ = kExpectRequestLine;
+        state_ = kExpectRequestLine; //重置为初始状态
         HttpRequest dummy;
-        request_.swap(dummy);
+        request_.swap(dummy); //将当前对象置空
     }
 
     const HttpRequest &request() const
@@ -78,14 +79,14 @@ public:
         return request_;
     }
 
-    HttpRequest &request()
+    HttpRequest &request() //返回请求
     {
         return request_;
     }
 
 private:
-    HttpRequestParseState state_;
-    HttpRequest request_;
+    HttpRequestParseState state_; //请求解析状态
+    HttpRequest request_;         //http请求
 };
 
 } // namespace net
