@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-//#define _BSD_SOURCE
 #include <endian.h>
 #include <assert.h>
 #include <stdint.h>

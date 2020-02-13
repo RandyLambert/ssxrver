@@ -13,7 +13,7 @@
 
 #include <vector>
 #include <functional>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <memory>
 
 namespace sserver
 {
@@ -29,7 +29,7 @@ class EventLoopThreadPool //这个类的作用是开启若干个线程，且让�
 public:
   typedef std::function<void(EventLoop *)> ThreadInitCallback;
 
-  EventLoopThreadPool(EventLoop *baseLoop);
+  EventLoopThreadPool(EventLoop *baseLoop, const string &nameArg);
   EventLoopThreadPool(const EventLoopThreadPool &) = delete;
   EventLoopThreadPool &operator=(EventLoopThreadPool &) = delete;
   ~EventLoopThreadPool();
@@ -52,11 +52,12 @@ public:
 
 private:
   EventLoop *baseLoop_; //与acceptor所属的eventloop相同
+  string name_;
   bool started_;
-  int numThreads_;                             //线程数
-  int next_;                                   //新连接到来，所选择的eventloop对象下标，是比较公平
-  boost::ptr_vector<EventLoopThread> threads_; //io线程列表
-  std::vector<EventLoop *> loops_;             //eventloop列表
+  int numThreads_;                                        //线程数
+  int next_;                                              //新连接到来，所选择的eventloop对象下标，是比较公平
+  std::vector<std::unique_ptr<EventLoopThread>> threads_; //io线程列表
+  std::vector<EventLoop *> loops_;                        //eventloop列表
 };
 
 } // namespace net

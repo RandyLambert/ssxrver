@@ -12,7 +12,7 @@
 #define SSERVER_EVENTLOOP_H
 
 #include <vector>
-
+#include <atomic>
 #include <any>
 #include <memory>
 #include <functional>
@@ -76,41 +76,35 @@ public:
   /// It wakes up the loop, and run the cb.
   /// If in the same loop thread, cb is run within the function.
   /// Safe to call from other threads.
-  void runInLoop(const Functor &cb);
+  void runInLoop(Functor cb);
   /// Queues callback in the loop thread.
   /// Runs after finish pooling.
   /// Safe to call from other threads.
-  void queueInLoop(const Functor &cb);
+  void queueInLoop(Functor cb);
 
-  void runInLoop(Functor &&cb);
-  void queueInLoop(Functor &&cb);
-
+  size_t queueSize() const;
   // timers
 
   ///
   /// Runs callback at 'time'.
   /// Safe to call from other threads.
   ///
-  TimerId runAt(const Timestamp &time, const TimerCallback &cb);
+  TimerId runAt(const Timestamp &time, TimerCallback cb);
   ///
   /// Runs callback after @c delay seconds.
   /// Safe to call from other threads.
   ///
-  TimerId runAfter(double delay, const TimerCallback &cb);
+  TimerId runAfter(double delay, TimerCallback cb);
   ///
   /// Runs callback every @c interval seconds.
   /// Safe to call from other threads.
   ///
-  TimerId runEvery(double interval, const TimerCallback &cb);
+  TimerId runEvery(double interval, TimerCallback cb);
   ///
   /// Cancels the timer.
   /// Safe to call from other threads.
   ///
   void cancel(TimerId timerId);
-
-  TimerId runAt(const Timestamp &time, TimerCallback &&cb);
-  TimerId runAfter(double delay, TimerCallback &&cb);
-  TimerId runEvery(double interval, TimerCallback &&cb);
 
   // internal usage
   void wakeup();
@@ -157,7 +151,7 @@ private:
   typedef std::vector<Channel *> ChannelList;
 
   bool looping_;                /* atomic因为他是bool类型，在linux下bool类型是原子操作，所以不需要锁 */
-  bool quit_;                   /* atomic and shared between threads, okay on x86, I guess. */
+  std::atomic<bool> quit_;      /* atomic and shared between threads, okay on x86, I guess. */
   bool eventHandling_;          /* atomic */
   bool callingPendingFunctors_; /* atomic 处于io线程的计算操作位置*/
   int64_t iteration_;
@@ -175,8 +169,8 @@ private:
   ChannelList activeChannels_;    //poller返回的活动通道
   Channel *currentActiveChannel_; //当前正在处理的活动通道
 
-  MutexLock mutex_;
-  std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
+  mutable MutexLock mutex_;
+  std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_); // @GuardedBy mutex_
 };
 
 } // namespace net

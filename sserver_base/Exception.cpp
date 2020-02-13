@@ -46,7 +46,7 @@ Exception::Exception(const string &what)
 {
     fillStackTrace(); //构造是获取函数调用栈，不在这里获取信息等函数结束就会释放了
 }
-Exception::~Exception() noexcept {};
+Exception::~Exception() noexcept = default;
 const char *Exception::what() const noexcept
 {
     return message_.c_str();

@@ -6,11 +6,11 @@
 #include <functional>
 using namespace sserver;
 
-ThreadPool::ThreadPool(const string &name)
+ThreadPool::ThreadPool(const string &nameArg)
     : mutex_(),
       notEmpty_(mutex_),
       notFull_(mutex_),
-      name_(name),
+      name_(nameArg),
       maxQueueSize_(0),
       running_(false)
 {
@@ -50,9 +50,10 @@ void ThreadPool::stop()
         running_ = false;
         notEmpty_.notifyAll(); //通知所有等待线程，但是因为running变为了false，所以线程结束
     }
-    for_each(threads_.begin(),
-             threads_.end(), //对所有线程调用join，等待所有线程
-             bind(&sserver::Thread::join, std::placeholders::_1));
+    for (auto &thr : threads_)
+    {
+        thr.join();
+    }
 }
 
 size_t ThreadPool::queueSize() const
@@ -61,7 +62,7 @@ size_t ThreadPool::queueSize() const
     return queue_.size();
 }
 
-void ThreadPool::run(const Task &task) //向线程池添加task
+void ThreadPool::run(Task task) //向线程池添加task
 {
     if (threads_.empty()) //如果线程池是空的，那么直接由当前线程执行任务
     {
@@ -78,26 +79,6 @@ void ThreadPool::run(const Task &task) //向线程池添加task
 
         queue_.push_back(task); //将任务加入队列
         notEmpty_.notify();     //当添加了某个任务之后,任务队列肯定不是空的,通知某个等待从queue_中取task的线程
-    }
-}
-
-void ThreadPool::run(Task &&task) //提高效率写的函数同上
-{
-    if (threads_.empty())
-    {
-        task();
-    }
-    else
-    {
-        MutexLockGuard lock(mutex_);
-        while (isFull())
-        {
-            notFull_.wait();
-        }
-        assert(!isFull());
-
-        queue_.push_back(std::move(task));
-        notEmpty_.notify();
     }
 }
 

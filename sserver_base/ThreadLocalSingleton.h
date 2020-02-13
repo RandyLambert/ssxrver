@@ -13,6 +13,8 @@ public:
     ThreadLocalSingleton(const ThreadLocalSingleton &) = delete;
     ThreadLocalSingleton &operator=(const ThreadLocalSingleton &) = delete;
 
+    ThreadLocalSingleton() = delete;
+    ~ThreadLocalSingleton() = delete;
     static T &instance() //返回单对象的引用
     {
         if (!t_value_) //如果指针为空创建对象
@@ -29,9 +31,6 @@ public:
     }
 
 private:
-    ThreadLocalSingleton();
-    ~ThreadLocalSingleton();
-
     static void destructor(void *obj) //摧毁
     {
         assert(obj == t_value_);
@@ -76,4 +75,4 @@ template <typename T>
 typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
 
 } // namespace sserver
-#endif
+#endif // SSERVER_BASE_THREADLOCALSINGLETON_H

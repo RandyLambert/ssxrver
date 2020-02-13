@@ -33,7 +33,6 @@ public:
     T get()
     {
         //获取变量
-        // in gcc >= 4.7: __atomic_load_n(&value_, __ATOMIC_SEQ_CST)
         return __sync_val_compare_and_swap(&value_, 0, 0);
         //原子比较和交换（设置）操作
         //判断value_是否等与0，如果等于0，则将0赋值给value，返回值是value的值+0之前的值
@@ -41,7 +40,6 @@ public:
 
     T getAndAdd(T x)
     {
-        // in gcc >= 4.7: __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST)
         return __sync_fetch_and_add(&value_, x);
         //原子自增操作
         //先获取value_的值，将value_的值返回，在将value_的值+x

@@ -38,7 +38,6 @@ public:
         }
         notEmpty_.notify();
     }
-    // FIXME: emplace()
 
     T take()
     {
@@ -51,7 +50,7 @@ public:
         assert(!queue_.empty()); //断言不为空
         T front(std::move(queue_.front()));
         queue_.pop_front();
-        return front;
+        return std::move(front);
     }
 
     size_t size() const
@@ -62,8 +61,8 @@ public:
 
 private:
     mutable MutexLock mutex_; //可变的，因为很多const成员函数也需要用锁
-    Condition notEmpty_;
-    std::deque<T> queue_;
+    Condition notEmpty_ GUARDED_BY(mutex_);
+    std::deque<T> queue_ GUARDED_BY(mutex_);
 };
 
 } // namespace sserver

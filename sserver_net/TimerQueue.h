@@ -48,14 +48,14 @@ public:
   ///
   /// Must be thread safe. Usually be called from other threads.
   /// 一定是线程安全的，可以跨线程调用。通常情况下被其他线程跨线程调用
-  TimerId addTimer(const TimerCallback &cb, //添加一个定时器，返回一个外部类Timeid，供外部使用
-                   Timestamp when,          //外部可以调用取消一个定时器
+  TimerId addTimer(TimerCallback cb, //添加一个定时器，返回一个外部类Timeid，供外部使用
+                   Timestamp when,   //外部可以调用取消一个定时器
                    double interval);
-  TimerId addTimer(TimerCallback &&cb, //在实际使用时，不会直接调用addtimer而是会调用eventloop中的
-                   Timestamp when,     //runat 在某个时刻运行定时器
-                   double interval);   //runafter 过一段时间运行定时器
-                                       //runevery 每隔一段时间运行定时器
-                                       //cancel 取消定时器
+  //在实际使用时，不会直接调用addtimer而是会调用eventloop中的
+  //runat 在某个时刻运行定时器
+  //runafter 过一段时间运行定时器
+  //runevery 每隔一段时间运行定时器
+  //cancel 取消定时器
 
   void cancel(TimerId timerId); //取消一个定时器
 

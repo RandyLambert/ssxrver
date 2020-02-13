@@ -14,7 +14,6 @@
 #include "EventLoop.h"
 #include "Socket.h"
 #include "SocketsOps.h"
-#include <boost/bind.hpp>
 #include <errno.h>
 #include <utility>
 using namespace sserver;
@@ -43,6 +42,7 @@ TcpConnection::TcpConnection(EventLoop *loop,
     : loop_(CHECK_NOTNULL(loop)),
       name_(nameArg),
       state_(kConnecting),
+      reading_(true),
       socket_(new Socket(sockfd)),
       channel_(new Channel(loop, sockfd)),
       localAddr_(localAddr),
@@ -101,10 +101,11 @@ void TcpConnection::send(const StringPiece &message)
         }
         else
         {
-            loop_->runInLoop(                           //直接转到eventloop所属线程调用
-                boost::bind(&TcpConnection::sendInLoop, //std的如何使用？？
-                            this,                       // FIXME
-                            message.as_string()));
+            void (TcpConnection::*fp)(const StringPiece &message) = &TcpConnection::sendInLoop;
+            loop_->runInLoop( //直接转到eventloop所属线程调用
+                std::bind(fp,
+                          this, // FIXME
+                          message.as_string()));
         }
     }
 }
@@ -119,10 +120,11 @@ void TcpConnection::send(string &&message)
         }
         else
         {
-            loop_->runInLoop(                           //直接转到eventloop所属线程调用
-                boost::bind(&TcpConnection::sendInLoop, //std的如何使用？？
-                            this,
-                            std::forward<string>(message)));
+            void (TcpConnection::*fp)(const StringPiece &message) = &TcpConnection::sendInLoop;
+            loop_->runInLoop( //直接转到eventloop所属线程调用
+                std::bind(fp,
+                          this,
+                          std::forward<string>(message)));
         }
     }
 }
@@ -139,16 +141,17 @@ void TcpConnection::send(Buffer *buf)
         }
         else
         {
+            void (TcpConnection::*fp)(const StringPiece &message) = &TcpConnection::sendInLoop;
             loop_->runInLoop(
-                boost::bind(&TcpConnection::sendInLoop,
-                            this, // FIXME
-                            buf->retrieveAllAsString()));
+                std::bind(fp,
+                          this, // FIXME
+                          buf->retrieveAllAsString()));
         }
     }
 }
 
 //线程安全的，可以跨线程调用
-void TcpConnection::send(Buffer &&buf)
+/*void TcpConnection::send(Buffer &&buf)
 {
     if (state_ == kConnected)
     {
@@ -159,13 +162,14 @@ void TcpConnection::send(Buffer &&buf)
         }
         else
         {
+            void (TcpConnection::*fp)(const StringPiece &message) = &TcpConnection::sendInLoop;
             loop_->runInLoop(
-                boost::bind(&TcpConnection::sendInLoop,
-                            this,
-                            std::forward<Buffer &&>(buf)));
+                std::bind(fp,
+                          this,
+                          std::forward<Buffer &&>(buf)));
         }
     }
-}
+}*/
 
 void TcpConnection::sendInLoop(const StringPiece &message)
 {
@@ -333,6 +337,36 @@ const char *TcpConnection::stateToString() const
 void TcpConnection::setTcpNoDelay(bool on)
 {
     socket_->setTcpNoDelay(on);
+}
+
+void TcpConnection::startRead()
+{
+    loop_->runInLoop(std::bind(&TcpConnection::startReadInLoop, this));
+}
+
+void TcpConnection::startReadInLoop()
+{
+    loop_->assertInLoopThread();
+    if (!reading_ || !channel_->isReading())
+    {
+        channel_->enableReading();
+        reading_ = true;
+    }
+}
+
+void TcpConnection::stopRead()
+{
+    loop_->runInLoop(std::bind(&TcpConnection::stopReadInLoop, this));
+}
+
+void TcpConnection::stopReadInLoop()
+{
+    loop_->assertInLoopThread();
+    if (reading_ || channel_->isReading())
+    {
+        channel_->disableReading();
+        reading_ = false;
+    }
 }
 
 void TcpConnection::connectEstablished()

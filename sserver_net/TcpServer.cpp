@@ -28,7 +28,7 @@ TcpServer::TcpServer(EventLoop *loop,
       hostport_(listenAddr.toIpPort()),
       name_(nameArg),
       acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
-      threadPool_(new EventLoopThreadPool(loop)),
+      threadPool_(new EventLoopThreadPool(loop, name_)),
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback),
       nextConnId_(1)
@@ -44,11 +44,10 @@ TcpServer::~TcpServer()
   loop_->assertInLoopThread();
   LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
-  for (ConnectionMap::iterator it(connections_.begin());
-       it != connections_.end(); ++it)
+  for (auto &item : connections_)
   {
-    TcpConnectionPtr conn = it->second;
-    it->second.reset();
+    TcpConnectionPtr conn(item.second);
+    item.second.reset();
     conn->getLoop()->runInLoop(
         std::bind(&TcpConnection::connectDestroyed, conn));
     conn.reset();

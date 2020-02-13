@@ -14,7 +14,12 @@ bool sserver::Condition::waitForSeconds(int seconds)
     /*CLOCK_PROCESS_CPUTIME_ID:本进程到当前代码系统CPU花费的时间 */
     /*CLOCK_THREAD_CPUTIME_ID:本线程到当前代码系统CPU花费的时间 */
 
-    abstime.tv_sec += seconds;
+    const int64_t kNanoSecondsPerSecond = 1000000000;
+    int64_t nanoseconds = static_cast<int64_t>(seconds * kNanoSecondsPerSecond);
+
+    abstime.tv_sec += static_cast<time_t>((abstime.tv_nsec + nanoseconds) / kNanoSecondsPerSecond);
+    abstime.tv_nsec = static_cast<long>((abstime.tv_nsec + nanoseconds) % kNanoSecondsPerSecond);
+
     MutexLock::UnassignGuard ug(mutex_); //解锁在加锁的类
     return ETIMEDOUT == pthread_cond_timedwait(&pcond_, mutex_.getPthreadMutex(), &abstime);
     //线程阻塞在这里,如果返回超时的，是true其他是false

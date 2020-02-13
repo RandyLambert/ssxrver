@@ -70,6 +70,9 @@ public:
   void forceClose();
   void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
+  void startRead();                      // Start read from socketfd
+  void stopRead();                       // Stop read from socketfd
+  bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop
 
   void setContext(const std::any &context) //把一个未知类型赋值
   {
@@ -149,6 +152,8 @@ private:
   void forceCloseInLoop();
   void setState(StateE s) { state_ = s; }
   const char *stateToString() const;
+  void startReadInLoop();
+  void stopReadInLoop();
 
   EventLoop *loop_;        //所属eventloop
   const std::string name_; //连接名
@@ -175,6 +180,7 @@ private:
   Buffer inputBuffer_;   //应用层的接收缓冲区
   Buffer outputBuffer_;  // FIXME: use list<Buffer> as output buffer.应用层的发送缓冲区，当outputbuffer高到一定程度，回调highwatermarkcallback_函数
   std::any context_;     //提供一个接口绑定一个未知类型的上下文对象，我们不清楚上层的网络程序会绑定一个什么对象，提供这样的接口，帮助应用程序
+  bool reading_;
   //可变类型的解决方案有两种
   //void* 这种方法不是类型安全的
   //boost::any,好处是可以将任意类型安全存取

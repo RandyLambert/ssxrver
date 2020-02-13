@@ -67,27 +67,27 @@ struct ThreadData //一个结构体，做为参数如pthread_create去，相当�
     typedef sserver::Thread::ThreadFunc ThreadFunc;
     ThreadFunc func_;
     string name_;
-    std::weak_ptr<pid_t> wkTid_;
+    pid_t *tid_;
+    CountDownLatch *latch_;
 
-    ThreadData(const ThreadFunc &func,
+    ThreadData(ThreadFunc func,
                const string &name,
-               const shared_ptr<pid_t> &tid)
-        : func_(func),
+               pid_t *tid,
+               CountDownLatch *latch)
+        : func_(std::move(func)),
           name_(name),
-          wkTid_(tid)
+
+          tid_(tid),
+          latch_(latch)
     {
     }
 
     void runInThread() //真正创建线程后,穿进去的函数会直接调用他
     {
-        pid_t tid = sserver::CurrentThread::tid(); //返回现在线程的tid
-
-        shared_ptr<pid_t> ptid = wkTid_.lock(); //weak_ptr的使用
-        if (ptid)
-        {
-            *ptid = tid;
-            ptid.reset();
-        }
+        *tid_ = sserver::CurrentThread::tid();
+        tid_ = NULL;
+        latch_->countDown();
+        latch_ = NULL;
 
         sserver::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
         ::prctl(PR_SET_NAME, sserver::CurrentThread::t_threadName);
@@ -159,24 +159,14 @@ void CurrentThread::sleepUsec(int64_t usec)
 /********************************************************************************/
 AtomicInt32 Thread::numCreated_;
 
-Thread::Thread(const ThreadFunc &func, const string &n)
+Thread::Thread(ThreadFunc func, const string &n)
     : started_(false),
       joined_(false),
       pthreadId_(0),
-      tid_(new pid_t(0)),
-      func_(func),
-      name_(n)
-{ //初始化
-    setDefaultName();
-}
-
-Thread::Thread(ThreadFunc &&func, const string &n)
-    : started_(false),
-      joined_(false),
-      pthreadId_(0),
-      tid_(new pid_t(0)),
+      tid_(0),
       func_(std::move(func)),
-      name_(n)
+      name_(n),
+      latch_(1)
 {
     setDefaultName();
 }
@@ -205,12 +195,17 @@ void Thread::start() //线程开始
     assert(!started_);
     started_ = true;
     // FIXME: move(func_)
-    detail::ThreadData *data = new detail::ThreadData(func_, name_, tid_); //作为参数传进去
-    if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))     //线程的入口函数
+    detail::ThreadData *data = new detail::ThreadData(func_, name_, &tid_, &latch_); //作为参数传进去
+    if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))               //线程的入口函数
     {
         started_ = false;
         delete data;                                // or no delete?
         LOG_SYSFATAL << "Failed in pthread_create"; //日志
+    }
+    else
+    {
+        latch_.wait();
+        assert(tid_ > 0);
     }
 }
 

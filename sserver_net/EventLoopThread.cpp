@@ -13,13 +13,14 @@
 using namespace sserver;
 using namespace sserver::net;
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback &cb)
+EventLoopThread::EventLoopThread(const ThreadInitCallback &cb,
+                                 const string &name)
     : loop_(NULL),
       exiting_(false),
-      thread_(std::bind(&EventLoopThread::threadFunc, this), "EventLoopThread"), // FIXME: number it，构造一个thread对象，将threadfun传进去
+      thread_(std::bind(&EventLoopThread::threadFunc, this), name), // FIXME: number it，构造一个thread对象，将threadfun传进去
       mutex_(),
       cond_(mutex_),
-      callback_(cb) //把cb传到callback
+      callback_(cb)
 {
 }
 

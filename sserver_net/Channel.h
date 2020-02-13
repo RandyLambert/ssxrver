@@ -41,36 +41,19 @@ public:
   ~Channel();
 
   void handleEvent(Timestamp receiveTime);
-  void setReadCallback(const ReadEventCallback &cb) //回调函数的注册，读的
-  {
-    readCallback_ = cb;
-  }
-  void setWriteCallback(const EventCallback &cb) //写的
-  {
-    writeCallback_ = cb;
-  }
-  void setCloseCallback(const EventCallback &cb) //关闭的
-  {
-    closeCallback_ = cb;
-  }
-  void setErrorCallback(const EventCallback &cb) //错误的
-  {
-    errorCallback_ = cb;
-  }
-
-  void setReadCallback(ReadEventCallback &&cb) //引用版的
+  void setReadCallback(ReadEventCallback cb)
   {
     readCallback_ = std::move(cb);
   }
-  void setWriteCallback(EventCallback &&cb)
+  void setWriteCallback(EventCallback cb)
   {
     writeCallback_ = std::move(cb);
   }
-  void setCloseCallback(EventCallback &&cb)
+  void setCloseCallback(EventCallback cb)
   {
     closeCallback_ = std::move(cb);
   }
-  void setErrorCallback(EventCallback &&cb)
+  void setErrorCallback(EventCallback cb)
   {
     errorCallback_ = std::move(cb);
   }
@@ -110,7 +93,7 @@ public:
     events_ = kNoneEvent;
   }
   bool isWriting() const { return events_ & kWriteEvent; }
-
+  bool isReading() const { return events_ & kReadEvent; }
   // for Poller
   int index() { return index_; }
   void set_index(int idx) { index_ = idx; }

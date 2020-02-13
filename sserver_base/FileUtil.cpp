@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 using namespace sserver;
 //I/o总线 能不能并行

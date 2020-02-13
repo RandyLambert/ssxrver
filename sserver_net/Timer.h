@@ -28,21 +28,12 @@ public:
   Timer(const Timer &) = delete;
   Timer &operator=(const Timer &) = delete;
 
-  Timer(const TimerCallback &cb, Timestamp when, double interval)
-      : callback_(cb),
+  Timer(TimerCallback cb, Timestamp when, double interval)
+      : callback_(std::move(cb)),
         expiration_(when),
         interval_(interval), //构造函数
         repeat_(interval > 0.0),
         sequence_(s_numCreated_.incrementAndGet()) //先加后获取，原子操作，如果有多个计时器同时生成，也不会出问题
-  {
-  }
-
-  Timer(TimerCallback &&cb, Timestamp when, double interval)
-      : callback_(std::move(cb)),
-        expiration_(when),
-        interval_(interval),
-        repeat_(interval > 0.0),
-        sequence_(s_numCreated_.incrementAndGet())
   {
   }
 

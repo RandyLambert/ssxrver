@@ -13,14 +13,14 @@ public:
   explicit Condition(MutexLock &mutex)
       : mutex_(mutex)
   {
-    pthread_cond_init(&pcond_, NULL); //初始化
+    MCHECK(pthread_cond_init(&pcond_, NULL)); //初始化
   }
   Condition(const Condition &) = delete; //防止拷贝构造
   Condition &operator=(const Condition &) = delete;
 
   ~Condition()
   {
-    pthread_cond_destroy(&pcond_);
+    MCHECK(pthread_cond_destroy(&pcond_));
   }
 
   void wait()
@@ -36,12 +36,12 @@ public:
 
   void notify()
   {
-    pthread_cond_signal(&pcond_); //唤醒一个
+    MCHECK(pthread_cond_signal(&pcond_)); //唤醒一个
   }
 
   void notifyAll()
   {
-    pthread_cond_broadcast(&pcond_); //唤醒所有
+    MCHECK(pthread_cond_broadcast(&pcond_)); //唤醒所有
   }
 
 private:

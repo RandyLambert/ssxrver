@@ -29,25 +29,6 @@ namespace
 
 typedef struct sockaddr SA;
 
-#if VALGRIND || defined(NO_ACCEPT4)
-void setNonBlockAndCloseOnExec(int sockfd) //将文件描述符变为非阻塞
-{
-  // non-block
-  int flags = ::fcntl(sockfd, F_GETFL, 0);
-  flags |= O_NONBLOCK;
-  int ret = ::fcntl(sockfd, F_SETFL, flags);
-  // FIXME check
-
-  // close-on-exec
-  flags = ::fcntl(sockfd, F_GETFD, 0); //获取f_getfd
-  flags |= FD_CLOEXEC;
-  ret = ::fcntl(sockfd, F_SETFD, flags);
-  // FIXME check
-
-  (void)ret;
-}
-#endif
-
 } // namespace
 
 const struct sockaddr *sockets::sockaddr_cast(const struct sockaddr_in *addr)
@@ -72,22 +53,12 @@ struct sockaddr_in *sockets::sockaddr_in_cast(struct sockaddr *addr)
 
 int sockets::createNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
 {
-#if VALGRIND
-  int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //是一个宏 判断内存泄露和文件描述符
-  if (sockfd < 0)
-  {
-    LOG_SYSFATAL << "sockets::createNonblockingOrDie";
-  }
-
-  setNonBlockAndCloseOnExec(sockfd);
-#else
   //linux 2.6.27以上的内核支持sock_nonblock和sock_cloexec的检测，就不需要上面的set函数了
   int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
   if (sockfd < 0)
   {
     LOG_SYSFATAL << "sockets::createNonblockingOrDie";
   }
-#endif
   return sockfd;
 }
 
@@ -112,13 +83,8 @@ void sockets::listenOrDie(int sockfd)
 int sockets::accept(int sockfd, struct sockaddr_in *addr)
 {
   socklen_t addrlen = static_cast<socklen_t>(sizeof *addr);
-#if VALGRIND || defined(NO_ACCEPT4)
-  int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
-  setNonBlockAndCloseOnExec(connfd);
-#else
   int connfd = ::accept4(sockfd, sockaddr_cast(addr), //新的系统调用，这个已连接的套接字已经是非阻塞的了
                          &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
-#endif
   if (connfd < 0)
   {
     int savedErrno = errno;         //先保存错误代码

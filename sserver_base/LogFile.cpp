@@ -9,7 +9,7 @@
 using namespace sserver;
 using std::string;
 
-LogFile::LogFile(const std::string &basename,//线程安全的
+LogFile::LogFile(const std::string &basename, //线程安全的
                  size_t rollSize,
                  bool threadSafe,
                  int flushInterval,
@@ -19,22 +19,20 @@ LogFile::LogFile(const std::string &basename,//线程安全的
       flushInterval_(flushInterval),
       checkEveryN_(checkEveryN),
       count_(0),
-      mutex_(threadSafe ? new MutexLock : NULL),//智能指针，所以不需要delete
+      mutex_(threadSafe ? new MutexLock : NULL), //智能指针，所以不需要delete
       startOfPeriod_(0),
       lastRoll_(0),
       lastFlush_(0)
 {
-  assert(basename.find('/') == string::npos);//断言
-  rollFile();//滚动一个日志，也就是获取一个文件
+  assert(basename.find('/') == string::npos); //断言
+  rollFile();                                 //滚动一个日志，也就是获取一个文件
 }
 
-LogFile::~LogFile()
-{
-}
+LogFile::~LogFile() = default;
 
 void LogFile::append(const char *logline, int len)
 {
-  if (mutex_)//线程安全
+  if (mutex_) //线程安全
   {
     MutexLockGuard lock(*mutex_);
     append_unlocked(logline, len);
@@ -45,7 +43,7 @@ void LogFile::append(const char *logline, int len)
   }
 }
 
-void LogFile::flush()//刷新缓冲区
+void LogFile::flush() //刷新缓冲区
 {
   if (mutex_)
   {
@@ -60,9 +58,9 @@ void LogFile::flush()//刷新缓冲区
 
 void LogFile::append_unlocked(const char *logline, int len)
 {
-  file_->append(logline, len);//一旦写入文件
+  file_->append(logline, len); //一旦写入文件
 
-  if (file_->writtenBytes() > rollSize_)//就要判断是否需要滚动日志
+  if (file_->writtenBytes() > rollSize_) //就要判断是否需要滚动日志
   {
     rollFile();
   }
@@ -74,11 +72,11 @@ void LogFile::append_unlocked(const char *logline, int len)
       count_ = 0;
       time_t now = ::time(NULL);
       time_t thisPeriod_ = now / kRollPerSeconds_ * kRollPerSeconds_; //调整到0点
-      if (thisPeriod_ != startOfPeriod_)//如果不等，说明是第二天了，就应该滚动了
+      if (thisPeriod_ != startOfPeriod_)                              //如果不等，说明是第二天了，就应该滚动了
       {
         rollFile();
       }
-      else if (now - lastFlush_ > flushInterval_)//判断是否应该刷新
+      else if (now - lastFlush_ > flushInterval_) //判断是否应该刷新
       {
         lastFlush_ = now;
         file_->flush();
@@ -92,7 +90,7 @@ bool LogFile::rollFile()
   time_t now = 0;
   string filename = getLogFileName(basename_, &now);
   //这里是对其到krollperseconds的整数倍，也就是时间调整到当天的0时
-  time_t start = now / kRollPerSeconds_ * kRollPerSeconds_;//取整的操作
+  time_t start = now / kRollPerSeconds_ * kRollPerSeconds_; //取整的操作
 
   if (now > lastRoll_)
   {
@@ -106,7 +104,7 @@ bool LogFile::rollFile()
 }
 
 string LogFile::getLogFileName(const string &basename, time_t *now)
-{//获取文件名
+{ //获取文件名
   string filename;
   filename.reserve(basename.size() + 64); //预设文件名大小
   filename = basename;

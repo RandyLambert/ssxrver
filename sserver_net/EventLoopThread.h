@@ -30,7 +30,8 @@ public:
   EventLoopThread(const EventLoopThread &) = delete;
   EventLoopThread &operator=(const EventLoopThread &) = delete;
 
-  EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback()); //可以传递一个回调函数
+  EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback(),
+                  const string &name = string()); //可以传递一个回调函数
   ~EventLoopThread();
   EventLoop *startLoop(); //启动线程，在这个线程里创建一个eventloop对象，该线程成为io线程
 

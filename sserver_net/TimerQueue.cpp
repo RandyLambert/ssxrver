@@ -112,22 +112,12 @@ TimerQueue::~TimerQueue()
   }
 }
 
-TimerId TimerQueue::addTimer(const TimerCallback &cb, //cb定时器的回调函数，可以跨线程调用
+TimerId TimerQueue::addTimer(TimerCallback cb, //cb定时器的回调函数，可以跨线程调用
                              Timestamp when,          //超时时间
                              double interval)         //间隔时间
 {
-  Timer *timer = new Timer(cb, when, interval); //interval如果不为0，说明他是一个重复的定时任务，每过interval就在执行一次，会调cb
+  Timer *timer = new Timer(std::move(cb), when, interval); //interval如果不为0，说明他是一个重复的定时任务，每过interval就在执行一次，会调cb
   loop_->runInLoop(                             //跨线程调用实现函数
-      std::bind(&TimerQueue::addTimerInLoop, this, timer));
-  return TimerId(timer, timer->sequence());
-}
-
-TimerId TimerQueue::addTimer(TimerCallback &&cb,
-                             Timestamp when,
-                             double interval)
-{
-  Timer *timer = new Timer(std::move(cb), when, interval);
-  loop_->runInLoop(
       std::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }

@@ -43,9 +43,9 @@ private:
         int count_;
 
         std::unique_ptr<MutexLock> mutex_;
-        time_t startOfPeriod_;                         //开始记录日志时间（将会调整到0点的时间）
-        time_t lastRoll_;                              //上一次滚动入职文件的时间
-        time_t lastFlush_;                             //上一次日志写入文件的时间
+        time_t startOfPeriod_;                       //开始记录日志时间（将会调整到0点的时间）
+        time_t lastRoll_;                            //上一次滚动入职文件的时间
+        time_t lastFlush_;                           //上一次日志写入文件的时间
         std::unique_ptr<FileUtil::AppendFile> file_; //前向声明
 
         const static int kRollPerSeconds_ = 60 * 60 * 24; //滚动日志时间

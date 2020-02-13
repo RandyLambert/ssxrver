@@ -118,10 +118,9 @@ void EventLoop::loop() //io线程
     }
     // TODO sort channel by priority
     eventHandling_ = true;
-    for (ChannelList::iterator it = activeChannels_.begin();
-         it != activeChannels_.end(); ++it)
+    for (Channel *channel : activeChannels_)
     {
-      currentActiveChannel_ = *it;                         //当前遍历的通道
+      currentActiveChannel_ = channel;                     //当前遍历的通道
       currentActiveChannel_->handleEvent(pollReturnTime_); //处理事件，一般一些io操作
     }
     currentActiveChannel_ = NULL; //全部处理完
@@ -146,55 +145,8 @@ void EventLoop::quit() //该函数可以跨线程调用，不一定总是在io�
   }
 }
 // 在io线程中执行某个回调函数，该函数可以保证不用锁的情况下可以跨线程调用
-void EventLoop::runInLoop(const Functor &cb) //因为有了runinloop这个函数，我们就可以添加部分任务让io线程执行，
+void EventLoop::runInLoop(Functor cb) //因为有了runinloop这个函数，我们就可以添加部分任务让io线程执行，
 //如果是当前io线程，就直接执行，不是当前io线程，则添加到queueinloop
-{
-  if (isInLoopThread())
-  {
-    cb(); //如果当前是io线程调用runinloop，则同步调用cb
-  }
-  else
-  {
-    queueInLoop(cb); //如果是其他线程调用runinloop，则异步的将cb添加到队列
-  }
-}
-
-void EventLoop::queueInLoop(const Functor &cb) //将任务添加到队列中
-{
-  {
-    MutexLockGuard lock(mutex_);
-    pendingFunctors_.push_back(cb); //将任务添加到队列中
-  }
-
-  //调用queuelnloop的线程不是当前io线程，为了让任务执行，需要唤醒那个io线程，不然任务很可能因此阻塞
-  //或者调用queuelnloop的线程是当前io线程，并且此时正在调用pending functor，需要唤醒
-  //只有当前io线程的事件回调中调用queueinloop才不需要唤醒
-  if (!isInLoopThread() || callingPendingFunctors_)
-  {
-    wakeup();
-  }
-}
-
-TimerId EventLoop::runAt(const Timestamp &time, const TimerCallback &cb) //同下
-{
-  return timerQueue_->addTimer(cb, time, 0.0);
-}
-
-TimerId EventLoop::runAfter(double delay, const TimerCallback &cb)
-{
-  Timestamp time(addTime(Timestamp::now(), delay));
-  return runAt(time, cb);
-}
-
-TimerId EventLoop::runEvery(double interval, const TimerCallback &cb)
-{
-  Timestamp time(addTime(Timestamp::now(), interval));
-  return timerQueue_->addTimer(cb, time, interval);
-}
-
-// FIXME: remove duplication
-// 在io线程中执行某个回调函数，该函数可以跨线程调用
-void EventLoop::runInLoop(Functor &&cb)
 {
   if (isInLoopThread())
   {
@@ -206,31 +158,40 @@ void EventLoop::runInLoop(Functor &&cb)
   }
 }
 
-void EventLoop::queueInLoop(Functor &&cb)
+void EventLoop::queueInLoop(Functor cb) //将任务添加到队列中
 {
   {
     MutexLockGuard lock(mutex_);
-    pendingFunctors_.push_back(std::move(cb)); // emplace_back
+    pendingFunctors_.push_back(std::move(cb)); //将任务添加到队列中
   }
 
+  //调用queuelnloop的线程不是当前io线程，为了让任务执行，需要唤醒那个io线程，不然任务很可能因此阻塞
+  //或者调用queuelnloop的线程是当前io线程，并且此时正在调用pending functor，需要唤醒
+  //只有当前io线程的事件回调中调用queueinloop才不需要唤醒
   if (!isInLoopThread() || callingPendingFunctors_)
   {
     wakeup();
   }
 }
 
-TimerId EventLoop::runAt(const Timestamp &time, TimerCallback &&cb)
+size_t EventLoop::queueSize() const
+{
+  MutexLockGuard lock(mutex_);
+  return pendingFunctors_.size();
+}
+
+TimerId EventLoop::runAt(const Timestamp &time, TimerCallback cb)
 {                                                         //在某个时间运行定时器任务
   return timerQueue_->addTimer(std::move(cb), time, 0.0); //把cb添加
 }
 
-TimerId EventLoop::runAfter(double delay, TimerCallback &&cb)
+TimerId EventLoop::runAfter(double delay, TimerCallback cb)
 { //在过多久之后运行定时器任务
   Timestamp time(addTime(Timestamp::now(), delay));
   return runAt(time, std::move(cb));
 }
 
-TimerId EventLoop::runEvery(double interval, TimerCallback &&cb)
+TimerId EventLoop::runEvery(double interval, TimerCallback cb)
 {                                                      //每过多久就运行一次定时器事件
   Timestamp time(addTime(Timestamp::now(), interval)); //间隔时间传递进去
   return timerQueue_->addTimer(std::move(cb), time, interval);
@@ -319,10 +280,8 @@ void EventLoop::doPendingFunctors()
 
 void EventLoop::printActiveChannels() const
 {
-  for (ChannelList::const_iterator it = activeChannels_.begin();
-       it != activeChannels_.end(); ++it)
+  for (const Channel *channel : activeChannels_)
   {
-    const Channel *ch = *it;
-    LOG_TRACE << "{" << ch->reventsToString() << "} ";
+    LOG_TRACE << "{" << channel->reventsToString() << "} ";
   }
 }

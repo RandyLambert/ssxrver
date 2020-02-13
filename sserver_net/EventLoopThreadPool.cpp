@@ -16,8 +16,9 @@
 using namespace sserver;
 using namespace sserver::net;
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop)
+EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop, const string &nameArg)
     : baseLoop_(baseLoop),
+      name_(nameArg),
       started_(false),
       numThreads_(0),
       next_(0)
@@ -39,8 +40,10 @@ void EventLoopThreadPool::start(const ThreadInitCallback &cb) //启动线程池
 
   for (int i = 0; i < numThreads_; ++i)
   {
-    EventLoopThread *t = new EventLoopThread(cb);
-    threads_.push_back(t);
+    char buf[name_.size() + 32];
+    snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
+    EventLoopThread *t = new EventLoopThread(cb, buf);
+    threads_.push_back(std::unique_ptr<EventLoopThread>(t));
     loops_.push_back(t->startLoop()); //启动eventloopThreads线程，在进入事件循环之前，会调用cb
   }
   if (numThreads_ == 0 && cb)

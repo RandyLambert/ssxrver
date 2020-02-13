@@ -18,7 +18,7 @@ class TimeZone
 public:
     explicit TimeZone(const char *zonefile);
     TimeZone(int eastOfUtc, const char *tzname); // a fixed timezone
-    TimeZone() {}                                // an invalid timezone
+    TimeZone() = default;                        // an invalid timezone
 
     // default copy ctor/assignment/dtor are Okay.
 

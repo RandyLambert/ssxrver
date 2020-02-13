@@ -42,9 +42,8 @@ public:
         {
             notEmpty_.wait();
         }
-        assert(!queue_.empty()); //断言队列不为空
-        T front(queue_.front()); //一旦消费了产品，说明现在对列不满
-        /* T front(std::move(queue_.front()));//一旦消费了产品，说明现在对列不满 */
+        assert(!queue_.empty());            //断言队列不为空
+        T front(std::move(queue_.front())); //一旦消费了产品，说明现在对列不满
         queue_.pop_front();
         notFull_.notify(); //条件变量通知
         return front;
@@ -76,9 +75,9 @@ public:
 
 private:
     mutable MutexLock mutex_; //锁，在const中也需要使用锁保护
-    Condition notEmpty_;
-    Condition notFull_;
-    boost::circular_buffer<T> queue_; //boost中的环形缓冲区
+    Condition notEmpty_ GUARDED_BY(mutex_);
+    Condition notFull_ GUARDED_BY(mutex_);
+    boost::circular_buffer<T> queue_ GUARDED_BY(mutex_); //boost中的环形缓冲区
 };
 
 } // namespace sserver
