@@ -267,9 +267,9 @@ void EventLoop::doPendingFunctors()
     //另一方面，也避免了死锁，（因为functor可能会在次调用queueinloop()）
   }
 
-  for (size_t i = 0; i < functors.size(); ++i)
+    for (const Functor& functor : functors)
   {
-    functors[i](); //遍历函数列表，不需要加锁了
+    functor(); //遍历函数列表，不需要加锁了
     //由于dopendingfunctors()调用的functor可能会再次调用queueinloop(cb),这时
     //queueinloop()就必须wakeup()，否则新增的cb可能就不能及时调用了
   }

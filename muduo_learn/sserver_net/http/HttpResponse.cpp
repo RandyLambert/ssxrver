@@ -37,13 +37,11 @@ void HttpResponse::appendToBuffer(Buffer *output) const
     }
 
     //header列表
-    for (std::map<string, string>::const_iterator it = headers_.begin();
-         it != headers_.end();
-         ++it)
+    for (const std::pair<string, string> &header : headers_)
     {
-        output->append(it->first);
+        output->append(header.first);
         output->append(": ");
-        output->append(it->second);
+        output->append(header.second);
         output->append("\r\n");
     }
 
