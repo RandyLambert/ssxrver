@@ -7,19 +7,20 @@ namespace sserver
 {
 //日志输出
 class TimeZone; //前置申明
-
+//Logging是对外接口，Logging类内涵一个LogStream对象，主要是为了每次打log的时候在log之前和之后加上固定的格式化的信息，比如打log的行、
+//文件名等信息。
 class Logger
 { //整个操作过程：先构造无名的Logger对象，在通过这个对象调用stream()函数，
   //在返回一个LogStream对象，在通过这个对象调运插入运算符
 public:
   enum LogLevel
   {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
+    TRACE,          //指出比DEBUG粒度更细的一些信息事件(开发时使用较多)
+    DEBUG,          //指出细粒度信息事件对调试应用程序是非常有帮助的(开发是使用较多)
+    INFO,           //表明消息在粗粒度级别上突出强调应用程序的运行过程
+    WARN,           //系统能正常运行，但是可能会出现潜在错误的情形
+    ERROR,          //值虽然发生错误事件，但是仍然不影响系统的继续运行
+    FATAL,          //指出每个严重的错误时间将会直接导致应用程序的退出
     NUM_LOG_LEVELS, //级别个数
   };
 

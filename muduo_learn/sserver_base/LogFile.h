@@ -15,7 +15,7 @@ class AppendFile;
 }
 
 class LogFile
-{ //
+{ //LogFile进一步封装了FileUtil，并设置了一个循环次数，没过这么多次就flush一次。
 public:
         LogFile(const LogFile &) = delete; //禁止拷贝构造
         LogFile &operator=(const LogFile &) = delete;

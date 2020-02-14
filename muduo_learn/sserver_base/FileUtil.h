@@ -18,7 +18,7 @@ namespace sserver
 
 namespace FileUtil
 {
-
+//FileUtil是最底层的文件类，封装了Log文件的打开、写入并在类析构的时候关闭文件，底层使用了标准IO，该append函数直接向文件写。
 // read small file < 64KB
 class ReadSmallFile
 {
