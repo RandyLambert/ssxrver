@@ -48,7 +48,8 @@ TcpConnection::TcpConnection(EventLoop *loop,
       localAddr_(localAddr),
       peerAddr_(peerAddr),
       highWaterMark_(64 * 1024 * 1024)
-{ //通道可读时间到来的时候，回到tcpconnection::handleread，-1是时间发生时间
+{ //在这些函数中调用了从用户层传递给TcpServer并且渗透到TcpConnection中的messageCallback_ writeCompleteCallback_函数
+    //通道可读时间到来的时候，回到tcpconnection::handleread，-1是时间发生时间
     channel_->setReadCallback(
         std::bind(&TcpConnection::handleRead, this, std::placeholders::_1));
     //通道可写事件到来的时候，回调tcpconnection::handlewrite

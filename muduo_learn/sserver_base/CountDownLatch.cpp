@@ -3,7 +3,7 @@
 using namespace sserver;
 
 CountDownLatch::CountDownLatch(int count)
-    : mutex_(),           //构造一个锁
+    : mutex_(),           //构造一个锁，初始化顺序要和成员声明一致
       condition_(mutex_), //condition_不负责生成期，只是一个引用
       count_(count)       //传入一个计数器，初始化
 {

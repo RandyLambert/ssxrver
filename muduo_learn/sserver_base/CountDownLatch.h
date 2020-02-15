@@ -22,8 +22,8 @@ public:
     int getCount() const;
 
 private:
-    mutable MutexLock mutex_ GUARDED_BY(mutex_);//可变的，所以可以在const函数中改变状态
-    Condition condition_ GUARDED_BY(mutex_);
+    mutable MutexLock mutex_ GUARDED_BY(mutex_); //可变的，所以可以在const函数中改变状态
+    Condition condition_ GUARDED_BY(mutex_);     //顺序很重要，先mutex后condition
     int count_;
 };
 

@@ -80,7 +80,9 @@ public:
   /// It's harmless to call it multiple times.
   /// Thread safe.
   void start(); //启动线程池
-
+  /*******************************************************************/
+  /// 用户使用了TcpServer,那么用户就必须负责给TcpServer中的这个几个变量进行赋值
+  /// 这几个回调都是从用户层传递给TcpServer然后再渗透到这里的
   /// Set connection callback.
   /// Not thread safe.
   //设置连接到来或链接关闭的回调函数
@@ -103,7 +105,7 @@ public:
   {
     writeCompleteCallback_ = cb;
   }
-
+  /***************************************************************/
 private:
   /// Not thread safe, but in loop
   void newConnection(int sockfd, const InetAddress &peerAddr);
@@ -112,12 +114,12 @@ private:
   /// Not thread safe, but in loop
   void removeConnectionInLoop(const TcpConnectionPtr &conn);
 
-  typedef std::map<string, TcpConnectionPtr> ConnectionMap; //连接列表是一个map容器key是链接名称，value是链接对象的指针
+  typedef std::map<string, TcpConnectionPtr> ConnectionMap; //连接列表是一个map容器key是链接名称，value保存的变量就是TcpConnection的指针
 
   EventLoop *loop_;                    // the acceptor loop
   const string hostport_;              //服务端口
   const string name_;                  //服务名
-  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor，Acceptor负责了一个socketfd,这个socketfd就是一个监听套接字。类是属于内部类
   std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
@@ -126,7 +128,7 @@ private:
   AtomicInt32 started_;                         //是否启动
   // always in loop thread
   int nextConnId_;            //下一个链接id
-  ConnectionMap connections_; //连接列表
+  ConnectionMap connections_; //连接列表,保留着在这个服务器上的所有连接
 };
 
 } // namespace net
