@@ -7,13 +7,12 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include "TcpServer.h"
-
+#include "Callbacks.h"
 #include "../sserver_base/Logging.h"
 #include "Acceptor.h"
 #include "EventLoop.h"
 #include "EventLoopThreadPool.h"
 #include "SocketsOps.h"
-#include <boost/get_pointer.hpp>
 
 #include <stdio.h> // snprintf
 
@@ -71,7 +70,7 @@ void TcpServer::start() //这个函数就使得Acceptor处于监听状态
 
         assert(!acceptor_->listenning()); //断言是否处于监听状态（判断Accept是否调用了listen）
         loop_->runInLoop(
-            std::bind(&Acceptor::listen, boost::get_pointer(acceptor_))); //get_pointer可以返回智能指针的原生指针
+            std::bind(&Acceptor::listen, get_pointer(acceptor_))); //get_pointer可以返回智能指针的原生指针
     }
 }
 //创建一个tcpconnection对象

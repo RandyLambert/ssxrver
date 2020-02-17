@@ -13,8 +13,6 @@
 #include "Connector.h"
 #include "EventLoop.h"
 #include "SocketsOps.h"
-
-#include <boost/get_pointer.hpp>
 #include <stdio.h> // snprintf
 
 using namespace sserver;
@@ -71,13 +69,13 @@ TcpClient::TcpClient(EventLoop *loop,
         std::bind(&TcpClient::newConnection, this, std::placeholders::_1)); //一旦连接成功，回调newconnectin
     // FIXME setConnectFailedCallback
     LOG_INFO << "TcpClient::TcpClient[" << name_
-             << "] - connector " << boost::get_pointer(connector_);
+             << "] - connector " << get_pointer(connector_);
 }
 
 TcpClient::~TcpClient()
 {
     LOG_INFO << "TcpClient::~TcpClient[" << name_
-             << "] - connector " << boost::get_pointer(connector_);
+             << "] - connector " << get_pointer(connector_);
     TcpConnectionPtr conn;
     bool unique = false;
     {
