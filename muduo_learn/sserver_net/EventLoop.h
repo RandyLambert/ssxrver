@@ -91,8 +91,7 @@ public:
     void queueInLoop(Functor cb);
 
     size_t queueSize() const;
-    // timers
-
+    // timerss
     ///
     /// Runs callback at 'time'.
     /// Safe to call from other threads.
@@ -170,7 +169,7 @@ private:
     int wakeupFd_;                           //用于eventfd,唤醒套接字
     // unlike in TimerQueue, which is an internal class,
     // we don't expose Channel to client.
-    std::unique_ptr<Channel> wakeupChannel_; //scoped-ptr,该通道会被纳入poller_来管理,封装事件描述符
+    std::unique_ptr<Channel> wakeupChannel_; //unique_ptr,该通道会被纳入poller_来管理,封装事件描述符
     std::any context_;
 
     // scratch variables

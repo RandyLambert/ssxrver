@@ -103,7 +103,6 @@ void Socket::setReuseAddr(bool on) //禁用或开启
 
 void Socket::setReusePort(bool on) //禁用或开启
 {
-#ifdef SO_REUSEPORT
     int optval = on ? 1 : 0;
     int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
                            &optval, static_cast<socklen_t>(sizeof optval));
@@ -111,12 +110,6 @@ void Socket::setReusePort(bool on) //禁用或开启
     {
         LOG_SYSERR << "SO_REUSEPORT failed.";
     }
-#else
-    if (on)
-    {
-        LOG_ERROR << "SO_REUSEPORT is not supported.";
-    }
-#endif
 }
 
 void Socket::setKeepAlive(bool on) //禁用或开启

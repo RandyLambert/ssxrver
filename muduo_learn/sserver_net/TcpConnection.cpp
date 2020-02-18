@@ -152,7 +152,7 @@ void TcpConnection::send(Buffer *buf)
 }
 
 //线程安全的，可以跨线程调用
-/*void TcpConnection::send(Buffer &&buf)
+void TcpConnection::send(Buffer &&buf)
 {
     if (state_ == kConnected)
     {
@@ -167,10 +167,10 @@ void TcpConnection::send(Buffer *buf)
             loop_->runInLoop(
                 std::bind(fp,
                           this,
-                          std::forward<Buffer &&>(buf)));
+                          buf.retrieveAllAsString()));
         }
     }
-}*/
+}
 
 void TcpConnection::sendInLoop(const StringPiece &message)
 {
@@ -462,9 +462,9 @@ void TcpConnection::handleClose()
     channel_->disableAll();
 
     TcpConnectionPtr guardThis(shared_from_this());
-    connectionCallback_(guardThis);
+    connectionCallback_(guardThis); //这一行可以不调用，这里调用的是用户的回调函数onconnection函数，处理三个半事件的函数，里面判断是连接还是断开
     // must be the last line
-    closeCallback_(guardThis);
+    closeCallback_(guardThis); //调用tcpserverremoveconnection
 }
 
 void TcpConnection::handleError()
