@@ -4,8 +4,8 @@
 bool sserver::Condition::waitForSeconds(int seconds)
 {
     struct timespec abstime;
-    /* clock_gettime(CLOCK_REALTIME, &abstime); */
-    clock_gettime(CLOCK_MONOTONIC, &abstime);
+    clock_gettime(CLOCK_REALTIME, &abstime); 
+    //clock_gettime(CLOCK_MONOTONIC, &abstime);
     //可以根据需要，获取不同要求的精确时间
     //clk_id : 检索和设置的clk_id指定的时钟时间。
     /*CLOCK_REALTIME:系统实时时间,随系统实时时间改变而改变,即从UTC1970-1-1 0:0:0开始计时, */

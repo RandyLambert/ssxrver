@@ -8,11 +8,13 @@ namespace muduo
 {
 namespace CurrentThread
 {
-__thread int t_cachedTid = 0;
-__thread char t_tidString[32];
-__thread int t_tidStringLength = 6;
-__thread const char* t_threadName = "unknown";
-static_assert(std::is_same<int, pid_t>::value, "pid_t should be int");
+//__thread修饰的变量是线程局部存储的,每个线程都有一份，但是只能修饰基础变量，还只能是编译期常量
+__thread int t_cachedTid = 0;       //线程真实的pid(tid)的缓存，提哦啊好获取tid的效率，减少系统的次数
+__thread char t_tidString[32];      //tid的字符串表示形式
+__thread int t_tidStringLength = 6; //字符串长度是6
+__thread const char *t_threadName = "unknown";
+const bool sameType = std::is_same<int, pid_t>::value; //C++11中的std::is_same可以判断输入的类型是否是指定的模板类型。
+static_assert(sameType, "Thread.cpp");                 //编译时就判断能不能编译
 
 std::string stackTrace(bool demangle)
 {

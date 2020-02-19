@@ -1,17 +1,16 @@
 #ifndef SSXRVER_BASE_ATOMIC_H
 #define SSXRVER_BASE_ATOMIC_H
 #include <stdint.h>
+#include "noncopyable.h"
 namespace ssxrver
 {
 namespace detail
 {
 //模拟java原子操作的api，使用这些原子操作要加上-match=cpu-type，锁的开销大于原子操作
 template <typename T>
-class AtomicIntegerT
+class AtomicIntegerT : noncopyable
 {
 public:
-    AtomicIntegerT(const AtomicIntegerT &) = delete;            //阻止拷贝构造
-    AtomicIntegerT &operator=(const AtomicIntegerT &) = delete; //阻止拷贝构造
 
     AtomicIntegerT()
         : value_(0)

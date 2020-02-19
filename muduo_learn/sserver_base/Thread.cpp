@@ -15,16 +15,6 @@
 
 namespace sserver
 {
-namespace CurrentThread
-{
-//__thread修饰的变量是线程局部存储的,每个线程都有一份，但是只能修饰基础变量，还只能是编译期常量
-__thread int t_cachedTid = 0;       //线程真实的pid(tid)的缓存，提哦啊好获取tid的效率，减少系统的次数
-__thread char t_tidString[32];      //tid的字符串表示形式
-__thread int t_tidStringLength = 6; //字符串长度是6
-__thread const char *t_threadName = "unknown";
-const bool sameType = std::is_same<int, pid_t>::value; //C++11中的std::is_same可以判断输入的类型是否是指定的模板类型。
-static_assert(sameType, "Thread.cpp");                 //编译时就判断能不能编译
-} // namespace CurrentThread
 
 namespace detail
 {
@@ -76,7 +66,6 @@ struct ThreadData //一个结构体，做为参数如pthread_create去，相当�
                CountDownLatch *latch)
         : func_(std::move(func)),
           name_(name),
-
           tid_(tid),
           latch_(latch)
     {
@@ -89,7 +78,7 @@ struct ThreadData //一个结构体，做为参数如pthread_create去，相当�
         latch_->countDown();
         latch_ = NULL;
 
-        sserver::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
+        sserver::CurrentThread::t_threadName = name_.empty() ? "sserverThread" : name_.c_str();
         ::prctl(PR_SET_NAME, sserver::CurrentThread::t_threadName);
 
         try
@@ -194,7 +183,6 @@ void Thread::start() //线程开始
 {
     assert(!started_);
     started_ = true;
-    // FIXME: move(func_)
     detail::ThreadData *data = new detail::ThreadData(func_, name_, &tid_, &latch_); //作为参数传进去
     if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))               //线程的入口函数
     {
