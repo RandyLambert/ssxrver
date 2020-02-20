@@ -21,9 +21,9 @@ const int Channel::kNoneEvent = 0; //初始化默认值
 const int Channel::kReadEvent = POLLIN | POLLPRI;
 const int Channel::kWriteEvent = POLLOUT;
 
-Channel::Channel(EventLoop *loop, int fd__)
+Channel::Channel(EventLoop *loop, int fd_)
     : loop_(loop),
-      fd_(fd__),
+      fd_(fd_),
       events_(0),
       revents_(0),
       index_(-1),
@@ -104,12 +104,12 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
         if (errorCallback_)
             errorCallback_(); //回调错误函数
     }
-    if (revents_ & (POLLIN | POLLPRI | POLLRDHUP)) //可读时间，最后一个是对等方关闭链接或关闭半连接，read返回0
+    if (revents_ & (POLLIN | POLLPRI | POLLRDHUP)) //可读事件，最后一个是对等方关闭链接或关闭半连接，read返回0
     {
         if (readCallback_)
             readCallback_(receiveTime);
     }
-    if (revents_ & POLLOUT) //写人物
+    if (revents_ & POLLOUT) //写入
     {
         if (writeCallback_)
             writeCallback_();

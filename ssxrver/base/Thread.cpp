@@ -1,8 +1,17 @@
-#include <sys/prctl.h>
 #include <memory>
+#include <cerrno>
+#include <cstdio>
+#include <unistd.h>
+#include <sys/prctl.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <assert.h>
+
 #include "CurrentThread.h"
 #include "Thread.h"
 #include "Exception.h"
+#include "Logging.h"
+
 namespace ssxrver
 {
 namespace CurrentThread
@@ -109,11 +118,17 @@ Thread::~Thread()
         pthread_detach(pthreadId_);
 }
 
+AtomicInt32 Thread::numCreated_;
+
 void Thread::setDdfaultName()
 {
     int num = numCreated_.incrementAndGet(); //原子操作，自增一个线程
     if (name_.empty())                       //如果这个线程没有被命名，则默认给线程的名字叫Thread
-        sprintf(name_.data(), "Thread%d", num);
+    {
+        char buf[32];
+        snprintf(buf, sizeof buf, "Thread%d", num);
+        name_ = buf;
+    }
 }
 
 void Thread::start()
@@ -124,7 +139,7 @@ void Thread::start()
     if(pthread_create(&pthreadId_,NULL,&detail::startThread,data.get()))
     {
         started_ = false;
-        /* LOG_SYSFATAL << "fail in pthread_create"; */
+        LOG_SYSFATAL << "fail in pthread_create";
     }
     else
     {
