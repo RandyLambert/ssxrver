@@ -75,8 +75,8 @@ private:
     std::unique_ptr<Channel> channel_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
-
     CloseCallback closeCallback_;
+    
     Buffer inputBuffer_;   //应用层的接收缓冲区
     Buffer outputBuffer_;  //应用层的发送缓冲区，当outputbuffer高到一定程度
     bool reading_;

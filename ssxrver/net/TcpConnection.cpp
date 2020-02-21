@@ -168,8 +168,56 @@ void TcpConnection::handleRead()
 void TcpConnection::handleWrite()
 {
     loop_->assertInLoopThread();
-    if(channel_->isWriting())
+    if(channel_->isWriting()) //如果关注epollout时间
     {
+        ssize_t n = socketops::write(channel_->fd(), //这是就把outputbuffer中写入
+                                     outputBuffer_.peek(),
+                                     outputBuffer_.readableBytes());
+        if(n > 0) //不一定写完了，写了n个字节
+        {
+            outputBuffer_.retrieve(n); //缓冲区下标的移动，因为这是已经写了n个字节了
+            if(outputBuffer_.readableBytes() == 0) //==0说明发送缓冲区已经清空
+            {
+                channel_->disableWriting(); //停止关注了pollout时间，以免出现busy_loop
+                if(writeCompleteCallback_) //回调writecomplatecallback
+                {
+                    //应用层发送缓冲区被清空，就回调writecomplatecallback
+                    loop_->queueInLoop(std::bind(writeCompleteCallback_,shared_from_this()));
+                }
 
+                if(state_ == kDisconnecting)
+                {
+                    shutdownInLoop();//关闭连接
+                }
+            }
+        }
+        else
+            LOG_SYSERR << "TcpConnection::handleWrite"; //发生错误
     }
+    else
+    {
+        LOG_TRACE << "Connection fd = " << channel_->fd()
+          << " is down, no more writing";
+    }
+}
+
+void TcpConnection::handleClose()
+{
+    loop_->assertInLoopThread();
+    LOG_TRACE << "fd = " << channel_->fd();
+    assert(state_ == kConnected || state_ == kDisconnecting);
+    // we don't close fd, leave it to dtor, so we can find leaks easily.
+    setState(kDisconnected);
+    channel_->disableAll();
+
+    TcpConnectionPtr guardThis(shared_from_this());
+    // must be the last line
+    closeCallback_(guardThis); //调用tcpserverremoveconnection
+}
+
+void TcpConnection::handleError()
+{
+    int err = socketops::getSocketError(channel_->fd());
+    LOG_ERROR << "TcpConnection::handleError " _
+              << "] - SO_ERROR = " << err << " " << strerror_tl(err);
 }
