@@ -78,7 +78,7 @@ public:
     void setTcpNoDelay(bool on);
     void startRead();                            // Start read from socketfd
     void stopRead();                             // Stop read from socketfd
-    bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop
+    bool isReading() const { return reading_; }  // NOT thread safe, may race with start/stopReadInLoop
 
     void setContext(const std::any &context) //把一个未知类型赋值
     {

@@ -2,6 +2,7 @@
 #define SSXRVER_NET_TCPCONNECTION_H
 #include <memory>
 #include <any>
+#include <netinet/in.h>
 #include "functional"
 #include "Buffer.h"
 #include "../base/noncopyable.h"
@@ -17,15 +18,35 @@ class TcpConnection : noncopyable,
 {
 public:
     typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
-    typedef std::function<void(const TcpConnectionPtr &)> ConnectionCallback;
+    typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
     typedef std::function<void(const TcpConnectionPtr &)> MessageCallback;
     typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
     TcpConnection(EventLoop *loop,
-                  int socked); 
+                  int socked);
     ~TcpConnection();
 
     EventLoop *getLoop() const { return loop_; }
 
+    bool connected() const {return state_ == kConnected; }
+    void send(string &&message); // C++11
+    void send(const void *message, int len);
+    void send(Buffer &&message); // C++11
+    void send(Buffer *message);  // this one will swap data
+    void shutdown();             
+    void forceClose();
+    void setTcpNoDelay(bool on);
+    void startRead();
+    void stopRead();
+    bool isReading() const {return reading_; }
+    void setMessageCallback(const MessageCallback &cb){ messageCallback_ = cb;}
+    void setWriteCompleteCallback(const WriteCompleteCallback &cb){ writeCompleteCallback_ = cb;}
+
+    Buffer *inputBuffer(){ return &inputBuffer_;}
+    Buffer *outputBuffer(){ return &outputBuffer_;}
+    void setCloseCallback(const CloseCallback &cb){ closeCallback_ = cb; }
+
+    void connectEstablished(); 
+    void connectDestroyed(); 
 private:
     enum StateE //连接的状态
     {
@@ -42,22 +63,29 @@ private:
     void sendInLoop(const char *message);
     void sendInLoop(const void *message, size_t len);
     void shutdownInLoop();
+    void forceCloseInLoop();
 
     void setState(StateE s){ state_ = s; }
+    void startReadInLoop();
+    void stopReadInLoop();
 
-    StateE state_;
+    EventLoop *loop_;        //所属eventloop
+    StateE state_;           //FIXME atomic
+    int sockfd_;
     std::unique_ptr<Channel> channel_;
-    ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
 
-    EventLoop *loop_;        //所属eventloop
+    CloseCallback closeCallback_;
     Buffer inputBuffer_;   //应用层的接收缓冲区
     Buffer outputBuffer_;  //应用层的发送缓冲区，当outputbuffer高到一定程度
-    std::any context_;     //提供一个接口绑定一个未知类型的上下文对象，我们不清楚上层的网络程序会绑定一个什么对象，提供这样的接口，帮助应用程序
     bool reading_;
 
 };
+
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+void defaultMessageCallback(const TcpConnectionPtr &conn,
+                            Buffer *buffer);
 }
 }
 

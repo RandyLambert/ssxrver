@@ -167,7 +167,6 @@ public:
     string retrieveAllAsString() //把所有数据取回到一个字符串
     {
         return retrieveAsString(readableBytes());
-        ;
     }
 
     string retrieveAsString(size_t len) //从可读处取len长度的字符串
@@ -374,11 +373,9 @@ public:
 
     void shrink(size_t reserve) //伸缩空间，保留reserve个字节
     {
-        // FIXME: use vector::shrink_to_fit() in C++ 11 if possible.
-        Buffer other;
-        other.ensureWritableBytes(readableBytes() + reserve);
-        other.append(toStringPiece());
-        swap(other);
+        ensureWritableBytes(readableBytes() + reserve);
+        append(toStringPiece());
+        buffer_.shrink_to_fit();
     }
 
     size_t internalCapacity() const

@@ -14,34 +14,42 @@ namespace net
 
 class EventLoop;
 class EventLoopThreadPool;
-using std::string;
 class TcpServer : noncopyable
 {
 public:
     typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
-    typedef std::function<void()> TimerCallback;
-    typedef std::function<void(EventLoop *)> ThreadInitCallback;
-    typedef std::function<void(const TcpConnectionPtr &)> ConnectionCallback;
+    typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
     typedef std::function<void(const TcpConnectionPtr &)> MessageCallback;
     typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
-    TcpServer(EventLoop *loop) {}
-    ~TcpServer() {}
+    TcpServer(EventLoop *loop,
+              struct sockaddr_in listenAddr);
+    ~TcpServer();
+
+    EventLoop *getLoop() const {return loop_;}
+    void setThreadNum(int numThreads);
+    std::shared_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池
-    void setConnectionCallback(ConnectionCallback cb){  connectionCallback_ = std::move(cb);}
     void setMessageCallback(MessageCallback cb){messageCallback_ = std::move(cb);}
     void setWriteCompleteCallback(WriteCompleteCallback cb){ writeCompleteCallback_ = std::move(cb); }
     
 
 private:
-    EventLoop *loop;
-    ConnectionCallback connectionCallback_;
+    void newConnection(int socked,const struct sockaddr_in peerAddr);
+    void removeConnection(const TcpConnectionPtr &conn);
+    void removeConnectionInLoop(const TcpConnectionPtr &conn);
+
+    typedef std::map<string,TcpConnectionPtr> ConnectionMap;
+
+    EventLoop *loop_;
+    std::shared_ptr<EventLoopThreadPool> threadPool_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
-    ThreadInitCallback threadInitCallback_;       //io线程池中的线程在进入事件循环前，会调用此函数
+    AtomicInt32 started_;
+    int nextConnId_;//下一个连接id
+    ConnectionMap connections_; //连接累彪保留这个服务器上的所有连接
 
 };
-
 
 }
 }
