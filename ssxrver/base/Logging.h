@@ -120,4 +120,6 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
 //构造了一个Logger对象，重载了输入运算符，以流的机制运行
 //构造了一个匿名对象，所以用完之后，就没有存在价值了，接着调用析构函数
 
+const char *strerror_tl(int savedErrno);
+
 #endif

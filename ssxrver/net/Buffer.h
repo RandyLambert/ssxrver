@@ -204,6 +204,7 @@ public:
     void shrink(size_t reserve) //伸缩空间，保留reserve个字节
     {
         ensureWritableBytes(readableBytes() + reserve);
+        buffer_.resize(readableBytes() + reserve + kInitSize);
         buffer_.shrink_to_fit();
     }
 

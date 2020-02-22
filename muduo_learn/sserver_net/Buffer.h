@@ -374,7 +374,7 @@ public:
     void shrink(size_t reserve) //伸缩空间，保留reserve个字节
     {
         ensureWritableBytes(readableBytes() + reserve);
-        append(toStringPiece());
+        buffer_.resize(readableBytes() + reserve + kInitialSize);
         buffer_.shrink_to_fit();
     }
 

@@ -13,15 +13,17 @@ namespace
 {
 typedef struct sockaddr SA;
 } 
-void socketops::bindAndlisten(int sockfd,const struct sockaddr_in &addr)
+void socketops::bindOrDie(int sockfd,const struct sockaddr_in &addr)
 {
-    if(bind(sockfd,(struct sockaddr*)&addr,static_cast<socklen_t>(sizeof addr)) < 0)
+    if(::bind(sockfd,(struct sockaddr*)&addr,static_cast<socklen_t>(sizeof addr)) < 0)
         LOG_SYSFATAL <<"socketops error";
 
-    if(listen(sockfd,SOMAXCONN) < 0)
+}
+void socketops::listenOrDie(int sockfd)
+{
+    if(::listen(sockfd,SOMAXCONN) < 0)
         LOG_SYSFATAL <<"listen error";
 }
-
 int socketops::createNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
 {
     //linux 2.6.27以上的内核支持sock_nonblock和sock_cloexec的检测，就不需要上面的set函数了
@@ -47,7 +49,6 @@ int socketops::accept(int sockfd,struct sockaddr_in *addr)
         case EAGAIN:
         case ECONNABORTED:
         case EINTR:
-        case EPROTO: // ???
         case EPERM:
         case EMFILE: // per-process lmit of open file desctiptor ???
             // expected errors
@@ -161,4 +162,21 @@ void socketops::setTcpNoDelay(int sockfd_,bool on) //禁用或开启
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
+void socketops::setReuseAddr(int sockfd_,bool on) //禁用或开启
+{
+    int optval = on ? 1 : 0;
+    ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
+                 &optval, static_cast<socklen_t>(sizeof optval));
+}
+
+void socketops::setReusePort(int sockfd_,bool on) //禁用或开启
+{
+    int optval = on ? 1 : 0;
+    int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+                           &optval, static_cast<socklen_t>(sizeof optval));
+    if (ret < 0 && on)
+    {
+        LOG_SYSERR << "SO_REUSEPORT failed.";
+    }
+}
 

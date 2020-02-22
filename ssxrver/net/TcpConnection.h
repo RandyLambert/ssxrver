@@ -19,7 +19,8 @@ class TcpConnection : noncopyable,
 public:
     typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
     typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
-    typedef std::function<void(const TcpConnectionPtr &)> MessageCallback;
+    typedef std::function<void(const TcpConnectionPtr &,
+                               Buffer *)> MessageCallback;
     typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
     TcpConnection(EventLoop *loop,
                   int socked);
@@ -30,6 +31,8 @@ public:
     bool connected() const {return state_ == kConnected; }
     void send(string &&message); // C++11
     void send(const void *message, int len);
+    void send(const char *message);
+    void send(const string& message);
     void send(Buffer &&message); // C++11
     void send(Buffer *message);  // this one will swap data
     void shutdown();             
@@ -40,6 +43,7 @@ public:
     bool isReading() const {return reading_; }
     void setMessageCallback(const MessageCallback &cb){ messageCallback_ = cb;}
     void setWriteCompleteCallback(const WriteCompleteCallback &cb){ writeCompleteCallback_ = cb;}
+    int returnSockfd() const { return sockfd_; }
 
     Buffer *inputBuffer(){ return &inputBuffer_;}
     Buffer *outputBuffer(){ return &outputBuffer_;}
@@ -60,7 +64,8 @@ private:
     void handleClose();
     void handleError();
 
-    void sendInLoop(const char *message);
+    void sendInLoop(const string& message);
+    void sendInLoop(const char* message);
     void sendInLoop(const void *message, size_t len);
     void shutdownInLoop();
     void forceCloseInLoop();
