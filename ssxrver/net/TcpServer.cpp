@@ -4,22 +4,27 @@
 #include "EventLoopThreadPool.h"
 #include "SocketOps.h"
 #include "../base/Logging.h"
+#include <fcntl.h>
 #include <boost/get_pointer.hpp>
 using namespace ssxrver;
 using namespace ssxrver::net;
 
 TcpServer::TcpServer(EventLoop *loop,
-                     struct sockaddr_in listenAddr)
+                     struct sockaddr_in listenAddr)//在main函数初始化
     :loop_(loop),
     threadPool_(new EventLoopThreadPool(loop)),
     messageCallback_(defaultMessageCallback),
+    started_(false),
     nextConnId_(1),
     acceptfd_(socketops::createNonblockingOrDie()),
+    idleFd_(::open("/dev/null",O_RDONLY | O_CLOEXEC)),
     acceptChannel_(new Channel(loop,acceptfd_))
 {
     socketops::setReuseAddr(acceptfd_,true);
     socketops::setReusePort(acceptfd_,true);
     socketops::bindOrDie(acceptfd_,listenAddr);
+    acceptChannel_->setReadCallback(
+        std::bind(&TcpServer::acceptHandRead,this));
 }
 
 TcpServer::~TcpServer()
@@ -35,6 +40,7 @@ TcpServer::~TcpServer()
             std::bind(&TcpConnection::connectDestroyed,conn));
         conn.reset();
     }
+    ::close(idleFd_);
 }
 
 void TcpServer::setThreadNum(int numThreads)
@@ -50,10 +56,37 @@ void TcpServer::acceptSockListen()
     socketops::listenOrDie(acceptfd_);
     acceptChannel_->enableReading();
 }
+
+void TcpServer::acceptHandRead()
+{
+    loop_->assertInLoopThread();
+    struct sockaddr_in peerAddr;
+    bzero(&peerAddr,sizeof peerAddr);
+    int connfd = socketops::accept(acceptfd_,&peerAddr);
+    if(connfd >= 0)//得到了一个连接
+    {
+        LOG_INFO << "accept success"<< inet_ntoa(peerAddr.sin_addr);
+        newConnection(connfd);
+    }
+    else
+    {
+        LOG_SYSERR << "in TcpServer Accepteror";
+        if(errno == EMFILE)//文件描述符太多了
+        {
+            ::close(idleFd_); //先关闭开始的空闲文件描述符
+            idleFd_ = accept(acceptfd_,NULL,NULL);//用这个描述符先接收
+            ::close(idleFd_); //接收完在关闭，因为使用的是lt模式，不然accept会一直触发
+            idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+        }
+    }
+}
+
+
 void TcpServer::start() //这个函数就是的Acceptor处于监听状态
 {
-    if(started_.getAndSet(1) == 0)
+    if(started_ == false)
     {
+        started_ = true;
         loop_->runInLoop(std::bind(&TcpServer::acceptSockListen,this));
     }
 }

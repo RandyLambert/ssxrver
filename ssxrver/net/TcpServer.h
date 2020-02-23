@@ -3,7 +3,6 @@
 #include <map>
 #include <memory>
 #include <functional>
-#include "../base/Atomic.h"
 #include "../base/noncopyable.h"
 #include "TcpConnection.h"
 #include "EventLoop.h"
@@ -41,6 +40,7 @@ private:
     void newConnection(int socked);
     void removeConnection(const TcpConnectionPtr &conn);
     void removeConnectionInLoop(const TcpConnectionPtr &conn);
+    void acceptHandRead();
 
     typedef std::map<int,TcpConnectionPtr> ConnectionMap;
 
@@ -48,10 +48,11 @@ private:
     std::shared_ptr<EventLoopThreadPool> threadPool_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
-    AtomicInt32 started_;
+    std::atomic<bool> started_;
     int nextConnId_;//下一个连接id
     ConnectionMap connections_; //连接累彪保留这个服务器上的所有连接
     int acceptfd_;
+    int idleFd_;
     std::unique_ptr<Channel> acceptChannel_;
 };
 

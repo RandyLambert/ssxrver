@@ -3,9 +3,9 @@
 #include <pthread.h>
 #include <string>
 #include <functional>
+#include <atomic>
 #include "CountDownLatch.h"
 #include "noncopyable.h"
-#include "Atomic.h"
 namespace ssxrver
 {
 using std::string;
@@ -23,7 +23,7 @@ public:
     bool startorNot() const { return started_; }
     pid_t tid() const {return tid_;}
     const string& name(){return name_;}
-    static int numCreated() { return numCreated_.get(); }
+    static int numCreated() { return numCreated_; }
 private:
     void setDdfaultName();
 
@@ -35,7 +35,7 @@ private:
     string name_;
     CountDownLatch latch_;
 
-    static AtomicInt32 numCreated_;
+    static std::atomic<int> numCreated_;
 };
 
 }

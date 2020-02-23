@@ -30,7 +30,7 @@ Channel::~Channel()
     assert(!addedToLoop_);
     if (loop_->isInLoopThread())
         assert(!loop_->hasChannel(this));
-    close(fd_);
+    /* close(fd_); */
 }
 
 void Channel::tie(const std::shared_ptr<void> &obj)

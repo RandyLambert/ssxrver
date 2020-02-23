@@ -118,11 +118,11 @@ Thread::~Thread()
         pthread_detach(pthreadId_);
 }
 
-AtomicInt32 Thread::numCreated_;
+std::atomic<int> Thread::numCreated_;
 
 void Thread::setDdfaultName()
 {
-    int num = numCreated_.incrementAndGet(); //原子操作，自增一个线程
+    int num = ++numCreated_; //原子操作，自增一个线程
     if (name_.empty())                       //如果这个线程没有被命名，则默认给线程的名字叫Thread
     {
         char buf[32];
