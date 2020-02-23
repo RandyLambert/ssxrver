@@ -25,9 +25,9 @@ public:
 
 private:
     void onConnection(const TcpConnectionPtr &conn);
-    void onMessage(const TcpConnectionPtr &conn,
-                   Buffer *buf);
-    void onRequest(const TcpConnectionPtr &,const HttpRequest &);
+    void onMessage(const TcpConnectionPtr &conn,//当服务器端收到了一个客户端发过来的http请求
+                   Buffer *buf);//首先回调onmessage，在onmessage中调用了onrequest，
+    void onRequest(const TcpConnectionPtr &,const HttpRequest &);//在onRequest中调用了httpcallback_
 
     TcpServer server_;
     HttpCallback httpCallback_;  //在处理http请求的时候(即调用onrequest)的过程中回调此函数，并且对请求做处处理

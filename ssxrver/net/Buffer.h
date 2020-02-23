@@ -97,6 +97,9 @@ public:
         retrieve(len);             //偏移到len处
         return result;
     }
+    
+    void append(const string &str){ append(str.data(),str.size());}
+    void append(const char *str){ append(str,strlen(str));}
 
     void append(const char *data,size_t len)//添加数据
     {

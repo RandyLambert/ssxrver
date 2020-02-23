@@ -80,7 +80,7 @@ public:
 
 private:
     std::map<string, string> headers_; //header列表
-    HttpStatusCode statusCode_;        //状态相应吗
+    HttpStatusCode statusCode_;        //状态响应码
     // FIXME: add http version
     string statusMessage_; //状态响应码对应的文本信息
     bool closeConnection_; //是否关闭连接

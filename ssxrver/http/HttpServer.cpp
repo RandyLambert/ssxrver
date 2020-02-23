@@ -36,28 +36,13 @@ bool processRequestLine(const char *begin, const char *end, HttpContext *context
                 request.setPath(start, space); //解析path
             }
             start = space + 1;
-            succeed = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");
-            if (succeed)
-            {
-                if (*(end - 1) == '1') //判断是http1.1
-                {
-                    request.setVersion(HttpRequest::kHttp11);
-                }
-                else if (*(end - 1) == '0') //判断是http1.0
-                {
-                    request.setVersion(HttpRequest::kHttp10);
-                }
-                else
-                {
-                    succeed = false;
-                }
-            }
+            succeed = end - start == 8 && std::equal(start, end, "HTTP/1.1");
         }
     }
     return succeed;
 }
 
-bool parseRequest(Buffer *buf, HttpContext *context, Timestamp receiveTime)
+bool parseRequest(Buffer *buf, HttpContext *context)
 {
     bool ok = true;
     bool hasMore = true;
@@ -71,7 +56,6 @@ bool parseRequest(Buffer *buf, HttpContext *context, Timestamp receiveTime)
                 ok = processRequestLine(buf->peek(), crlf, context); //解析请求行
                 if (ok)
                 {
-                    context->request().setReceiveTime(receiveTime); //设置请求时间
                     buf->retrieveUntil(crlf + 2);                   //将请求行从buf中取回，包括\r\n，所以要+2
                     context->receiveRequestLine();                  //httpcontext将状态改为kexpectheaders
                 }
@@ -110,7 +94,7 @@ bool parseRequest(Buffer *buf, HttpContext *context, Timestamp receiveTime)
         }
         else if (context->expectBody()) //当前还暂时不支持带body，需要补充
         {
-            // FIXME:
+
         }
     }
     return ok;
@@ -132,6 +116,50 @@ HttpServer::HttpServer(EventLoop *loop,
     :server_(loop,listenAddr),
     httpCallback_(detail::defaultHttpCallback)
 {
-    /* server_.setMessageCallback() */
+    server_.setMessageCallback(std::bind(&HttpServer::onMessage,this,std::placeholders::_1,std::placeholders::_2));
+}
 
+void HttpServer::start()
+{
+    LOG_WARN << "HttpServer on";
+    server_.start();
+}
+
+void HttpServer::onConnection(const TcpConnectionPtr &conn)
+{
+    /* if(conn->connected()) */
+        /* conn->setContext(HttpContext()); */
+}
+
+void HttpServer::onMessage(const TcpConnectionPtr &conn,
+                           Buffer *buf)
+{
+    HttpContext *context = std::any_cast<HttpContext>(conn->getMutableContext()); //获取的是可以改变的
+    if (!detail::parseRequest(buf, context)) //获取请求包，更好的做法是让parserequest作为httpcontext的成员函数
+    {
+        conn->send("HTTP/1.1 400 Bad Request\r\n\r\n"); //请求失败
+        conn->shutdown();
+    }
+    //请求消息解析完毕
+    if (context->gotAll())
+    {
+        onRequest(conn, context->request()); //连接和请求对象传过来
+        context->reset();                    //本次请求处理完毕，重置httpcontext，适用于长连接
+    }
+}
+
+void HttpServer::onRequest(const TcpConnectionPtr &conn,const HttpRequest &req)
+{
+    const string &connection = req.getHeader("Connection");
+    bool close;
+    if(connection == "close")
+        close = true;
+    else
+        close = false;
+    HttpResponse response(close);
+    Buffer buf;
+    response.appendToBuffer(&buf); //将对象转化为一个字符串到buf中
+    conn->send(&buf);              //将缓冲区发送到客户端
+    if(response.closeConnection()) //如果需要关闭，短连接
+        conn->shutdown();
 }

@@ -156,9 +156,7 @@ HttpServer::HttpServer(EventLoop *loop,
         std::bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
-HttpServer::~HttpServer()
-{
-}
+HttpServer::~HttpServer() = default;
 
 void HttpServer::start()
 {
