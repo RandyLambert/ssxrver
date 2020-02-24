@@ -13,6 +13,7 @@ TcpServer::TcpServer(EventLoop *loop,
                      struct sockaddr_in listenAddr)//在main函数初始化
     :loop_(loop),
     threadPool_(new EventLoopThreadPool(loop)),
+    connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
     started_(false),
     nextConnId_(1),
@@ -103,6 +104,7 @@ void TcpServer::newConnection(int sockfd)
     connections_[sockfd] = conn;
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
+    conn->setConnectionCallback(connectionCallback_);
     conn->setCloseCallback(
              std::bind(&TcpServer::removeConnectionInLoop,this,std::placeholders::_1));
     ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished,conn));

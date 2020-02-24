@@ -21,6 +21,7 @@ public:
     typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
     typedef std::function<void(const TcpConnectionPtr &,
                                Buffer *)> MessageCallback;
+    typedef std::function<void(const TcpConnectionPtr &)> ConnectionCallback;
     typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
     TcpConnection(EventLoop *loop,
                   int socked);
@@ -41,6 +42,22 @@ public:
     void startRead();
     void stopRead();
     bool isReading() const {return reading_; }
+
+    void setContext(const std::any &context) //把一个未知类型赋值
+    {
+        context_ = context;
+    }
+
+    const std::any &getContext() const //获取未知类型，不能更改
+    {
+        return context_;
+    }
+
+    std::any *getMutableContext() //get可变的，可以更改
+    {
+        return &context_;
+    }
+    void setConnectionCallback(const ConnectionCallback &cb){connectionCallback_ = cb;}
     void setMessageCallback(const MessageCallback &cb){ messageCallback_ = cb;}
     void setWriteCompleteCallback(const WriteCompleteCallback &cb){ writeCompleteCallback_ = cb;}
     int returnSockfd() const { return sockfd_; }
@@ -78,12 +95,14 @@ private:
     StateE state_;           //FIXME atomic
     int sockfd_;
     std::unique_ptr<Channel> channel_;
+    ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     CloseCallback closeCallback_;
     
     Buffer inputBuffer_;   //应用层的接收缓冲区
     Buffer outputBuffer_;  //应用层的发送缓冲区，当outputbuffer高到一定程度
+    std::any context_;     //提供一个借口绑定位置类型的上线文对象
     bool reading_;
 
 };
@@ -91,6 +110,7 @@ private:
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 void defaultMessageCallback(const TcpConnectionPtr &conn,
                             Buffer *buffer);
+void defaultConnectionCallback(const TcpConnectionPtr &conn);
 }
 }
 

@@ -21,6 +21,7 @@ public:
     typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
     typedef std::function<void(const TcpConnectionPtr &,
                                Buffer *buffer)> MessageCallback;
+    typedef std::function<void(const TcpConnectionPtr &)> ConnectionCallback;
     typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
     TcpServer(EventLoop *loop,
               struct sockaddr_in listenAddr);
@@ -31,6 +32,7 @@ public:
     std::shared_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池
+    void setConnectionCallback(const ConnectionCallback &cb){ connectionCallback_ = cb;}
     void setMessageCallback(MessageCallback cb){messageCallback_ = std::move(cb);}
     void setWriteCompleteCallback(WriteCompleteCallback cb){ writeCompleteCallback_ = std::move(cb); }
     void acceptSockListen();
@@ -46,6 +48,7 @@ private:
 
     EventLoop *loop_;
     std::shared_ptr<EventLoopThreadPool> threadPool_;
+    ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     std::atomic<bool> started_;

@@ -81,7 +81,7 @@ bool parseRequest(Buffer *buf, HttpContext *context)
                 }
                 else
                 {
-                    // empty line, end of header
+                    // 空行，头解析完毕
                     context->receiveHeaders(); //httpcontext将状态改为kgotall
                     hasMore = !context->gotAll();
                 }
@@ -94,7 +94,6 @@ bool parseRequest(Buffer *buf, HttpContext *context)
         }
         else if (context->expectBody()) //当前还暂时不支持带body，需要补充
         {
-
         }
     }
     return ok;
@@ -117,6 +116,7 @@ HttpServer::HttpServer(EventLoop *loop,
     httpCallback_(detail::defaultHttpCallback)
 {
     server_.setMessageCallback(std::bind(&HttpServer::onMessage,this,std::placeholders::_1,std::placeholders::_2));
+    server_.setConnectionCallback(std::bind(&HttpServer::onConnection,this,std::placeholders::_1));
 }
 
 void HttpServer::start()
@@ -127,8 +127,8 @@ void HttpServer::start()
 
 void HttpServer::onConnection(const TcpConnectionPtr &conn)
 {
-    /* if(conn->connected()) */
-        /* conn->setContext(HttpContext()); */
+    if(conn->connected())
+        conn->setContext(HttpContext());
 }
 
 void HttpServer::onMessage(const TcpConnectionPtr &conn,

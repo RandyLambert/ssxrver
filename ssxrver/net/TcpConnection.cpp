@@ -7,6 +7,10 @@
 #include "SocketOps.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
+void ssxrver::net::defaultConnectionCallback(const TcpConnectionPtr &conn)
+{ //默认的连接到来函数，如果自己设置，是在tcpserver设置
+    LOG_DEBUG << "TcpConnection::ctor at"<<conn->returnSockfd();
+}
 
 void ssxrver::net::defaultMessageCallback(const TcpConnectionPtr &,
                                           Buffer *buf)
@@ -30,8 +34,8 @@ TcpConnection::TcpConnection(EventLoop *loop,
                                std::bind(&TcpConnection::handleClose,this));
     channel_->setErrorCallback(
                                std::bind(&TcpConnection::handleError,this));
-    LOG_DEBUG << "TcpConnection::ctor at"<<this<<"fd = "<<sockfd_;
     socketops::setKeepAlive(sockfd_,true);
+    LOG_DEBUG << "TcpConnection::ctor at"<<this<<"fd = "<<sockfd_;
 }
 
 TcpConnection::~TcpConnection()
