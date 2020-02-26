@@ -93,13 +93,6 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
     return g_logLevel;
 }
 
-
-
-
-
-}
-
-
 //使用宏来定义匿名对象，LogStream重载了<<，因此可以使用 LOG_REACE<<"日志"<<
 //日志输出宏，输出在哪个文件? 哪一行? 哪个函数? 哪种级别?
 //无名对象所在语句执行后就立即被析构，然后调用析构函数将缓冲区的内容分输出
@@ -121,5 +114,7 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
 //构造了一个匿名对象，所以用完之后，就没有存在价值了，接着调用析构函数
 
 const char *strerror_tl(int savedErrno);
+
+}
 
 #endif

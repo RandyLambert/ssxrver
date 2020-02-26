@@ -1,6 +1,7 @@
 #include <sstream>
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
 #include "Logging.h"
 #include "CurrentThread.h"
 namespace ssxrver
@@ -20,7 +21,7 @@ Logger::LogLevel g_logLevel = initLogLevel();
 
 
 const char *LogLevelName[Logger::NUM_LOG_LEVELS] =
-    {
+{
         "TRACE ",
         "DEBUG ",
         "INFO  ",
@@ -28,6 +29,32 @@ const char *LogLevelName[Logger::NUM_LOG_LEVELS] =
         "ERROR ",
         "FATAL ",
 };
+
+class T
+{
+public:
+    T(const char *str, unsigned len)
+        : str_(str),
+          len_(len)
+    {
+        assert(strlen(str) == len_);
+    }
+
+    const char *str_;
+    const unsigned len_;
+};
+
+LogStream &operator<<(LogStream &s, T v)
+{
+    s.append(v.str_, v.len_);
+    return s;
+}
+
+LogStream &operator<<(LogStream &s, const Logger::SourceFile &v)
+{
+    s.append(v.data_, v.size_);
+    return s;
+}
 
 void defaultOutput(const char *msg, int len)
 {

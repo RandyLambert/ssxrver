@@ -56,7 +56,7 @@ private:
     ConnectionMap connections_; //连接累彪保留这个服务器上的所有连接
     int acceptfd_;
     int idleFd_;
-    std::unique_ptr<Channel> acceptChannel_;
+    Channel acceptChannel_;
 };
 
 }

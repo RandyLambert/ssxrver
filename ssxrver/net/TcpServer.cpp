@@ -19,12 +19,12 @@ TcpServer::TcpServer(EventLoop *loop,
     nextConnId_(1),
     acceptfd_(socketops::createNonblockingOrDie()),
     idleFd_(::open("/dev/null",O_RDONLY | O_CLOEXEC)),
-    acceptChannel_(new Channel(loop,acceptfd_))
+    acceptChannel_(loop,acceptfd_)
 {
     socketops::setReuseAddr(acceptfd_,true);
     socketops::setReusePort(acceptfd_,true);
     socketops::bindOrDie(acceptfd_,listenAddr);
-    acceptChannel_->setReadCallback(
+    acceptChannel_.setReadCallback(
         std::bind(&TcpServer::acceptHandRead,this));
 }
 
@@ -55,7 +55,7 @@ void TcpServer::setThreadNum(int numThreads)
 void TcpServer::acceptSockListen()
 {
     socketops::listenOrDie(acceptfd_);
-    acceptChannel_->enableReading();
+    acceptChannel_.enableReading();
 }
 
 void TcpServer::acceptHandRead()

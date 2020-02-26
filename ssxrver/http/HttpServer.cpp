@@ -134,7 +134,7 @@ void HttpServer::onConnection(const TcpConnectionPtr &conn)
 void HttpServer::onMessage(const TcpConnectionPtr &conn,
                            Buffer *buf)
 {
-    HttpContext *context = std::any_cast<HttpContext>(conn->getMutableContext()); //获取的是可以改变的
+    HttpContext *context = boost::any_cast<HttpContext>(conn->getMutableContext()); //获取的是可以改变的
     if (!detail::parseRequest(buf, context)) //获取请求包，更好的做法是让parserequest作为httpcontext的成员函数
     {
         conn->send("HTTP/1.1 400 Bad Request\r\n\r\n"); //请求失败

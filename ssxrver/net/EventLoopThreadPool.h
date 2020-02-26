@@ -16,7 +16,7 @@ class EventLoopThreadPool : noncopyable
 public:
 
     EventLoopThreadPool(EventLoop *baseLoop);
-    ~EventLoopThreadPool() = default;
+    ~EventLoopThreadPool();
     void setThreadNum(int numThreads) { numThreads_ = numThreads;}
     void start();
     EventLoop *getNextLoop();
@@ -28,7 +28,7 @@ private:
     bool started_;
     int numThreads_;
     size_t next_;
-    std::vector<std::unique_ptr<EventLoopThread>> threads_; //io线程列表
+    std::vector<std::shared_ptr<EventLoopThread>> threads_; //io线程列表
     std::vector<EventLoop *> loops_;
 };
 

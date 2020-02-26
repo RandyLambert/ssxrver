@@ -28,8 +28,6 @@ Channel::~Channel()
 {
     assert(!eventHandling_);
     assert(!addedToLoop_);
-    if (loop_->isInLoopThread())
-        assert(!loop_->hasChannel(this));
     /* close(fd_); */
 }
 

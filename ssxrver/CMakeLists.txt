@@ -1,6 +1,36 @@
 #CMake 最低版本好要求
 cmake_minimum_required (VERSION 3.11.2)
 
+set(CXX_FLAGS
+ -g
+ # -DVALGRIND
+ -DCHECK_PTHREAD_RETURN_VALUE
+ -D_FILE_OFFSET_BITS=64
+ -Wall
+ -Wextra
+ -Werror
+ -Wconversion
+ -Wno-unused-parameter
+ -Wold-style-cast
+ -Woverloaded-virtual
+ -Wpointer-arith
+ -Wshadow
+ -Wwrite-strings
+ -march=native
+ # -MMD
+ -lstd=c++17
+ -rdynamic
+ )
+
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++latest")
+    endif()
+endif()
+
+
 #项目信息
 project(web_ssxrver)
 
@@ -9,9 +39,9 @@ project(web_ssxrver)
 aux_source_directory(. DIR_SRCS)
 
 # 添加net http base子目录
-add_sudbirectory(net)
-add_sudbirectory(http)
-add_sudbirectory(base)
+add_subdirectory(base)
+add_subdirectory(net)
+add_subdirectory(http)
 
 # 指定生成目标
 add_executable(ssxrver main.cpp)

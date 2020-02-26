@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include "base/Logging.h"
-#include "net/TcpServer.h"
+#include "http/HttpRequest.h"
+#include "http/HttpResponse.h"
 #include "http/HttpServer.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
@@ -14,16 +15,17 @@ void message(const HttpRequest &req,HttpResponse *resp)
     {
         const std::map<string,string>& headers = req.headers();
         for(const auto &x : headers)
-            std::cout<<x.first<<" "x.second<<std::endl;
+            std::cout<<x.first<<" "<<x.second<<std::endl;
     }
 
     if(req.path() == "/")
     {
-        resp->setStatusCode(HttpResponse::k200k);
-        resp->setStausMessage("OK");
+        resp->setStatusCode(HttpResponse::k2000k);
+        resp->setStatusMessage("OK");
         resp->setContentType("text/html");
         resp->addHeader("Server","ssxrver");
-        resp->setBody("hello wourd");
+        resp->setBody("<html><head><title>This is title</title></head>"
+        "<body><h1>Hello</h1></body></html>");
     }
 }
 int main(int argv,char *argc[])

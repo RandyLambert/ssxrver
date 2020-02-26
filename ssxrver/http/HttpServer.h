@@ -17,7 +17,7 @@ public:
         HttpCallback;
     HttpServer(EventLoop *looop,
                const struct sockaddr_in listenAddr);
-    ~HttpServer();
+    ~HttpServer() = default;
     EventLoop *getLoop() const { return server_.getLoop();}
     void setHttpCallback(const HttpCallback &cb){ httpCallback_ = cb;}
     void setThreadNum(int numThreads) {server_.setThreadNum(numThreads);} //多线程

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libHttpFunctions.a  CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o
+/usr/bin/ranlib libHttpFunctions.a

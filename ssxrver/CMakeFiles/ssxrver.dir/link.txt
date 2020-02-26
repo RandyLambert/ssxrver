@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/ssxrver.dir/main.cpp.o  -o ssxrver base/libBaseFunctions.a net/libNetFunctions.a http/libHttpFunctions.a 

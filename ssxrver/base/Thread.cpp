@@ -52,7 +52,7 @@ struct ThreadData //把整个线程数据传进去
         latch_ = NULL;
 
         ssxrver::CurrentThread::t_threadName = name_.empty() ? "ssxrverThread" : name_.c_str();
-        prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName);
+        ::prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName);
 
         try
         {
@@ -135,10 +135,11 @@ void Thread::start()
 {
     assert(!started_);
     started_ = true;
-    std::unique_ptr<detail::ThreadData> data(new detail::ThreadData(func_,name_,&tid_, &latch_)); //作为线程参数穿进去
-    if(pthread_create(&pthreadId_,NULL,&detail::startThread,data.get()))
+    detail::ThreadData *data = new detail::ThreadData(func_,name_,&tid_, &latch_); //作为线程参数穿进去
+    if(pthread_create(&pthreadId_,NULL,&detail::startThread,data))
     {
         started_ = false;
+        delete data; 
         LOG_SYSFATAL << "fail in pthread_create";
     }
     else

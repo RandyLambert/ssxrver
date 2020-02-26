@@ -266,7 +266,7 @@ private:
         }
         else
         {
-            assert(kCheapPrepend < readerIndex_);//够用，进行移位存储下来
+            assert(kPrepend < readerIndex_);//够用，进行移位存储下来
             size_t readable = readableBytes();
             std::copy(begin() + readerIndex_,
                       begin() + writerIndex_,

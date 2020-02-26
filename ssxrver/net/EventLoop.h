@@ -8,6 +8,7 @@
 #include "../base/noncopyable.h"
 #include "../base/CurrentThread.h"
 #include "../base/Mutex.h"
+#include "../base/Thread.h"
 #include "../base/Logging.h"
 namespace ssxrver
 {

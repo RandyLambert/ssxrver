@@ -1,7 +1,7 @@
 #ifndef SSXRVER_NET_TCPCONNECTION_H
 #define SSXRVER_NET_TCPCONNECTION_H
 #include <memory>
-#include <any>
+#include <boost/any.hpp>
 #include <netinet/in.h>
 #include "functional"
 #include "Buffer.h"
@@ -43,17 +43,17 @@ public:
     void stopRead();
     bool isReading() const {return reading_; }
 
-    void setContext(const std::any &context) //把一个未知类型赋值
+    void setContext(const boost::any &context) //把一个未知类型赋值
     {
         context_ = context;
     }
 
-    const std::any &getContext() const //获取未知类型，不能更改
+    const boost::any &getContext() const //获取未知类型，不能更改
     {
         return context_;
     }
 
-    std::any *getMutableContext() //get可变的，可以更改
+    boost::any *getMutableContext() //get可变的，可以更改
     {
         return &context_;
     }
@@ -102,7 +102,7 @@ private:
     
     Buffer inputBuffer_;   //应用层的接收缓冲区
     Buffer outputBuffer_;  //应用层的发送缓冲区，当outputbuffer高到一定程度
-    std::any context_;     //提供一个借口绑定位置类型的上线文对象
+    boost::any context_;     //提供一个借口绑定位置类型的上线文对象
     bool reading_;
 
 };

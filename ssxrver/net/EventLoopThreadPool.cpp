@@ -14,6 +14,8 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop)
 {
 }
 
+EventLoopThreadPool::~EventLoopThreadPool() = default;
+
 void EventLoopThreadPool::start()
 {
     assert(!started_);
@@ -22,8 +24,8 @@ void EventLoopThreadPool::start()
 
     for(int i = 0;i < numThreads_; ++i)
     {
-        EventLoopThread *t = new EventLoopThread();
-        threads_.push_back(std::unique_ptr<EventLoopThread>(t));
+        std::shared_ptr<EventLoopThread> t(new EventLoopThread());
+        threads_.push_back(t);
         loops_.push_back(t->startLoop()); //启动eventloopthreads线程，在进入时间循环之前，会调用cb
     }
 }
