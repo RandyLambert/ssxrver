@@ -3,9 +3,9 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <atomic>
 #include "../base/noncopyable.h"
 #include "TcpConnection.h"
-#include "EventLoop.h"
 #include "Channel.h"
 namespace ssxrver
 {

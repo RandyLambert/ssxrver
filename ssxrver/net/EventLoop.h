@@ -1,15 +1,13 @@
 #ifndef SSXRVER_NET_EVENTLOOP_H
 #define SSXRVER_NET_EVENTLOOP_H
 #include <vector>
-#include <any>
 #include <memory>
 #include <functional>
 #include <atomic>
 #include "../base/noncopyable.h"
-#include "../base/CurrentThread.h"
 #include "../base/Mutex.h"
+#include "../base/CurrentThread.h"
 #include "../base/Thread.h"
-#include "../base/Logging.h"
 namespace ssxrver
 {
 namespace net
@@ -38,9 +36,7 @@ public:
     {
         if(!isInLoopThread())
         {
-             LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
-              << " was created in threadId_ = " << threadId_
-              << ", current thread id = " << CurrentThread::tid();
+            abortNotInLoopThread();
         }
     }
 
@@ -48,7 +44,7 @@ public:
     bool eventHandling() const {return eventHandling_;}
 
 private:
-
+    void abortNotInLoopThread();
     void handleRead();
     void doPendingFunctors(); //执行转交给I\O的任务
     

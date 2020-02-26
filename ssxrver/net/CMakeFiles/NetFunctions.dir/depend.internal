@@ -50,8 +50,6 @@ net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Condition.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CountDownLatch.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CurrentThread.h
- /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/LogStream.h
- /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Mutex.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
@@ -62,8 +60,6 @@ net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Condition.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CountDownLatch.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CurrentThread.h
- /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/LogStream.h
- /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Mutex.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h

@@ -138,6 +138,13 @@ void EventLoop::removeChannel(Channel *channel)
     Epoller_->removeChannel(channel);
 }
 
+void EventLoop::abortNotInLoopThread()
+{
+  LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
+            << " was created in threadId_ = " << threadId_
+            << ", current thread id = " <<  CurrentThread::tid();
+}
+
 void EventLoop::wakeup()
 {
     uint64_t one = 1;

@@ -31,6 +31,7 @@ if (MSVC_VERSION GREATER_EQUAL "1900")
 endif()
 
 
+
 #项目信息
 project(web_ssxrver)
 
@@ -47,6 +48,7 @@ add_subdirectory(http)
 add_executable(ssxrver main.cpp)
 
 # 添加链接库
+target_link_libraries(ssxrver NetFunctions)
 target_link_libraries(ssxrver BaseFunctions)
 target_link_libraries(ssxrver NetFunctions)
 target_link_libraries(ssxrver HttpFunctions)

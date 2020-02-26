@@ -81,6 +81,8 @@ ssxrver: CMakeFiles/ssxrver.dir/main.cpp.o
 ssxrver: CMakeFiles/ssxrver.dir/build.make
 ssxrver: base/libBaseFunctions.a
 ssxrver: net/libNetFunctions.a
+ssxrver: base/libBaseFunctions.a
+ssxrver: net/libNetFunctions.a
 ssxrver: http/libHttpFunctions.a
 ssxrver: CMakeFiles/ssxrver.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ssxrver"

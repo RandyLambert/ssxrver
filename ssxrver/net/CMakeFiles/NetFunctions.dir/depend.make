@@ -49,8 +49,6 @@ net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: net/SocketOps.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Condition.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/CountDownLatch.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/CurrentThread.h
-net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/LogStream.h
-net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Mutex.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/noncopyable.h
@@ -61,8 +59,6 @@ net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: net/EventLoopThread.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Condition.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/CountDownLatch.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/CurrentThread.h
-net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/LogStream.h
-net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Mutex.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/noncopyable.h
