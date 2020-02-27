@@ -32,7 +32,7 @@ public:
     std::shared_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池
-    void setConnectionCallback(const ConnectionCallback &cb){ connectionCallback_ = cb;}
+    void setConnectionCallback(const ConnectionCallback cb){ connectionCallback_ = std::move(cb);}
     void setMessageCallback(MessageCallback cb){messageCallback_ = std::move(cb);}
     void setWriteCompleteCallback(WriteCompleteCallback cb){ writeCompleteCallback_ = std::move(cb); }
     void acceptSockListen();

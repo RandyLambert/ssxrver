@@ -79,7 +79,6 @@ ssxrver_EXTERNAL_OBJECTS =
 
 ssxrver: CMakeFiles/ssxrver.dir/main.cpp.o
 ssxrver: CMakeFiles/ssxrver.dir/build.make
-ssxrver: base/libBaseFunctions.a
 ssxrver: net/libNetFunctions.a
 ssxrver: base/libBaseFunctions.a
 ssxrver: net/libNetFunctions.a

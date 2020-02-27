@@ -26,7 +26,7 @@ void message(const HttpRequest &req,HttpResponse *resp)
         resp->setContentType("text/html");
         resp->addHeader("Server","ssxrver");
         resp->setBody("<html><head><title>This is title</title></head>"
-        "<body><h1>Hello</h1></body></html>");
+        "<body><h1>Hello World</h1></body></html>");
     }
 }
 int main(int argv,char *argc[])

@@ -157,6 +157,7 @@ void HttpServer::onRequest(const TcpConnectionPtr &conn,const HttpRequest &req)
     else
         close = false;
     HttpResponse response(close);
+    httpCallback_(req, &response);
     Buffer buf;
     response.appendToBuffer(&buf); //将对象转化为一个字符串到buf中
     conn->send(&buf);              //将缓冲区发送到客户端

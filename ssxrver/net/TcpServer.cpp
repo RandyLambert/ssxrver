@@ -50,7 +50,6 @@ void TcpServer::setThreadNum(int numThreads)
     threadPool_->setThreadNum(numThreads);
 }
 
-//该函数多次调用是无害的
 //该函数可以跨线程调用
 void TcpServer::acceptSockListen()
 {

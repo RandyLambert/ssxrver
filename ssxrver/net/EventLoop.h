@@ -48,7 +48,7 @@ private:
     void handleRead();
     void doPendingFunctors(); //执行转交给I\O的任务
     
-    typedef std::vector<Channel *> ChannelList; //时间分发器列表
+    typedef std::vector<Channel *> ChannelList; //事件分发器列表
     bool looping_;
     std::atomic<bool> quit_;
     bool eventHandling_;

@@ -114,6 +114,7 @@ void Epoller::update(int operation,Channel *channel)
     struct epoll_event event;//准备一个epoll_event
     bzero(&event,sizeof(event));
     event.events = channel->events(); //关注这个事件
+    event.data.ptr = channel;
     int fd = channel->fd();
     if(::epoll_ctl(epollfd_,operation,fd,&event) < 0)
     {
