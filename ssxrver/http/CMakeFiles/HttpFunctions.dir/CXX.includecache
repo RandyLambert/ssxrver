@@ -96,7 +96,7 @@ boost/any.hpp
 netinet/in.h
 -
 functional
-/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/functional
+-
 Buffer.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/Buffer.h
 ../base/noncopyable.h
