@@ -24,7 +24,7 @@ namespace net
 namespace detail
 {
 
-void defaultHttpCallback(const HttpRequest &, HttpResponse *resp)
+void defaultHttpCallback(const HttpRequest &, HttpResponse *resp) //如果没有设置http回调函数的默认回调函数
 {
     resp->setStatusCode(HttpResponse::k404NotFound);
     resp->setStatusMessage("Not Found");
