@@ -31,15 +31,13 @@ class EventLoop;
 /// 文件描述符被socket类拥有
 /// 文件描述符可能在an eventfd, a timerfd, or a signalfd
 
-class Channel
+class Channel : noncopyable
 {
 public:
     typedef std::function<void()> EventCallback;
     typedef std::function<void(Timestamp)> ReadEventCallback; //读事件还得多一个时间戳
 
-    Channel(EventLoop *loop, int fd);             //一个eventloop可能包含多个channel，但是一个channel只能在一个eventloop
-    Channel &operator=(const Channel &) = delete; //禁止拷贝构造
-    Channel(const Channel &) = delete;
+    Channel(EventLoop *loop, int fd); //一个eventloop可能包含多个channel，但是一个channel只能在一个eventloop
     ~Channel();
 
     void handleEvent(Timestamp receiveTime); //重点

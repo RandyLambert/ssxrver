@@ -27,42 +27,44 @@ class HttpResponse;
 /// It is synchronous, just like Java Servlet.
 class HttpServer : noncopyable
 {
- public:
-  typedef std::function<void (const HttpRequest&,
-                              HttpResponse*)> HttpCallback;
+    { //http服务器类的封装
+    public:
+        typedef std::function<void(const HttpRequest &,
+                                   HttpResponse *)> HttpCallback;
+        HttpServer(EventLoop * loop,
+                   const InetAddress &listenAddr,
+                   const string &name,
+                   TcpServer::Option option = TcpServer::kNoReusePort);
 
-  HttpServer(EventLoop* loop,
-             const InetAddress& listenAddr,
-             const string& name,
-             TcpServer::Option option = TcpServer::kNoReusePort);
+        ~HttpServer(); // force out-line dtor, for scoped_ptr members.
 
-  EventLoop* getLoop() const { return server_.getLoop(); }
+        EventLoop *getLoop() const { return server_.getLoop(); }
 
-  /// Not thread safe, callback be registered before calling start().
-  void setHttpCallback(const HttpCallback& cb)
-  {
-    httpCallback_ = cb;
-  }
+        /// Not thread safe, callback be registered before calling start().
+        void setHttpCallback(const HttpCallback &cb)
+        {
+            httpCallback_ = cb;
+        }
 
-  void setThreadNum(int numThreads)
-  {
-    server_.setThreadNum(numThreads);
-  }
+        void setThreadNum(int numThreads) //支持多线程
+        {
+            server_.setThreadNum(numThreads);
+        }
 
-  void start();
+        void start();
 
- private:
-  void onConnection(const TcpConnectionPtr& conn);
-  void onMessage(const TcpConnectionPtr& conn,
-                 Buffer* buf,
-                 Timestamp receiveTime);
-  void onRequest(const TcpConnectionPtr&, const HttpRequest&);
+    private:
+        void onConnection(const TcpConnectionPtr &conn);
+        void onMessage(const TcpConnectionPtr &conn,
+                       Buffer *buf,                                    //当服务器端收到了一个客户端发过来的http请求
+                       Timestamp receiveTime);                         //首先回调onmessage，在onmessage中调用了onrequest，
+        void onRequest(const TcpConnectionPtr &, const HttpRequest &); //在onRequest中调用了httpcallback_
 
-  TcpServer server_;
-  HttpCallback httpCallback_;
-};
+        TcpServer server_;
+        HttpCallback httpCallback_; //在处理http请求的时候(即调用onrequest)的过程中回调此函数，对请求进行具体的处理
+    };
 
-}  // namespace net
-}  // namespace muduo
+} // namespace net
+} // namespace net
 
-#endif  // MUDUO_NET_HTTP_HTTPSERVER_H
+#endif // MUDUO_NET_HTTP_HTTPSERVER_H

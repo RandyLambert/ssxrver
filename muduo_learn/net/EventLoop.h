@@ -48,15 +48,13 @@ EventLoop构造函数会记住本对象的所属线程(threadld_)
 ///所以这里有一个ChannelList,EventLoop只需要关注有事件的套接字，在Poller_返回后将有事件
 ///发生的套接字作为一个集合，activeChannels_就是被激活的套机字所在的Channel组成的结合
 ///
-class EventLoop //rector模式的封装
+class EventLoop : noncopyable //rector模式的封装
 {
 public:
     typedef std::function<void()> Functor;
 
     EventLoop();
     ~EventLoop(); // force out-line dtor, for scoped_ptr members.
-    EventLoop(const EventLoop &) = delete;
-    EventLoop &operator=(const EventLoop &) = delete;
 
     ///
     /// Loops forever.
@@ -181,7 +179,7 @@ private:
     std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_); //需要在主I/O线程执行的任务
 };
 
-}  // namespace net
-}  // namespace muduo
+} // namespace net
+} // namespace muduo
 
-#endif  // MUDUO_NET_EVENTLOOP_H
+#endif // MUDUO_NET_EVENTLOOP_H

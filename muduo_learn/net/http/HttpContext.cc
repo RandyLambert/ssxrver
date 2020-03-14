@@ -12,13 +12,13 @@
 
 using namespace muduo;
 using namespace muduo::net;
-
+//http服务器类的封装
 bool HttpContext::processRequestLine(const char* begin, const char* end)
 {
   bool succeed = false;
   const char* start = begin;
-  const char* space = std::find(start, end, ' ');
-  if (space != end && request_.setMethod(start, space))
+  const char* space = std::find(start, end, ' ');//根据协议格式，先查找空格所在位置
+  if (space != end && request_.setMethod(start, space))//解析请求方法
   {
     start = space+1;
     space = std::find(start, end, ' ');
@@ -32,7 +32,7 @@ bool HttpContext::processRequestLine(const char* begin, const char* end)
       }
       else
       {
-        request_.setPath(start, space);
+        request_.setPath(start, space);//解析path
       }
       start = space+1;
       succeed = end-start == 8 && std::equal(start, end-1, "HTTP/1.");
@@ -40,11 +40,11 @@ bool HttpContext::processRequestLine(const char* begin, const char* end)
       {
         if (*(end-1) == '1')
         {
-          request_.setVersion(HttpRequest::kHttp11);
+          request_.setVersion(HttpRequest::kHttp11);//判断是http1.1
         }
         else if (*(end-1) == '0')
         {
-          request_.setVersion(HttpRequest::kHttp10);
+          request_.setVersion(HttpRequest::kHttp10);//判断是http1.0
         }
         else
         {
@@ -61,19 +61,19 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
 {
   bool ok = true;
   bool hasMore = true;
-  while (hasMore)
+  while (hasMore) //相当与一个状态机
   {
-    if (state_ == kExpectRequestLine)
+    if (state_ == kExpectRequestLine)//处于解析请求行状态
     {
-      const char* crlf = buf->findCRLF();
+      const char* crlf = buf->findCRLF();//这些数据都保存到缓冲区当中，在缓冲区寻找\r\n，头部每一行都有一个\r\n
       if (crlf)
       {
-        ok = processRequestLine(buf->peek(), crlf);
+        ok = processRequestLine(buf->peek(), crlf);//解析请求行
         if (ok)
         {
-          request_.setReceiveTime(receiveTime);
-          buf->retrieveUntil(crlf + 2);
-          state_ = kExpectHeaders;
+context->request().setReceiveTime(receiveTime); //设置请求时间
+                    buf->retrieveUntil(crlf + 2);                   //将请求行从buf中取回，包括\r\n，所以要+2
+                    context->receiveRequestLine();                  //httpcontext将状态改为kexpectheaders
         }
         else
         {
@@ -85,12 +85,12 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         hasMore = false;
       }
     }
-    else if (state_ == kExpectHeaders)
+    else if (state_ == kExpectHeaders)//处于解析header的状态
     {
       const char* crlf = buf->findCRLF();
       if (crlf)
       {
-        const char* colon = std::find(buf->peek(), crlf, ':');
+        const char* colon = std::find(buf->peek(), crlf, ':');//查找冒号所在位置
         if (colon != crlf)
         {
           request_.addHeader(buf->peek(), colon, crlf);
@@ -99,17 +99,17 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         {
           // empty line, end of header
           // FIXME:
-          state_ = kGotAll;
+          state_ = kGotAll;//httpcontext将状态改为kgotall
           hasMore = false;
         }
-        buf->retrieveUntil(crlf + 2);
+        buf->retrieveUntil(crlf + 2);//将header从buf中取回，包括\r\n
       }
       else
       {
         hasMore = false;
       }
     }
-    else if (state_ == kExpectBody)
+    else if (state_ == kExpectBody) //当前还暂时不支持带body，需要补充
     {
       // FIXME:
     }
