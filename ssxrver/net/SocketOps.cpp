@@ -12,17 +12,16 @@ using namespace ssxrver::net;
 namespace
 {
 typedef struct sockaddr SA;
-} 
-void socketops::bindOrDie(int sockfd,const struct sockaddr_in &addr)
+}
+void socketops::bindOrDie(int sockfd, const struct sockaddr_in &addr)
 {
-    if(::bind(sockfd,(struct sockaddr*)&addr,static_cast<socklen_t>(sizeof addr)) < 0)
-        LOG_SYSFATAL <<"socketops error";
-
+    if (::bind(sockfd, (struct sockaddr *)&addr, static_cast<socklen_t>(sizeof addr)) < 0)
+        LOG_SYSFATAL << "socketops error";
 }
 void socketops::listenOrDie(int sockfd)
 {
-    if(::listen(sockfd,SOMAXCONN) < 0)
-        LOG_SYSFATAL <<"listen error";
+    if (::listen(sockfd, SOMAXCONN) < 0)
+        LOG_SYSFATAL << "listen error";
 }
 int socketops::createNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
 {
@@ -35,16 +34,16 @@ int socketops::createNonblockingOrDie() //创建非阻塞套接字，创建失�
     return sockfd;
 }
 
-int socketops::accept(int sockfd,struct sockaddr_in *addr)
+int socketops::accept(int sockfd, struct sockaddr_in *addr)
 {
     socklen_t addrlen = static_cast<socklen_t>(sizeof *addr);
-    int connfd = ::accept4(sockfd,(struct sockaddr*)&addr,
-                           &addrlen,SOCK_NONBLOCK | SOCK_CLOEXEC);
-    if(connfd < 0)
+    int connfd = ::accept4(sockfd, (struct sockaddr *)&addr,
+                           &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    if (connfd < 0)
     {
-        int savedErrno = errno; //先保存错误代码
-        LOG_SYSERR << "Socket::accept";//因为这里登记了一个错误，所以调用前先保存起来errno    }
-        switch(savedErrno)
+        int savedErrno = errno;         //先保存错误代码
+        LOG_SYSERR << "Socket::accept"; //因为这里登记了一个错误，所以调用前先保存起来errno    }
+        switch (savedErrno)
         {
         case EAGAIN:
         case ECONNABORTED:
@@ -70,12 +69,12 @@ int socketops::accept(int sockfd,struct sockaddr_in *addr)
             break;
         }
     }
-    return connfd; 
+    return connfd;
 }
 
 int socketops::connect(int sockfd, const struct sockaddr_in &addr)
 {
-    return ::connect(sockfd, (struct sockaddr*)&addr, static_cast<socklen_t>(sizeof addr));
+    return ::connect(sockfd, (struct sockaddr *)&addr, static_cast<socklen_t>(sizeof addr));
 }
 
 ssize_t socketops::read(int sockfd, void *buf, size_t count)
@@ -114,7 +113,7 @@ int socketops::getSocketError(int sockfd)
     int optval;
     socklen_t optlen = static_cast<socklen_t>(sizeof optval);
 
-    if(::getsockopt(sockfd,SOL_SOCKET,SO_ERROR, &optval,&optlen) < 0)
+    if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
     {
         return errno;
     }
@@ -129,7 +128,7 @@ struct sockaddr_in socketops::getPeerAddr(int sockfd)
     struct sockaddr_in peeraddr;
     bzero(&peeraddr, sizeof peeraddr);
     socklen_t addrlen = static_cast<socklen_t>(sizeof peeraddr);
-    if (::getpeername(sockfd, (struct sockaddr*)&peeraddr, &addrlen) < 0) //获取对方地址
+    if (::getpeername(sockfd, (struct sockaddr *)&peeraddr, &addrlen) < 0) //获取对方地址
     {
         LOG_SYSERR << "sockets::getPeerAddr";
     }
@@ -139,37 +138,37 @@ struct sockaddr_in socketops::getPeerAddr(int sockfd)
 struct sockaddr_in socketops::getLocalAddr(int sockfd)
 {
     struct sockaddr_in localaddr;
-    bzero(&localaddr,sizeof(localaddr));
+    bzero(&localaddr, sizeof(localaddr));
     socklen_t addrlen = static_cast<socklen_t>(sizeof localaddr);
-    if(::getsockname(sockfd,(struct sockaddr*)&localaddr,&addrlen) < 0)
+    if (::getsockname(sockfd, (struct sockaddr *)&localaddr, &addrlen) < 0)
     {
         LOG_SYSERR << "scokets::getLocalAddr";
     }
     return localaddr;
 }
 
-void socketops::setKeepAlive(int sockfd_,bool on) //禁用或开启
+void socketops::setKeepAlive(int sockfd_, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
     ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
-void socketops::setTcpNoDelay(int sockfd_,bool on) //禁用或开启
+void socketops::setTcpNoDelay(int sockfd_, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
     ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
-void socketops::setReuseAddr(int sockfd_,bool on) //禁用或开启
+void socketops::setReuseAddr(int sockfd_, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
     ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
-void socketops::setReusePort(int sockfd_,bool on) //禁用或开启
+void socketops::setReusePort(int sockfd_, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
     int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
@@ -179,4 +178,3 @@ void socketops::setReusePort(int sockfd_,bool on) //禁用或开启
         LOG_SYSERR << "SO_REUSEPORT failed.";
     }
 }
-
