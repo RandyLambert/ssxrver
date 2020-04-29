@@ -14,14 +14,13 @@ class EventLoopThread;
 class EventLoopThreadPool : noncopyable
 {
 public:
-
     EventLoopThreadPool(EventLoop *baseLoop);
     ~EventLoopThreadPool();
-    void setThreadNum(int numThreads) { numThreads_ = numThreads;}
+    void setThreadNum(int numThreads) { numThreads_ = numThreads; }
     void start();
     EventLoop *getNextLoop();
-    
-    bool started() const{ return started_; } 
+
+    bool started() const { return started_; }
 
 private:
     EventLoop *baseLoop_;
@@ -32,6 +31,6 @@ private:
     std::vector<EventLoop *> loops_;
 };
 
-}
-}
+} // namespace net
+} // namespace ssxrver
 #endif

@@ -65,8 +65,7 @@ void TcpConnection::send(const char *data)
         loop_->runInLoop(
                          std::bind(fp,
                                    this,
-                                   tp
-                                  ));
+                                   tp));
     }
 }
 void TcpConnection::send(string &&message)

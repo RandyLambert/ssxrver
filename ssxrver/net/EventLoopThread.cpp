@@ -7,29 +7,29 @@ using namespace ssxrver::net;
 
 EventLoopThread::EventLoopThread()
     : loop_(nullptr),
-    exiting_(false),
-    thread_(std::bind(&EventLoopThread::threadFunc,this)),
-    mutex_(),
-    cond_(mutex_)
+      exiting_(false),
+      thread_(std::bind(&EventLoopThread::threadFunc, this)),
+      mutex_(),
+      cond_(mutex_)
 {
 }
 
 EventLoopThread::~EventLoopThread()
 {
     exiting_ = true;
-    if(loop_ != nullptr)
+    if (loop_ != nullptr)
     {
         loop_->quit();
         thread_.join();
     }
 }
 
-EventLoop * EventLoopThread::startLoop()
+EventLoop *EventLoopThread::startLoop()
 {
     assert(!thread_.startorNot());
     {
         MutexLockGuard lock(mutex_);
-        while(loop_ == nullptr)
+        while (loop_ == nullptr)
         {
             cond_.wait();
         }
@@ -42,7 +42,7 @@ void EventLoopThread::threadFunc()
     EventLoop loop;
     {
         MutexLockGuard lock(mutex_);
-        loop_ = &loop; 
+        loop_ = &loop;
         cond_.notifyOne();
     }
 

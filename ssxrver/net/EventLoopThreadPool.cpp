@@ -8,9 +8,9 @@ using namespace ssxrver::net;
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop)
     : baseLoop_(baseLoop),
-    started_(false),
-    numThreads_(0),
-    next_(0)
+      started_(false),
+      numThreads_(0),
+      next_(0)
 {
 }
 
@@ -22,11 +22,11 @@ void EventLoopThreadPool::start()
     baseLoop_->assertInLoopThread();
     started_ = true;
 
-    for(int i = 0;i < numThreads_; ++i)
+    for (int i = 0; i < numThreads_; ++i)
     {
         std::shared_ptr<EventLoopThread> t(new EventLoopThread());
         threads_.push_back(t);
-        loops_.push_back(t->startLoop()); //启动eventloopthreads线程，在进入时间循环之前，会调用cb
+        loops_.push_back(t->startLoop()); //启动eventloopthreads线程，在进入事件循环之前，会调用cb
     }
 }
 
@@ -37,8 +37,8 @@ EventLoop *EventLoopThreadPool::getNextLoop()
     EventLoop *loop = baseLoop_;
     //如果loops为空，则loop指向baseloop_
     //如果不为空，按照round-robin轮叫的调度方式选择一个eventloop
-    
-    if(!loops_.empty())
+
+    if (!loops_.empty())
     {
         //round-robin
         loop = loops_[next_];
