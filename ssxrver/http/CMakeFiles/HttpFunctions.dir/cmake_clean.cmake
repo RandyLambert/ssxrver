@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o"
   "CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o"
   "CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o"
   "libHttpFunctions.pdb"

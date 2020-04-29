@@ -125,6 +125,33 @@ HttpFunctions/fast:
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f http/CMakeFiles/HttpFunctions.dir/build.make http/CMakeFiles/HttpFunctions.dir/build
 .PHONY : HttpFunctions/fast
 
+HttpContext.o: HttpContext.cpp.o
+
+.PHONY : HttpContext.o
+
+# target to build an object file
+HttpContext.cpp.o:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f http/CMakeFiles/HttpFunctions.dir/build.make http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o
+.PHONY : HttpContext.cpp.o
+
+HttpContext.i: HttpContext.cpp.i
+
+.PHONY : HttpContext.i
+
+# target to preprocess a source file
+HttpContext.cpp.i:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f http/CMakeFiles/HttpFunctions.dir/build.make http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.i
+.PHONY : HttpContext.cpp.i
+
+HttpContext.s: HttpContext.cpp.s
+
+.PHONY : HttpContext.s
+
+# target to generate assembly for a file
+HttpContext.cpp.s:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f http/CMakeFiles/HttpFunctions.dir/build.make http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.s
+.PHONY : HttpContext.cpp.s
+
 HttpResponse.o: HttpResponse.cpp.o
 
 .PHONY : HttpResponse.o
@@ -188,6 +215,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... HttpFunctions"
 	@echo "... edit_cache"
+	@echo "... HttpContext.o"
+	@echo "... HttpContext.i"
+	@echo "... HttpContext.s"
 	@echo "... HttpResponse.o"
 	@echo "... HttpResponse.i"
 	@echo "... HttpResponse.s"

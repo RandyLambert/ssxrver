@@ -22,6 +22,12 @@ LogStream.h
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
 
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpContext.cpp
+HttpContext.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpContext.h
+../net/Buffer.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/Buffer.h
+
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpContext.h
 HttpRequest.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpRequest.h

@@ -57,9 +57,22 @@ include http/CMakeFiles/HttpFunctions.dir/progress.make
 # Include the compile flags for this target's objects.
 include http/CMakeFiles/HttpFunctions.dir/flags.make
 
+http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o: http/CMakeFiles/HttpFunctions.dir/flags.make
+http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o: http/HttpContext.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o -c /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpContext.cpp
+
+http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/HttpFunctions.dir/HttpContext.cpp.i"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpContext.cpp > CMakeFiles/HttpFunctions.dir/HttpContext.cpp.i
+
+http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/HttpFunctions.dir/HttpContext.cpp.s"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpContext.cpp -o CMakeFiles/HttpFunctions.dir/HttpContext.cpp.s
+
 http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o: http/CMakeFiles/HttpFunctions.dir/flags.make
 http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o: http/HttpResponse.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o"
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o -c /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpResponse.cpp
 
 http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.i: cmake_force
@@ -72,7 +85,7 @@ http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.s: cmake_force
 
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: http/CMakeFiles/HttpFunctions.dir/flags.make
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: http/HttpServer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o"
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o -c /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpServer.cpp
 
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.i: cmake_force
@@ -85,17 +98,19 @@ http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.s: cmake_force
 
 # Object files for target HttpFunctions
 HttpFunctions_OBJECTS = \
+"CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o" \
 "CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o" \
 "CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o"
 
 # External object files for target HttpFunctions
 HttpFunctions_EXTERNAL_OBJECTS =
 
+http/libHttpFunctions.a: http/CMakeFiles/HttpFunctions.dir/HttpContext.cpp.o
 http/libHttpFunctions.a: http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o
 http/libHttpFunctions.a: http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o
 http/libHttpFunctions.a: http/CMakeFiles/HttpFunctions.dir/build.make
 http/libHttpFunctions.a: http/CMakeFiles/HttpFunctions.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libHttpFunctions.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libHttpFunctions.a"
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && $(CMAKE_COMMAND) -P CMakeFiles/HttpFunctions.dir/cmake_clean_target.cmake
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/HttpFunctions.dir/link.txt --verbose=$(VERBOSE)
 

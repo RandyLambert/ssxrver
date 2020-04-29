@@ -7,6 +7,7 @@ namespace ssxrver
 {
 namespace net
 {
+class Buffer;
 
 class HttpContext
 {//http协议解析类的封装
@@ -22,6 +23,10 @@ public:
         : state_(kExpectRequestLine)
     {
     }
+
+    bool processRequestLine(const char* begin, const char* end);
+    bool parseRequest(Buffer* buf);
+
     //将状态设置为上述几个状态
     bool expectRequestLine() const { return state_ == kExpectRequestLine; }//将状态设置成上述几个状态
     bool expectHeaders() const {return state_ == kExpectHeaders;}
