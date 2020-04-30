@@ -30,8 +30,9 @@ HttpServer::HttpServer(EventLoop *loop,
     :server_(loop,listenAddr),
     httpCallback_(detail::defaultHttpCallback)
 {
-    server_.setMessageCallback(std::bind(&HttpServer::onMessage,this,std::placeholders::_1,std::placeholders::_2));
-    server_.setConnectionCallback(std::bind(&HttpServer::onConnection,this,std::placeholders::_1));
+    server_.setMessageCallback(bind(&HttpServer::onMessage,this,std::placeholders::_1,std::placeholders::_2));
+    server_.setConnectionCallback(bind(&HttpServer::onConnection,this,std::placeholders::_1));
+    server_.setThreadInitCallback(bind(&HttpServer::onThreadInit,this,std::placeholders::_1));
 }
 
 void HttpServer::start()

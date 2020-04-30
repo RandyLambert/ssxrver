@@ -14,10 +14,11 @@ class EventLoopThread;
 class EventLoopThreadPool : noncopyable
 {
 public:
+    typedef std::function<void (EventLoop *)> ThreadInitCallback;
     EventLoopThreadPool(EventLoop *baseLoop);
     ~EventLoopThreadPool();
     void setThreadNum(int numThreads) { numThreads_ = numThreads; }
-    void start();
+    void start(const ThreadInitCallback &cb = ThreadInitCallback());
     EventLoop *getNextLoop();
 
     bool started() const { return started_; }

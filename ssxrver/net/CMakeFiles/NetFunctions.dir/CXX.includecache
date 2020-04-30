@@ -185,6 +185,8 @@ EventLoopThread.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoopThread.h
 EventLoop.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoop.h
+../base/Logging.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.h
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoopThread.h
 ../base/noncopyable.h

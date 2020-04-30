@@ -18,6 +18,7 @@ class TcpServer : noncopyable
 {
 public:
     typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+    typedef std::function<void(EventLoop *)> ThreadInitCallback;
     typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
     typedef std::function<void(const TcpConnectionPtr &,
                                Buffer *buffer)>
@@ -30,6 +31,7 @@ public:
 
     EventLoop *getLoop() const { return loop_; }
     void setThreadNum(int numThreads);
+    void setThreadInitCallback(const ThreadInitCallback &cb){ threadInitCallback_ = cb; }
     std::shared_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池
@@ -51,6 +53,7 @@ private:
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
+    ThreadInitCallback threadInitCallback_;
     std::atomic<bool> started_;
     int nextConnId_;            //下一个连接id
     ConnectionMap connections_; //连接累彪保留这个服务器上的所有连接

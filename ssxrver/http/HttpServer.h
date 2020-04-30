@@ -2,6 +2,7 @@
 #define SSXRVER_HTTP_HTTTPSERVER_H
 #include "../net/TcpServer.h"
 #include "../base/noncopyable.h"
+#include <iostream>
 namespace ssxrver
 {
 namespace net
@@ -12,6 +13,7 @@ class HttpResponse;
 class HttpServer : noncopyable 
 {
 public:
+    typedef std::function<void(EventLoop *)> ThreadInitCallback;
     typedef std::function<void(const HttpRequest &,
                                HttpResponse *)>
         HttpCallback;
@@ -24,6 +26,10 @@ public:
     void start();
 
 private:
+    void onThreadInit(EventLoop *eventloop)
+    {
+        std::cout<<"测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试"<<std::endl;
+    }
     void onConnection(const TcpConnectionPtr &conn);
     void onMessage(const TcpConnectionPtr &conn,//当服务器端收到了一个客户端发过来的http请求
                    Buffer *buf);//首先回调onmessage，在onmessage中调用了onrequest，

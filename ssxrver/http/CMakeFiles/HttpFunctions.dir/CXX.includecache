@@ -73,6 +73,8 @@ HttpResponse.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/TcpServer.h
 ../base/noncopyable.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
+iostream
+-
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/Buffer.h
 cstring
