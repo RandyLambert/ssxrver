@@ -19,9 +19,8 @@ Logger::LogLevel initLogLevel()
 }
 Logger::LogLevel g_logLevel = initLogLevel();
 
-
 const char *LogLevelName[Logger::NUM_LOG_LEVELS] =
-{
+    {
         "TRACE ",
         "DEBUG ",
         "INFO  ",
@@ -70,19 +69,18 @@ void defaultFlush()
 Logger::OutputFunc g_output = defaultOutput;
 Logger::FlushFunc g_flush = defaultFlush;
 
-}
+} // namespace ssxrver
 
 using namespace ssxrver;
 
 Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile &file, int line)
-    : 
-      stream_(),
+    : stream_(),
       level_(level),
       line_(line),
       basename_(file)
 {
     CurrentThread::tid(); //当前线程的tid
-    stream_ << CurrentThread::tidString()<<" ";
+    stream_ << CurrentThread::tidString() << " ";
     stream_ << CurrentThread::tidStringLength();
     stream_ << LogLevelName[level];
     if (savedErrno != 0) //在把级别格式化进去

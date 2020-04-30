@@ -12,7 +12,7 @@ class EventLoop;
 class EventLoopThread : noncopyable
 {
 public:
-    typedef std::function<void(EventLoop *)> ThreadInitCallback;       
+    typedef std::function<void(EventLoop *)> ThreadInitCallback;
 
     EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback());
     ~EventLoopThread();
@@ -22,13 +22,13 @@ private:
     void threadFunc(); //传到线程里面的函数
 
     EventLoop *loop_; //loop_指针指向一个eventloop对象
-    bool exiting_;   //是否退出
+    bool exiting_;    //是否退出
     Thread thread_;
     MutexLock mutex_;
     Condition cond_;
     ThreadInitCallback callback_;
 };
-}
-}
+} // namespace net
+} // namespace ssxrver
 
 #endif

@@ -25,8 +25,8 @@ private:
     static const int kInitEventListSize = 16;
     static const int timeoutMs = -1;
 
-    void fillActiveChannels(int numEvents,ChannelList *activeChannels) const;
-    void update(int operation,Channel *channel);
+    void fillActiveChannels(int numEvents, ChannelList *activeChannels) const;
+    void update(int operation, Channel *channel);
 
     typedef std::map<int, Channel *> ChannelMap; //fd和事件指针
     ChannelMap channels_;                        //监听检测通道
@@ -34,9 +34,8 @@ private:
     typedef std::vector<struct epoll_event> EventList;
     EventList events_; //实际返回的事件列表
     EventLoop *loop_;
-
 };
 
-}
-}
+} // namespace net
+} // namespace ssxrver
 #endif

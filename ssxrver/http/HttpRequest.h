@@ -20,7 +20,7 @@ public:
         kHead,
     };
     HttpRequest()
-        :method_(kInvalid)
+        : method_(kInvalid)
     {
     }
 
@@ -43,7 +43,7 @@ public:
         return method_ != kInvalid; //看是否请求成功
     }
 
-    Method method() const {return method_;}
+    Method method() const { return method_; }
     const char *methodString() const //请求方法转换为字符串
     {
         const char *result = "UNKNOWN";
@@ -61,20 +61,20 @@ public:
         return result;
     }
 
-    void setPath(const char *start,const char *end) { path_.assign(start,end); }//设置路径
+    void setPath(const char *start, const char *end) { path_.assign(start, end); } //设置路径
     const string &path() const { return path_; }
-    void setQuery(const char *start,const char *end){ query_.assign(start,end); }
+    void setQuery(const char *start, const char *end) { query_.assign(start, end); }
     const string query() const { return query_; }
-    void addHeader(const char *start,const char *colon, const char *end)
-    { //添加一个头部信息
-        string field(start,colon); //header域
+    void addHeader(const char *start, const char *colon, const char *end)
+    {                               //添加一个头部信息
+        string field(start, colon); //header域
         ++colon;
         //去除左空格
-        while(colon < end && isspace(*colon)) //header值
+        while (colon < end && isspace(*colon)) //header值
             ++colon;
-        string value(colon,end);
+        string value(colon, end);
         //去除右空格
-        while(!value.empty() && isspace(value[value.size() - 1]))
+        while (!value.empty() && isspace(value[value.size() - 1]))
             value.resize(value.size() - 1);
         headers_[field] = value; //将value的值保存到headers中
     }
@@ -88,7 +88,7 @@ public:
         return result;
     }
 
-    const std::map<string, string> &headers() const{ return headers_;} //返回整个头域
+    const std::map<string, string> &headers() const { return headers_; } //返回整个头域
 
     void swap(HttpRequest &that) //交换数据成员
     {
@@ -100,12 +100,12 @@ public:
 
 private:
     Method method_; //请求方法
-    string path_; //请求路径
+    string path_;   //请求路径
     string query_;
-    std::map<string,string> headers_; //header列表
+    std::map<string, string> headers_; //header列表
 };
 
-}
-}
+} // namespace net
+} // namespace ssxrver
 
 #endif

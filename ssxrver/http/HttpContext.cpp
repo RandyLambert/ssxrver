@@ -7,7 +7,7 @@ bool HttpContext::processRequestLine(const char *begin, const char *end)
 {
     bool succeed = false;
     const char *start = begin;
-    const char *space = std::find(start, end, ' ');      //根据协议格式，先查找空格所在位置
+    const char *space = std::find(start, end, ' ');       //根据协议格式，先查找空格所在位置
     if (space != end && request_.setMethod(start, space)) //解析请求方法
     {
         start = space + 1;
@@ -45,8 +45,8 @@ bool HttpContext::parseRequest(Buffer *buf)
                 ok = processRequestLine(buf->peek(), crlf); //解析请求行
                 if (ok)
                 {
-                    buf->retrieveUntil(crlf + 2);                   //将请求行从buf中取回，包括\r\n，所以要+2
-                    receiveRequestLine();                  //httpcontext将状态改为kexpectheaders
+                    buf->retrieveUntil(crlf + 2); //将请求行从buf中取回，包括\r\n，所以要+2
+                    receiveRequestLine();         //httpcontext将状态改为kexpectheaders
                 }
                 else
                 {

@@ -8,11 +8,11 @@ namespace net
 namespace SQLs
 {
 using std::string;
-string sqlRegister(const string& str);
-string sqlLogin(const string& str);
+string sqlRegister(const string &str);
+string sqlLogin(const string &str);
 
-}
-}
-}
+} // namespace SQLs
+} // namespace net
+} // namespace ssxrver
 
 #endif

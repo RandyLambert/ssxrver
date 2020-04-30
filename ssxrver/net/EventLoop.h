@@ -44,7 +44,7 @@ public:
     bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
     bool eventHandling() const { return eventHandling_; }
     bool mysqlInit() { return mysql_.mysqlInit(); }
-    MySQL* getMySQL(){ return &mysql_;  }
+    MySQL *getMySQL() { return &mysql_; }
 
 private:
     void abortNotInLoopThread();

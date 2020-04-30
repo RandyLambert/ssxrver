@@ -16,13 +16,13 @@ class FixedBuffer : noncopyable
 {
 public:
     FixedBuffer()
-        :cur_(data_)
+        : cur_(data_)
     {
     }
 
     ~FixedBuffer() = default;
 
-    void append(const char * buf, size_t len)
+    void append(const char *buf, size_t len)
     {
         if (avail() > len) //当前可用的空间大于len，则就可以将其添加进去
         {
@@ -45,26 +45,27 @@ public:
     char *current() { return cur_; } //目前缓冲区使用的位置，end-current是当前可用空间
     size_t avail() const { return static_cast<size_t>(end() - cur_); }
 
-    void reset() {cur_ = data_;} //重置，只要把指针移到开头，不需要清0
-    void bzero() { ::bzero(data_,sizeof(data_));}
+    void reset() { cur_ = data_; } //重置，只要把指针移到开头，不需要清0
+    void bzero() { ::bzero(data_, sizeof(data_)); }
 
 private:
     const char *end() const { return data_ + sizeof(data_); } //整个缓冲区size位的下一位
     // Must be outline function for cookies.
 
-    char data_[SIZE];  //缓冲区大小通过模板传递
-    char *cur_;        //指向缓冲区最后一个位置的下一个
+    char data_[SIZE]; //缓冲区大小通过模板传递
+    char *cur_;       //指向缓冲区最后一个位置的下一个
 };
-}
+} // namespace detail
 
 class LogStream : noncopyable
 {
     typedef LogStream self;
+
 public:
     typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;
-    self& operator<<(bool s)
+    self &operator<<(bool s)
     {
-        buffer_.append(s?"1":"0",1);
+        buffer_.append(s ? "1" : "0", 1);
         return *this;
     }
     self &operator<<(short); //处理所有类型
@@ -110,10 +111,10 @@ public:
 
     self &operator<<(const std::string &v)
     {
-        buffer_.append(v.c_str(),v.size());
+        buffer_.append(v.c_str(), v.size());
         return *this;
     }
-    void append(const char *data,int len) { buffer_.append(data,len); }
+    void append(const char *data, int len) { buffer_.append(data, len); }
     const Buffer &buffer() const { return buffer_; }
     void resetBuffer() { buffer_.reset(); }
 
@@ -126,5 +127,5 @@ private:
     static const int kMaxNumericSize = 21;
 };
 
-}
+} // namespace ssxrver
 #endif

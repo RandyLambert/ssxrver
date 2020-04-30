@@ -14,8 +14,8 @@ namespace
 __thread EventLoop *t_loopInThisThread = nullptr;
 int createEventfd()
 {
-    int evtfd = ::eventfd(0,EFD_NONBLOCK | EFD_CLOEXEC);
-    if(evtfd < 0)
+    int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    if (evtfd < 0)
     {
         LOG_SYSFATAL << "fail in eventfd";
     }
@@ -26,42 +26,42 @@ class SigPipeinit
 public:
     SigPipeinit()
     {
-        ::signal(SIGPIPE,SIG_IGN);
+        ::signal(SIGPIPE, SIG_IGN);
         ssxrver::CurrentThread::t_threadName = "main";
         CurrentThread::tid();
     }
 };
 SigPipeinit initObj;
-}
+} // namespace
 
 EventLoop::EventLoop()
     : looping_(false),
-    quit_(false),
-    eventHandling_(false),
-    callingPendingFuctors_(false),
-    threadId_(CurrentThread::tid()),
-    Epoller_(new Epoller(this)),
-    wakeupFd_(createEventfd()), //创建一个eventfd
-    wakeupChannel_(new Channel(this,wakeupFd_)),
+      quit_(false),
+      eventHandling_(false),
+      callingPendingFuctors_(false),
+      threadId_(CurrentThread::tid()),
+      Epoller_(new Epoller(this)),
+      wakeupFd_(createEventfd()), //创建一个eventfd
+      wakeupChannel_(new Channel(this, wakeupFd_)),
       mysql_()
 {
-    LOG_DEBUG << "EventLoop created "<< this << "in thread " << threadId_; //每个线程最多一个eventLoop
-    if(t_loopInThisThread)
+    LOG_DEBUG << "EventLoop created " << this << "in thread " << threadId_; //每个线程最多一个eventLoop
+    if (t_loopInThisThread)
     {
         LOG_FATAL << "Another EventLoop" << t_loopInThisThread
-            <<"exists in this thread " << threadId_;
+                  << "exists in this thread " << threadId_;
     }
     else
         t_loopInThisThread = this; //否则将刚出案件的线程付给指针
     wakeupChannel_->setReadCallback(
-        std::bind(&EventLoop::handleRead,this)); //注册wakeup的回调函数
-    wakeupChannel_->enableReading(); //在这里收纳到epoller管理便于唤醒
+        std::bind(&EventLoop::handleRead, this)); //注册wakeup的回调函数
+    wakeupChannel_->enableReading();              //在这里收纳到epoller管理便于唤醒
 }
 
 EventLoop::~EventLoop()
 {
-    LOG_DEBUG << "EventLoop "<<this <<"of thread "<<threadId_
-        <<" destructs in thread "<<CurrentThread::tid();
+    LOG_DEBUG << "EventLoop " << this << "of thread " << threadId_
+              << " destructs in thread " << CurrentThread::tid();
     wakeupChannel_->disableAll();
     wakeupChannel_->remove();
     ::close(wakeupFd_);
@@ -74,14 +74,14 @@ void EventLoop::loop()
     assertInLoopThread();
     looping_ = true;
     quit_ = false;
-    LOG_TRACE << "EventLoop "<<this << "start looping";
+    LOG_TRACE << "EventLoop " << this << "start looping";
 
-    while(!quit_)
+    while (!quit_)
     {
         activeChannels_.clear();
-        Epoller_->poll(&activeChannels_); 
+        Epoller_->poll(&activeChannels_);
         eventHandling_ = true;
-        for(Channel *channel : activeChannels_)
+        for (Channel *channel : activeChannels_)
         {
             channel->handleEvent();
         }
@@ -96,13 +96,13 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
     quit_ = true;
-    if(!isInLoopThread())
+    if (!isInLoopThread())
         wakeup();
 }
 
 void EventLoop::runInLoop(Functor cb)
 {
-    if(isInLoopThread())
+    if (isInLoopThread())
         cb();
     else
         queueInLoop(std::move(cb));
@@ -115,7 +115,7 @@ void EventLoop::queueInLoop(Functor cb)
         pendingFunctors_.push_back(std::move(cb));
     }
 
-    if(!isInLoopThread() || callingPendingFuctors_)
+    if (!isInLoopThread() || callingPendingFuctors_)
         wakeup();
 }
 
@@ -141,23 +141,25 @@ void EventLoop::removeChannel(Channel *channel)
 
 void EventLoop::abortNotInLoopThread()
 {
-  LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
-            << " was created in threadId_ = " << threadId_
-            << ", current thread id = " <<  CurrentThread::tid();
+    LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
+              << " was created in threadId_ = " << threadId_
+              << ", current thread id = " << CurrentThread::tid();
 }
 
 void EventLoop::wakeup()
 {
     uint64_t one = 1;
-    if(::write(wakeupFd_,&one,sizeof(one)) != sizeof(one))
-        LOG_ERROR <<"eventloop::wakeup() writes " << "another bytes instead of 8"; 
+    if (::write(wakeupFd_, &one, sizeof(one)) != sizeof(one))
+        LOG_ERROR << "eventloop::wakeup() writes "
+                  << "another bytes instead of 8";
 }
 
-void EventLoop::handleRead()//处理wakeup
+void EventLoop::handleRead() //处理wakeup
 {
     uint64_t one = 1;
-    if(::read(wakeupFd_,&one,sizeof(one)) != sizeof(one))
-        LOG_ERROR <<"eventloop::wakeup() read " << "another bytes instead of 8"; 
+    if (::read(wakeupFd_, &one, sizeof(one)) != sizeof(one))
+        LOG_ERROR << "eventloop::wakeup() read "
+                  << "another bytes instead of 8";
 }
 
 void EventLoop::doPendingFunctors()
@@ -170,7 +172,7 @@ void EventLoop::doPendingFunctors()
         functors.swap(pendingFunctors_);
     }
 
-    for(const Functor &functor : functors)
+    for (const Functor &functor : functors)
         functor();
 
     callingPendingFuctors_ = false;

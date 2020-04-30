@@ -9,21 +9,22 @@ namespace ssxrver
 class Condition : noncopyable
 {
 public:
-    explicit Condition(MutexLock & mutex):mutex_(mutex) {
-        MCHECK(pthread_cond_init(&cond_,nullptr));
+    explicit Condition(MutexLock &mutex) : mutex_(mutex)
+    {
+        MCHECK(pthread_cond_init(&cond_, nullptr));
     }
-    ~Condition() {  MCHECK(pthread_cond_destroy(&cond_));}
+    ~Condition() { MCHECK(pthread_cond_destroy(&cond_)); }
     void wait()
     {
         MutexLock::UnassignGuard temp(mutex_);
-        pthread_cond_wait(&cond_,mutex_.get());
+        pthread_cond_wait(&cond_, mutex_.get());
     }
-    void notifyOne(){MCHECK(pthread_cond_signal(&cond_));}
-    void notifyAll(){MCHECK(pthread_cond_broadcast(&cond_));}
+    void notifyOne() { MCHECK(pthread_cond_signal(&cond_)); }
+    void notifyAll() { MCHECK(pthread_cond_broadcast(&cond_)); }
     bool waitForSeconds(int seconds)
     {
         struct timespec abstime;
-        clock_gettime(CLOCK_REALTIME,&abstime);
+        clock_gettime(CLOCK_REALTIME, &abstime);
 
         const int64_t kNanoSecondsPerSecond = 1000000000;
         int64_t nanoseconds = static_cast<int64_t>(seconds * kNanoSecondsPerSecond);
@@ -40,5 +41,5 @@ private:
     pthread_cond_t cond_;
 };
 
-}
+} // namespace ssxrver
 #endif

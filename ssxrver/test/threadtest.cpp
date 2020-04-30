@@ -7,27 +7,27 @@
 using namespace ssxrver;
 void threadFunc()
 {
-  printf("tid=%d\n", ssxrver::CurrentThread::tid());
+    printf("tid=%d\n", ssxrver::CurrentThread::tid());
 }
 
 int main()
 {
-  printf("pid=%d, tid=%d\n", ::getpid(), ::CurrentThread::tid());
+    printf("pid=%d, tid=%d\n", ::getpid(), ::CurrentThread::tid());
 
-  int kThreads = 10;
-  for (int i = 0; i < kThreads; ++i)
-  {
-    ssxrver::Thread t1(threadFunc);
-    t1.start();
-    t1.join();
-  }
+    int kThreads = 10;
+    for (int i = 0; i < kThreads; ++i)
+    {
+        ssxrver::Thread t1(threadFunc);
+        t1.start();
+        t1.join();
+    }
 
-  printf("number of created threads %d\n", ssxrver::Thread::numCreated());
+    printf("number of created threads %d\n", ssxrver::Thread::numCreated());
 
-  for (int i = 0; i < kThreads; ++i)
-  {
-    ssxrver::Thread t2(boost::bind(threadFunc));
-    t2.start();
-    t2.join();
-  }
+    for (int i = 0; i < kThreads; ++i)
+    {
+        ssxrver::Thread t2(boost::bind(threadFunc));
+        t2.start();
+        t2.join();
+    }
 }

@@ -21,6 +21,5 @@ private:
     int count_;
 };
 
-}
+} // namespace ssxrver
 #endif
-

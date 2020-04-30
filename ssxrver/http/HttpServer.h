@@ -28,7 +28,7 @@ public:
     void start();
 
 private:
-    void onThreadInit(EventLoop *eventloop){ eventloop->mysqlInit();}
+    void onThreadInit(EventLoop *eventloop) { eventloop->mysqlInit(); }
     void onConnection(const TcpConnectionPtr &conn);
     void onMessage(const TcpConnectionPtr &conn,                   //当服务器端收到了一个客户端发过来的http请求
                    Buffer *buf);                                   //首先回调onmessage，在onmessage中调用了onrequest，

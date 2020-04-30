@@ -6,7 +6,10 @@ using namespace ssxrver;
 
 void Exception::fillStackTrace()
 {
-    enum{kSize = 100};
+    enum
+    {
+        kSize = 100
+    };
     void *buffer[kSize];
     int nptrs = ::backtrace(buffer, kSize); //获取当前线程的函数调用堆栈。
     /* int backtrace(void **buffer, int size); */
@@ -32,13 +35,14 @@ void Exception::fillStackTrace()
         }
         free(strings);
     }
-
-
 }
 
 string Exception::demangle(const char *symbol)
 {
-    enum{kSize = 128};
+    enum
+    {
+        kSize = 128
+    };
     size_t size;
     int status;
     char temp[kSize];

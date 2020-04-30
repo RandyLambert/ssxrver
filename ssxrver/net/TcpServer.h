@@ -31,7 +31,7 @@ public:
 
     EventLoop *getLoop() const { return loop_; }
     void setThreadNum(int numThreads);
-    void setThreadInitCallback(const ThreadInitCallback &cb){ threadInitCallback_ = cb; }
+    void setThreadInitCallback(const ThreadInitCallback &cb) { threadInitCallback_ = cb; }
     std::shared_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池

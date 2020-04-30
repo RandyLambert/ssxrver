@@ -13,11 +13,12 @@ namespace net
 using std::string;
 class MySQL : noncopyable
 {
-    typedef std::function<string (const string&)> sqlCallBack;
+    typedef std::function<string(const string &)> sqlCallBack;
+
 public:
     MySQL();
     ~MySQL();
-    bool mysqlInit(const string& addr="127.0.0.1",const string& user="root",const string& password="123456",const string& dataBaseName="ttms",unsigned int port = 0,const char* unixSocket=NULL,unsigned long clientFlag = 0);
+    bool mysqlInit(const string &addr = "127.0.0.1", const string &user = "root", const string &password = "123456", const string &dataBaseName = "ttms", unsigned int port = 0, const char *unixSocket = NULL, unsigned long clientFlag = 0);
     int returnMin()
     {
         return MIN;
@@ -31,18 +32,17 @@ public:
         return MAX;
     }
 
-    int useNoResultMap(int x,const string& query)
+    int useNoResultMap(int x, const string &query)
     {
         return queryNoResult(sqlMap[x](query));
     }
 
-    int useHasResultMap(int x,const string& query,string& reback)
+    int useHasResultMap(int x, const string &query, string &reback)
     {
-        return queryHasResult(sqlMap[x](query),reback);
+        return queryHasResult(sqlMap[x](query), reback);
     }
 
 private:
-
     enum
     {
         MIN,
@@ -51,15 +51,14 @@ private:
         MID,
         MAX
     };
-    int queryNoResult(const string& s);
-    int queryHasResult(const string& s,string &result);
-    std::map<int,sqlCallBack> sqlMap;
+    int queryNoResult(const string &s);
+    int queryHasResult(const string &s, string &result);
+    std::map<int, sqlCallBack> sqlMap;
     MYSQL mysql_;
     MYSQL_RES *res_;
     MYSQL_ROW sqlrow_;
 };
 
-}
-}
+} // namespace net
+} // namespace ssxrver
 #endif
-

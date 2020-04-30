@@ -21,9 +21,9 @@ public:
     {
     public:
         template <int N>
-            inline SourceFile(const char (&arr)[N])
+        inline SourceFile(const char (&arr)[N])
             : data_(arr),
-            size_(N - 1)
+              size_(N - 1)
         {
             const char *slash = strrchr(data_, '/'); //查到最后一个“/”并返回位置
             if (slash)
@@ -48,15 +48,13 @@ public:
         size_t size_;
     };
 
-
-
     Logger(SourceFile file, int line);
     Logger(SourceFile file, int line, LogLevel level);
     Logger(SourceFile file, int line, LogLevel level, const char *func);
     Logger(SourceFile file, int line, bool toAbort);
     ~Logger();
 
-    LogStream &stream() { return impl_.stream_;}
+    LogStream &stream() { return impl_.stream_; }
 
     static LogLevel logLevel();
     static void setLogLevel(LogLevel level);
@@ -74,7 +72,7 @@ private:
     public:
         typedef Logger::LogLevel LogLevel;
         Impl(LogLevel level, int old_errno, const SourceFile &file, int line);
-        void finish();     //将日志写道缓冲区
+        void finish(); //将日志写道缓冲区
 
         LogStream stream_; //LogStream类对象成员
         LogLevel level_;   //日志级别
@@ -96,13 +94,13 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
 //使用宏来定义匿名对象，LogStream重载了<<，因此可以使用 LOG_REACE<<"日志"<<
 //日志输出宏，输出在哪个文件? 哪一行? 哪个函数? 哪种级别?
 //无名对象所在语句执行后就立即被析构，然后调用析构函数将缓冲区的内容分输出
-#define LOG_TRACE                                            \
+#define LOG_TRACE                                              \
     if (ssxrver::Logger::logLevel() <= ssxrver::Logger::TRACE) \
     ssxrver::Logger(__FILE__, __LINE__, ssxrver::Logger::TRACE, __func__).stream()
-#define LOG_DEBUG                                            \
+#define LOG_DEBUG                                              \
     if (ssxrver::Logger::logLevel() <= ssxrver::Logger::DEBUG) \
     ssxrver::Logger(__FILE__, __LINE__, ssxrver::Logger::DEBUG, __func__).stream()
-#define LOG_INFO                                            \
+#define LOG_INFO                                              \
     if (ssxrver::Logger::logLevel() <= ssxrver::Logger::INFO) \
     ssxrver::Logger(__FILE__, __LINE__).stream()
 #define LOG_WARN ssxrver::Logger(__FILE__, __LINE__, ssxrver::Logger::WARN).stream()
@@ -115,6 +113,6 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
 
 const char *strerror_tl(int savedErrno);
 
-}
+} // namespace ssxrver
 
 #endif

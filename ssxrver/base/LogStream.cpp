@@ -64,8 +64,8 @@ size_t convertHex(char buf[], uintptr_t value)
 
 template class FixedBuffer<kSmallBuffer>;
 template class FixedBuffer<kLargeBuffer>;
-}
-}
+} // namespace detail
+} // namespace ssxrver
 
 template <typename T>
 void LogStream::formatInteger(T v)
