@@ -13,6 +13,7 @@ net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/CurrentThread.h
 net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/LogStream.h
 net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/Channel.cpp.o: net/Channel.cpp
@@ -25,6 +26,7 @@ net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/CurrentThread.h
 net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/LogStream.h
 net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/Epoller.cpp.o: net/Channel.h
@@ -38,6 +40,7 @@ net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/CurrentThread.h
 net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/LogStream.h
 net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: net/Channel.h
@@ -49,9 +52,8 @@ net/CMakeFiles/NetFunctions.dir/EventLoop.cpp.o: net/SocketOps.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Condition.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/CountDownLatch.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/CurrentThread.h
-net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/LogStream.h
-net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThread.cpp.o: net/EventLoop.h
@@ -62,6 +64,7 @@ net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Condition.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/CountDownLatch.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/CurrentThread.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/EventLoopThreadPool.cpp.o: net/EventLoop.h
@@ -82,6 +85,7 @@ net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/CurrentThread.h
 net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/LogStream.h
 net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/TcpConnection.cpp.o: net/Buffer.h
@@ -97,6 +101,7 @@ net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/CurrentThread.h
 net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/LogStream.h
 net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/Logging.h
 net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/Mutex.h
+net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/MySQL.h
 net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/Thread.h
 net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: base/noncopyable.h
 net/CMakeFiles/NetFunctions.dir/TcpServer.cpp.o: net/Buffer.h

@@ -5,11 +5,12 @@
 #include "http/HttpResponse.h"
 #include "net/EventLoop.h"
 #include "base/Logging.h"
+#include "base/MySQL.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 bool flag = false;
 
-void message(const HttpRequest &req, HttpResponse *resp)
+void message(const HttpRequest &req, HttpResponse *resp, MySQL *mysql)
 {
     std::cout << "have a message" << std::endl;
     if (!flag)
@@ -27,8 +28,19 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->addHeader("Server", "ssxrver");
         resp->setBody("<html><head><title>This is title</title></head>"
                       "<body><h1>Hello World</h1></body></html>");
+
+        int x = 1;
+        string p = "INSERT INTO studio VALUES(NULL,'IMAX大厅',5,7,'IMAX影厅,3D电影');";
+        if (x > mysql->returnMin() || x < mysql->returnMid())
+            mysql->useNoResultMap(x, p);
+        else if (x > mysql->returnMid() || x < mysql->returnMax())
+        {
+            string reback;
+            mysql->useHasResultMap(x, "query", reback);
+        }
     }
 }
+
 int main(int argv, char *argc[])
 {
 

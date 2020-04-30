@@ -1,7 +1,6 @@
 #include <functional>
 #include "EventLoopThread.h"
 #include "EventLoop.h"
-#include "../base/Logging.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 

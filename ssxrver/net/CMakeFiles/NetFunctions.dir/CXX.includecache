@@ -58,6 +58,18 @@ noncopyable.h
 CurrentThread.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CurrentThread.h
 
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.h
+noncopyable.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
+string
+-
+map
+-
+functional
+-
+mysql/mysql.h
+-
+
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
 pthread.h
 -
@@ -177,6 +189,8 @@ atomic
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CurrentThread.h
 ../base/Thread.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
+../base/MySQL.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.h
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoopThread.cpp
 functional
@@ -185,8 +199,6 @@ EventLoopThread.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoopThread.h
 EventLoop.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoop.h
-../base/Logging.h
-/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.h
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoopThread.h
 ../base/noncopyable.h

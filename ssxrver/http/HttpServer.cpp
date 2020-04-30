@@ -1,6 +1,7 @@
 #include <functional>
 #include "HttpServer.h"
 #include "../base/Logging.h"
+#include "../base/MySQL.h"
 #include "HttpContext.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
@@ -14,7 +15,7 @@ namespace net
 namespace detail
 {
 
-void defaultHttpCallback(const HttpRequest &, HttpResponse *resp)
+void defaultHttpCallback(const HttpRequest &, HttpResponse *resp,const MySQL*)
 {
     resp->setStatusCode(HttpResponse::k404NotFound);
     resp->setStatusMessage("Not Found");
@@ -67,13 +68,14 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
 void HttpServer::onRequest(const TcpConnectionPtr &conn,const HttpRequest &req)
 {
     const string &connection = req.getHeader("Connection");
+    MySQL *mysql = conn->getLoop()->getMySQL();
     bool close;
     if(connection == "close")
         close = true;
     else
         close = false;
     HttpResponse response(close);
-    httpCallback_(req, &response);
+    httpCallback_(req, &response, mysql);
     Buffer buf;
     response.appendToBuffer(&buf); //将对象转化为一个字符串到buf中
     conn->send(&buf);              //将缓冲区发送到客户端

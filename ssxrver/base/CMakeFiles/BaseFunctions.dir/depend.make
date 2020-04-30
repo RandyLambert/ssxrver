@@ -21,6 +21,20 @@ base/CMakeFiles/BaseFunctions.dir/Logging.cpp.o: base/Logging.cpp
 base/CMakeFiles/BaseFunctions.dir/Logging.cpp.o: base/Logging.h
 base/CMakeFiles/BaseFunctions.dir/Logging.cpp.o: base/noncopyable.h
 
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/LogStream.h
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/Logging.h
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/MySQL.cpp
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/MySQL.h
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/MySQLsOps.h
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/noncopyable.h
+
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/LogStream.h
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/Logging.h
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/MySQL.h
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/MySQLsOps.cpp
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/MySQLsOps.h
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/noncopyable.h
+
 base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o: base/Condition.h
 base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o: base/CountDownLatch.h
 base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o: base/CurrentThread.h

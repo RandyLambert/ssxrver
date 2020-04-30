@@ -5,10 +5,10 @@ set(CMAKE_BUILD_TYPE "Release")
 
 
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall -Wno-unused-variable -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -I/usr/include/mysql -g -Wall -Wno-unused-variable -L/usr/lib/mysql -lmysqlclient -pthread")
 else( CMAKE_BUILD_TYPE STREQUAL "Debug" )
         set(CMAKE_BUILD_TYPE "Release")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -pthread -fopenmp")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -I/usr/include/mysql -O2 -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp")
 endif( CMAKE_BUILD_TYPE STREQUAL "Debug" )
 
 message("Build Type:"${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})

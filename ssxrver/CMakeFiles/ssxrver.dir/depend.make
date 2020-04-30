@@ -7,6 +7,7 @@ CMakeFiles/ssxrver.dir/main.cpp.o: base/CurrentThread.h
 CMakeFiles/ssxrver.dir/main.cpp.o: base/LogStream.h
 CMakeFiles/ssxrver.dir/main.cpp.o: base/Logging.h
 CMakeFiles/ssxrver.dir/main.cpp.o: base/Mutex.h
+CMakeFiles/ssxrver.dir/main.cpp.o: base/MySQL.h
 CMakeFiles/ssxrver.dir/main.cpp.o: base/Thread.h
 CMakeFiles/ssxrver.dir/main.cpp.o: base/noncopyable.h
 CMakeFiles/ssxrver.dir/main.cpp.o: http/HttpRequest.h

@@ -109,9 +109,35 @@ base/CMakeFiles/BaseFunctions.dir/Logging.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BaseFunctions.dir/Logging.cpp.s"
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.cpp -o CMakeFiles/BaseFunctions.dir/Logging.cpp.s
 
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/CMakeFiles/BaseFunctions.dir/flags.make
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o: base/MySQL.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BaseFunctions.dir/MySQL.cpp.o -c /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.cpp
+
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BaseFunctions.dir/MySQL.cpp.i"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.cpp > CMakeFiles/BaseFunctions.dir/MySQL.cpp.i
+
+base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BaseFunctions.dir/MySQL.cpp.s"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.cpp -o CMakeFiles/BaseFunctions.dir/MySQL.cpp.s
+
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/CMakeFiles/BaseFunctions.dir/flags.make
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o: base/MySQLsOps.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o -c /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQLsOps.cpp
+
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.i"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQLsOps.cpp > CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.i
+
+base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.s"
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQLsOps.cpp -o CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.s
+
 base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o: base/CMakeFiles/BaseFunctions.dir/flags.make
 base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o: base/Thread.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o"
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BaseFunctions.dir/Thread.cpp.o -c /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.cpp
 
 base/CMakeFiles/BaseFunctions.dir/Thread.cpp.i: cmake_force
@@ -128,6 +154,8 @@ BaseFunctions_OBJECTS = \
 "CMakeFiles/BaseFunctions.dir/Exception.cpp.o" \
 "CMakeFiles/BaseFunctions.dir/LogStream.cpp.o" \
 "CMakeFiles/BaseFunctions.dir/Logging.cpp.o" \
+"CMakeFiles/BaseFunctions.dir/MySQL.cpp.o" \
+"CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o" \
 "CMakeFiles/BaseFunctions.dir/Thread.cpp.o"
 
 # External object files for target BaseFunctions
@@ -137,10 +165,12 @@ base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/CountDownLatch.cpp.o
 base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/Exception.cpp.o
 base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/LogStream.cpp.o
 base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/Logging.cpp.o
+base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o
+base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o
 base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/Thread.cpp.o
 base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/build.make
 base/libBaseFunctions.a: base/CMakeFiles/BaseFunctions.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libBaseFunctions.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX static library libBaseFunctions.a"
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && $(CMAKE_COMMAND) -P CMakeFiles/BaseFunctions.dir/cmake_clean_target.cmake
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/BaseFunctions.dir/link.txt --verbose=$(VERBOSE)
 

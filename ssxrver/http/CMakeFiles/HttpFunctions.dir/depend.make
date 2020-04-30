@@ -10,8 +10,14 @@ http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o: http/HttpResponse.cpp
 http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o: http/HttpResponse.h
 http/CMakeFiles/HttpFunctions.dir/HttpResponse.cpp.o: net/Buffer.h
 
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/Condition.h
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/CountDownLatch.h
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/CurrentThread.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/LogStream.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/Logging.h
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/Mutex.h
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/MySQL.h
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/Thread.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: base/noncopyable.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: http/HttpContext.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: http/HttpRequest.h
@@ -20,6 +26,7 @@ http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: http/HttpServer.cpp
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: http/HttpServer.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: net/Buffer.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: net/Channel.h
+http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: net/EventLoop.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: net/TcpConnection.h
 http/CMakeFiles/HttpFunctions.dir/HttpServer.cpp.o: net/TcpServer.h
 

@@ -58,6 +58,18 @@ noncopyable.h
 CurrentThread.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CurrentThread.h
 
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.h
+noncopyable.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
+string
+-
+map
+-
+functional
+-
+mysql/mysql.h
+-
+
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
 pthread.h
 -
@@ -93,6 +105,8 @@ map
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/TcpServer.h
 ../base/noncopyable.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
+../net/EventLoop.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoop.h
 iostream
 -
 
@@ -111,6 +125,8 @@ net/EventLoop.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/EventLoop.h
 base/Logging.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.h
+base/MySQL.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.h
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/Buffer.h
 cstring
@@ -149,6 +165,8 @@ atomic
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/CurrentThread.h
 ../base/Thread.h
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
+../base/MySQL.h
+/home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.h
 
 /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/net/TcpConnection.h
 memory

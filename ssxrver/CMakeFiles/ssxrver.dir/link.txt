@@ -1,1 +1,1 @@
-/usr/bin/c++   -std=c++11 -O2 -pthread -fopenmp -O3 -DNDEBUG   CMakeFiles/ssxrver.dir/main.cpp.o  -o ssxrver net/libNetFunctions.a base/libBaseFunctions.a net/libNetFunctions.a http/libHttpFunctions.a 
+/usr/bin/c++   -std=c++11 -I/usr/include/mysql -O2 -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp -O3 -DNDEBUG   CMakeFiles/ssxrver.dir/main.cpp.o  -o ssxrver net/libNetFunctions.a base/libBaseFunctions.a net/libNetFunctions.a http/libHttpFunctions.a 

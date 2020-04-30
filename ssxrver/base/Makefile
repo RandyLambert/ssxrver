@@ -233,6 +233,60 @@ Logging.cpp.s:
 	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/Logging.cpp.s
 .PHONY : Logging.cpp.s
 
+MySQL.o: MySQL.cpp.o
+
+.PHONY : MySQL.o
+
+# target to build an object file
+MySQL.cpp.o:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.o
+.PHONY : MySQL.cpp.o
+
+MySQL.i: MySQL.cpp.i
+
+.PHONY : MySQL.i
+
+# target to preprocess a source file
+MySQL.cpp.i:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.i
+.PHONY : MySQL.cpp.i
+
+MySQL.s: MySQL.cpp.s
+
+.PHONY : MySQL.s
+
+# target to generate assembly for a file
+MySQL.cpp.s:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/MySQL.cpp.s
+.PHONY : MySQL.cpp.s
+
+MySQLsOps.o: MySQLsOps.cpp.o
+
+.PHONY : MySQLsOps.o
+
+# target to build an object file
+MySQLsOps.cpp.o:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.o
+.PHONY : MySQLsOps.cpp.o
+
+MySQLsOps.i: MySQLsOps.cpp.i
+
+.PHONY : MySQLsOps.i
+
+# target to preprocess a source file
+MySQLsOps.cpp.i:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.i
+.PHONY : MySQLsOps.cpp.i
+
+MySQLsOps.s: MySQLsOps.cpp.s
+
+.PHONY : MySQLsOps.s
+
+# target to generate assembly for a file
+MySQLsOps.cpp.s:
+	cd /home/sunxiaochuan/sunshouxun/WebServer/ssxrver && $(MAKE) -f base/CMakeFiles/BaseFunctions.dir/build.make base/CMakeFiles/BaseFunctions.dir/MySQLsOps.cpp.s
+.PHONY : MySQLsOps.cpp.s
+
 Thread.o: Thread.cpp.o
 
 .PHONY : Thread.o
@@ -281,6 +335,12 @@ help:
 	@echo "... Logging.o"
 	@echo "... Logging.i"
 	@echo "... Logging.s"
+	@echo "... MySQL.o"
+	@echo "... MySQL.i"
+	@echo "... MySQL.s"
+	@echo "... MySQLsOps.o"
+	@echo "... MySQLsOps.i"
+	@echo "... MySQLsOps.s"
 	@echo "... Thread.o"
 	@echo "... Thread.i"
 	@echo "... Thread.s"

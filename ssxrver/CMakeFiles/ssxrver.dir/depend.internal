@@ -8,6 +8,7 @@ CMakeFiles/ssxrver.dir/main.cpp.o
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/LogStream.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Logging.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Mutex.h
+ /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/MySQL.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/Thread.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/base/noncopyable.h
  /home/sunxiaochuan/sunshouxun/WebServer/ssxrver/http/HttpRequest.h
