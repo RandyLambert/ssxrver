@@ -10,6 +10,7 @@
 #include "../base/Logging.h"
 
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+//在这个文件下忽略掉-wold-style-cast编译参数
 using namespace ssxrver::net;
 namespace
 {
