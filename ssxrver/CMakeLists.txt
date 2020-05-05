@@ -5,13 +5,13 @@ set(CMAKE_BUILD_TYPE "Release")
 
 
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -I/usr/include/mysql -g -Wall -Wno-unused-variable -Wshadow -Werror -L/usr/lib/mysql -lmysqlclient -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -g -Wall -Wno-unused-variable -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread")
 else( CMAKE_BUILD_TYPE STREQUAL "Debug" )
         set(CMAKE_BUILD_TYPE "Release")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -I/usr/include/mysql -O2 -Wall -Wshadow -Werror -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -O2 -Wall -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp")
 endif( CMAKE_BUILD_TYPE STREQUAL "Debug" )
 
-message("Build Type:"${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
+message("Build Type:" ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
 
 
 # set(CXX_FLAGS
@@ -34,14 +34,6 @@ message("Build Type:"${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
 #  -lstd=c++17
 #  -rdynamic
 #  )
-
-if (MSVC_VERSION GREATER_EQUAL "1900")
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
-    if (_cpp_latest_flag_supported)
-        add_compile_options("/std:c++latest")
-    endif()
-endif()
 
 
 #项目信息

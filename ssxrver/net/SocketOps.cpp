@@ -8,6 +8,8 @@
 
 #include "SocketOps.h"
 #include "../base/Logging.h"
+
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 using namespace ssxrver::net;
 namespace
 {
