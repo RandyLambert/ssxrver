@@ -36,4 +36,4 @@ tags
 *.iso
 
 #file
-/ssxrver/bulid/
+build/
