@@ -1,15 +1,15 @@
 #CMake 最低版本好要求
 cmake_minimum_required (VERSION 3.11.2)
 
-set(CMAKE_BUILD_TYPE "Release")
-
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
 
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -g -Wall -Wno-unused-variable -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread")
-else( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-        set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -O2 -Wall -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp")
-endif( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+elseif( CMAKE_BUILD_TYPE STREQUAL "Release" )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -O2 -Wall -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp")
+endif()
 
 message("Build Type:" ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
 
@@ -34,7 +34,6 @@ message("Build Type:" ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
 #  -lstd=c++17
 #  -rdynamic
 #  )
-
 
 #项目信息
 project(web_ssxrver)
