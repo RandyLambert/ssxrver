@@ -1,5 +1,5 @@
-#ifndef SSXERVER_NET_MYSQL_H
-#define SSXERVER_NET_MYSQL_H
+#ifndef SSXERVER_BASE_MYSQL_H
+#define SSXERVER_BASE_MYSQL_H
 #include "noncopyable.h"
 #include <string>
 #include <map>
@@ -7,7 +7,7 @@
 #include <mysql/mysql.h>
 namespace ssxrver
 {
-namespace net
+namespace base
 {
 
 using std::string;
@@ -59,6 +59,6 @@ private:
     MYSQL_ROW sqlrow_;
 };
 
-} // namespace net
+} // namespace base
 } // namespace ssxrver
 #endif

@@ -1,9 +1,9 @@
-#ifndef SSXERVER_NET_MYSQLSOPS_H
-#define SSXERVER_NET_MYSQLSOPS_H
+#ifndef SSXERVER_BASE_MYSQLSOPS_H
+#define SSXERVER_BASE_MYSQLSOPS_H
 #include <string>
 namespace ssxrver
 {
-namespace net
+namespace base
 {
 namespace SQLs
 {
@@ -12,7 +12,7 @@ string sqlRegister(const string &str);
 string sqlLogin(const string &str);
 
 } // namespace SQLs
-} // namespace net
+} // namespace base
 } // namespace ssxrver
 
 #endif

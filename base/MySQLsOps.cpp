@@ -3,7 +3,7 @@
 #include "MySQL.h"
 #include "Logging.h"
 using namespace ssxrver;
-using namespace ssxrver::net;
+using namespace ssxrver::base;
 string SQLs::sqlRegister(const string &str)
 {
     LOG_INFO << "sqlRegister";
