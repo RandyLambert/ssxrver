@@ -7,12 +7,6 @@
 using namespace ssxrver;
 using namespace ssxrver::detail;
 
-/* #if defined(__clang__) */
-/* #pragma clang diagnostic ignored "-Wtautological-compare" */
-/* #else */
-/* #pragma GCC diagnostic ignored "-Wtype-limits" //暂且忽略掉这个编译选项 */
-/* #endif */
-
 namespace ssxrver
 {
 namespace detail

@@ -24,7 +24,7 @@ public:
 
     void append(const char *buf, size_t len)
     {
-        if (static_cast<size_t>(avail()) > len) //当前可用的空间大于len，则就可以将其添加进去
+        if (avail() > len) //当前可用的空间大于len，则就可以将其添加进去
         {
             memcpy(cur_, buf, len);
             cur_ += len;
@@ -34,7 +34,7 @@ public:
             if (avail() > 0)
             {
                 memcpy(cur_, buf, static_cast<size_t>(avail()));
-                cur_ += avail();
+                cur_ += (avail());
             }
         }
     }

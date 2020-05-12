@@ -8,7 +8,6 @@ class Logger
 public:
     enum LogLevel
     {
-        TRACE,          //指出比DEBUG粒度更细的一些信息事件(开发时使用较多)
         DEBUG,          //指出细粒度信息事件对调试应用程序是非常有帮助的(开发是使用较多)
         INFO,           //表明消息在粗粒度级别上突出强调应用程序的运行过程
         WARN,           //系统能正常运行，但是可能会出现潜在错误的情形
@@ -94,9 +93,6 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
 //使用宏来定义匿名对象，LogStream重载了<<，因此可以使用 LOG_REACE<<"日志"<<
 //日志输出宏，输出在哪个文件? 哪一行? 哪个函数? 哪种级别?
 //无名对象所在语句执行后就立即被析构，然后调用析构函数将缓冲区的内容分输出
-#define LOG_TRACE                                              \
-    if (ssxrver::Logger::logLevel() <= ssxrver::Logger::TRACE) \
-    ssxrver::Logger(__FILE__, __LINE__, ssxrver::Logger::TRACE, __func__).stream()
 #define LOG_DEBUG                                              \
     if (ssxrver::Logger::logLevel() <= ssxrver::Logger::DEBUG) \
     ssxrver::Logger(__FILE__, __LINE__, ssxrver::Logger::DEBUG, __func__).stream()
@@ -108,6 +104,7 @@ inline Logger::LogLevel Logger::logLevel() //当前级别返回的是logLevel
 #define LOG_FATAL ssxrver::Logger(__FILE__, __LINE__, ssxrver::Logger::FATAL).stream()
 #define LOG_SYSERR ssxrver::Logger(__FILE__, __LINE__, false).stream()
 #define LOG_SYSFATAL ssxrver::Logger(__FILE__, __LINE__, true).stream()
+//后两个是系统错误
 //构造了一个Logger对象，重载了输入运算符，以流的机制运行
 //构造了一个匿名对象，所以用完之后，就没有存在价值了，接着调用析构函数
 
