@@ -16,8 +16,8 @@ class HttpServer : noncopyable
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;
     typedef std::function<void(const HttpRequest &,
-                               HttpResponse *,
-                               MySQL *)>
+                               HttpResponse *)>
+        //    MySQL *)>
         HttpCallback;
     HttpServer(EventLoop *looop,
                const struct sockaddr_in listenAddr);
@@ -28,7 +28,10 @@ public:
     void start();
 
 private:
-    void onThreadInit(EventLoop *eventloop) { eventloop->mysqlInit(); }
+    /* void onThreadInit(EventLoop *eventloop) */
+    /* { */
+    /*     eventloop->mysqlInit(); */
+    /* } */
     void onConnection(const TcpConnectionPtr &conn);
     void onMessage(const TcpConnectionPtr &conn,                   //当服务器端收到了一个客户端发过来的http请求
                    Buffer *buf);                                   //首先回调onmessage，在onmessage中调用了onrequest，
