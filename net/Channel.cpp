@@ -1,9 +1,8 @@
-#include <sstream>
 #include <sys/epoll.h>
 #include "EventLoop.h"
 #include "Channel.h"
+#include "TcpConnection.h"
 #include "../base/Logging.h"
-
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -21,6 +20,7 @@ Channel::Channel(EventLoop *loop, int fd)
       tied_(false),
       eventHandling_(false),
       addedToLoop_(false)
+      /* name_("无名") */
 {
 }
 
@@ -28,10 +28,15 @@ Channel::~Channel()
 {
     assert(!eventHandling_);
     assert(!addedToLoop_);
-    /* close(fd_); */
+    close(fd_);
 }
 
-void Channel::tie(const std::shared_ptr<void> &obj)
+std::shared_ptr<TcpConnection> Channel::getTie()
+{
+    std::shared_ptr<TcpConnection> temp(tie_.lock());
+    return temp;
+}
+void Channel::tie(std::shared_ptr<TcpConnection> &obj)
 {
     tie_ = obj;
     tied_ = true;
@@ -70,7 +75,6 @@ void Channel::handleEvent()
 void Channel::handleEventWithGuard()
 {
     eventHandling_ = true;
-    LOG_TRACE << reventsToString();
     if ((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN)) //判断一下返回的事件，进行处理
     {
         if (logHup_)
@@ -81,33 +85,23 @@ void Channel::handleEventWithGuard()
             closeCallback_();
     }
     if (revents_ & EPOLLERR)
+    {
         if (errorCallback_)
             errorCallback_();
+    }
     if (revents_ & (EPOLLIN | EPOLLPRI | EPOLLHUP)) //可读事件，最后一个是等待方关闭连接
+    {
         if (readCallback_)
+        {
+            /* LOG_INFO << "有返回" */
+            /*          << " channel_ " << name_; */
             readCallback_();
+        }
+    }
     if (revents_ & EPOLLOUT)
+    {
         if (writeCallback_)
             writeCallback_();
+    }
     eventHandling_ = false;
-}
-
-std::string Channel::reventsToString() const
-{ //调试，发生了什么事件
-    std::ostringstream oss;
-    oss << fd_ << ": ";
-    if (revents_ & EPOLLIN)
-        oss << "IN ";
-    if (revents_ & EPOLLPRI)
-        oss << "PRI ";
-    if (revents_ & EPOLLOUT)
-        oss << "OUT ";
-    if (revents_ & EPOLLHUP)
-        oss << "HUP ";
-    if (revents_ & EPOLLRDHUP)
-        oss << "RDHUP ";
-    if (revents_ & EPOLLERR)
-        oss << "ERR ";
-
-    return oss.str().c_str();
 }

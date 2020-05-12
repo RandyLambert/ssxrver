@@ -2,6 +2,7 @@
 #include "EventLoop.h"
 #include "EventLoopThread.h"
 #include "EventLoopThreadPool.h"
+
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -23,8 +24,8 @@ void EventLoopThreadPool::start(const ThreadInitCallback &cb)
 
     for (int i = 0; i < numThreads_; ++i)
     {
-        std::shared_ptr<EventLoopThread> t(new EventLoopThread(cb));
-        threads_.push_back(t);
+        EventLoopThread *t = new EventLoopThread(cb);
+        threads_.push_back(std::unique_ptr<EventLoopThread>(t));
         loops_.push_back(t->startLoop()); //启动eventloopthreads线程，在进入事件循环之前，会调用cb
     }
 

@@ -1,11 +1,12 @@
 #include <cstdio>
+#include <fcntl.h>
+#include <boost/get_pointer.hpp>
+#include <assert.h>
 #include "TcpServer.h"
 #include "EventLoop.h"
 #include "EventLoopThreadPool.h"
 #include "SocketOps.h"
 #include "../base/Logging.h"
-#include <fcntl.h>
-#include <boost/get_pointer.hpp>
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -16,31 +17,29 @@ TcpServer::TcpServer(EventLoop *loop,
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback),
       started_(false),
-      nextConnId_(1),
       acceptfd_(socketops::createNonblockingOrDie()),
       idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)),
-      acceptChannel_(loop, acceptfd_)
+      acceptChannel_(new Channel(loop, acceptfd_))
 {
     socketops::setReuseAddr(acceptfd_, true);
     socketops::setReusePort(acceptfd_, true);
     socketops::bindOrDie(acceptfd_, listenAddr);
-    acceptChannel_.setReadCallback(
+    acceptChannel_->setReadCallback(
         std::bind(&TcpServer::acceptHandRead, this));
+    /* acceptChannel_->name_ = "负责连接新连接的channel名"; */
 }
 
 TcpServer::~TcpServer()
 {
     loop_->assertInLoopThread();
-    LOG_TRACE << "TcpServer::~TcpServer destructing";
-
-    for (auto &item : connections_)
-    {
-        TcpConnectionPtr conn(item.second);
-        item.second.reset();
-        conn->getLoop()->runInLoop(
-            std::bind(&TcpConnection::connectDestroyed, conn));
-        conn.reset();
-    }
+    // for (auto &item : connections_)
+    // {
+    //     TcpConnectionPtr conn(item.second);
+    //     item.second.reset();
+    //     conn->getLoop()->runInLoop(
+    //         std::bind(&TcpConnection::connectDestroyed, conn));
+    //     conn.reset();
+    // }
     ::close(idleFd_);
 }
 
@@ -54,7 +53,7 @@ void TcpServer::setThreadNum(int numThreads)
 void TcpServer::acceptSockListen()
 {
     socketops::listenOrDie(acceptfd_);
-    acceptChannel_.enableReading();
+    acceptChannel_->enableReading();
 }
 
 void TcpServer::acceptHandRead()
@@ -96,32 +95,42 @@ void TcpServer::newConnection(int sockfd)
     loop_->assertInLoopThread(); //断言在io线程
     //按照轮叫的方式选择一个eventloop，将这个歌新连接交给这个eventloop
     EventLoop *ioLoop = threadPool_->getNextLoop(); //选出这个io线程
-    ++nextConnId_;
     LOG_INFO << "TcpServer::newConnection" << sockfd;
     TcpConnectionPtr conn(new TcpConnection(ioLoop, //所属ioloop
                                             sockfd));
-    connections_[sockfd] = conn;
+    // connections_[sockfd] = conn;
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setConnectionCallback(connectionCallback_);
     conn->setCloseCallback(
-        std::bind(&TcpServer::removeConnectionInLoop, this, std::placeholders::_1));
-    ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+        std::bind(&TcpServer::removeConnection, this, std::placeholders::_1));
+    conn->getChannel()->tie(conn);
+    ioLoop->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
 }
 
+// void TcpServer::removeConnection(const TcpConnectionPtr &conn)
+// {
+//     LOG_INFO << "remoconnection";
+//     loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
+// }
+
+// void TcpServer::removeConnectionInLoop(const TcpConnectionPtr &conn)
+// {
+//     // loop_->assertInLoopThread();
+//     LOG_INFO << "TcpServer::removeConnectionInLoop " << conn->returnSockfd() << conn->channel_->name_;
+//     // if (connections_.erase(conn->returnSockfd()) == 0)
+//     // abort();
+//     EventLoop *ioLoop = conn->getLoop();
+//     ioLoop->queueInLoop(
+//         std::bind(&TcpConnection::connectDestroyed, conn));
+// }
 void TcpServer::removeConnection(const TcpConnectionPtr &conn)
 {
-    loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
-}
-
-void TcpServer::removeConnectionInLoop(const TcpConnectionPtr &conn)
-{
-    loop_->assertInLoopThread();
-    LOG_INFO << "TcpServer::removeConnectionInLoop " << conn->returnSockfd();
-    size_t n = connections_.erase(conn->returnSockfd());
-    (void)n;
-    assert(n == 1);
+    // loop_->assertInLoopThread();
+    LOG_INFO << "TcpServer::removeConnection " << conn->returnSockfd() /*<< conn->channel_->name_ */;
+    // if (connections_.erase(conn->returnSockfd()) == 0)
+    // abort();
     EventLoop *ioLoop = conn->getLoop();
-    ioLoop->queueInLoop(
+    ioLoop->runInLoop(
         std::bind(&TcpConnection::connectDestroyed, conn));
 }

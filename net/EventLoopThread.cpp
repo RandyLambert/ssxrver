@@ -54,5 +54,6 @@ void EventLoopThread::threadFunc()
     }
 
     loop.loop();
+    MutexLockGuard lock(mutex_);
     loop_ = nullptr;
 }

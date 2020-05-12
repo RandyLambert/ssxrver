@@ -17,7 +17,7 @@ enum
 Epoller::Epoller(EventLoop *loop)
     : epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
       events_(kInitEventListSize),
-      loop_(loop)
+      ownerLoop_(loop)
 {
     if (epollfd_ < 0)
     {
@@ -35,11 +35,11 @@ void Epoller::poll(ChannelList *activeChannels)
     int numEvents = ::epoll_wait(epollfd_,
                                  &*events_.begin(), //事件动态数组，提前设好大小
                                  static_cast<int>(events_.size()),
-                                 timeoutMs);
+                                 -1);
     int saveErrno = errno;
     if (numEvents > 0)
     {
-        LOG_TRACE << numEvents << "epoll open";
+        // LOG_INFO << numEvents << "events happned";
         fillActiveChannels(numEvents, activeChannels);
         if (static_cast<size_t>(numEvents) == events_.size()) //随着关注的事件个数逐渐增加
         {
@@ -69,14 +69,18 @@ void Epoller::fillActiveChannels(int numEvents,                     //返回活�
 
 void Epoller::updateChannel(Channel *channel)
 {
-    loop_->assertInLoopThread();
-    LOG_TRACE << "fd = " << channel->fd() << " event = " << channel->events();
+    ownerLoop_->assertInLoopThread();
     const int status_ = channel->status();
     if (status_ == kNew || status_ == kDeleted)
     {
         int fd = channel->fd(); //如果是新的通道，取他的fd值
         if (status_ == kNew)
+        {
             channels_[fd] = channel; //新的，就加到关注队列
+            /* connections_.push_back(make_pair(fd,channel->getTie())); */
+            connections_[fd] = channel->getTie();
+
+        }
         channel->set_status(kAdded);
         update(EPOLL_CTL_ADD, channel);
     }
@@ -96,12 +100,14 @@ void Epoller::updateChannel(Channel *channel)
 
 void Epoller::removeChannel(Channel *channel)
 {
-    loop_->assertInLoopThread();
+    ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
-    LOG_TRACE << "fd = " << fd;
     int status_ = channel->status();
-    if (channels_.erase(fd) != 1)
-        LOG_SYSFATAL << "erase channel";
+    /* LOG_INFO << channel->name_; */
+    if (channels_.erase(fd) != true)
+        LOG_FATAL << "erase channel";
+    if (connections_.erase(fd) != true)
+        LOG_FATAL << "erase connections_";
 
     if (status_ == kAdded)
         update(EPOLL_CTL_DEL, channel);

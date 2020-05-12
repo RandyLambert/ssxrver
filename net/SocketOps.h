@@ -11,8 +11,8 @@ namespace socketops
 
 int createNonblockingOrDie(); //创建一个非阻塞的套接字
 
-int connect(int sockfd, const struct sockaddr_in &addr);    //链接
-void bindOrDie(int sockfd, const struct sockaddr_in &addr); //绑定监听
+int connect(int sockfd, const struct sockaddr_in& addr);    //链接
+void bindOrDie(int sockfd, const struct sockaddr_in& addr); //绑定监听
 void listenOrDie(int sockfd);
 int accept(int sockfd, struct sockaddr_in *addr);
 ssize_t read(int sockfd, void *buf, size_t count);

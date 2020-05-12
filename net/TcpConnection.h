@@ -62,6 +62,7 @@ public:
     void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
     void setWriteCompleteCallback(const WriteCompleteCallback &cb) { writeCompleteCallback_ = cb; }
     int returnSockfd() const { return sockfd_; }
+    std::unique_ptr<Channel>& getChannel(){ return channel_; }
 
     Buffer *inputBuffer() { return &inputBuffer_; }
     Buffer *outputBuffer() { return &outputBuffer_; }
@@ -96,6 +97,7 @@ private:
     EventLoop *loop_; //所属eventloop
     StateE state_;    //FIXME atomic
     int sockfd_;
+/* public: */
     std::unique_ptr<Channel> channel_;
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;

@@ -2,13 +2,14 @@
 #define SSXRVER_NET_CHANNEL_H
 #include <functional>
 #include <memory>
+#include <string>
 #include "../base/noncopyable.h"
 namespace ssxrver
 {
 namespace net
 {
 class EventLoop;
-
+class TcpConnection;
 class Channel : noncopyable
 {
 public:
@@ -36,7 +37,8 @@ public:
         errorCallback_ = std::move(cb);
     }
 
-    void tie(const std::shared_ptr<void> &); //和tcpconnection对象有关系，防止对象销毁
+    void tie(std::shared_ptr<TcpConnection> &); //和tcpconnection对象有关系，防止对象销毁
+    std::shared_ptr<TcpConnection> getTie();
 
     int fd() const { return fd_; }                             //channel对应的文件描述符
     int events() const { return events_; }                     //channel注册了那些时间保存在events中
@@ -71,7 +73,6 @@ public:
 
     int status() { return status_; }
     void set_status(int idx) { status_ = idx; }
-    std::string reventsToString() const;
 
     void doNotLogHup() { logHup_ = false; }
 
@@ -87,13 +88,13 @@ private:
     static const int kWriteEvent; //POLLOUT写
 
     EventLoop *loop_; //记录所属的eventloop
-    const int fd_;    //文件描述符，可能负责关闭
+    const int fd_;    //文件描述符，负责关闭
     int events_;      //关注的事件
     int revents_;     //epoll实际返回的事件个数
     int status_;      //epoll中通道的状态
     bool logHup_;     //for EPOLLHUP
 
-    std::weak_ptr<void> tie_;
+    std::weak_ptr<TcpConnection> tie_;
     bool tied_;
     bool eventHandling_; //是否在处理事件中
     bool addedToLoop_;
@@ -101,6 +102,9 @@ private:
     EventCallback writeCallback_;
     EventCallback closeCallback_;
     EventCallback errorCallback_;
+
+/* public: */
+/*     std::string name_; */
 };
 
 } // namespace net

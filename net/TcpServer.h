@@ -32,7 +32,7 @@ public:
     EventLoop *getLoop() const { return loop_; }
     void setThreadNum(int numThreads);
     void setThreadInitCallback(const ThreadInitCallback &cb) { threadInitCallback_ = cb; }
-    std::shared_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
+    //std::unique_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池
     void setConnectionCallback(const ConnectionCallback cb) { connectionCallback_ = std::move(cb); }
@@ -49,17 +49,16 @@ private:
     typedef std::map<int, TcpConnectionPtr> ConnectionMap;
 
     EventLoop *loop_;
-    std::shared_ptr<EventLoopThreadPool> threadPool_;
+    std::unique_ptr<EventLoopThreadPool> threadPool_;
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     ThreadInitCallback threadInitCallback_;
     std::atomic<bool> started_;
-    int nextConnId_;            //下一个连接id
-    ConnectionMap connections_; //连接累彪保留这个服务器上的所有连接
+    // ConnectionMap connections_; //连接累彪保留这个服务器上的所有连接
     int acceptfd_;
     int idleFd_;
-    Channel acceptChannel_;
+    std::unique_ptr<Channel> acceptChannel_;
 };
 
 } // namespace net
