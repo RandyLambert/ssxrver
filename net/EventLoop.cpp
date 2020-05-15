@@ -43,8 +43,8 @@ EventLoop::EventLoop()
       threadId_(CurrentThread::tid()),
       Epoller_(new Epoller(this)),
       wakeupFd_(createEventfd()), //创建一个eventfd
-      wakeupChannel_(new Channel(this, wakeupFd_))
-//   mysql_()
+      wakeupChannel_(new Channel(this, wakeupFd_)),
+      mysql_()
 {
     LOG_DEBUG << "EventLoop created " << this << "in thread " << threadId_; //每个线程最多一个eventLoop
     if (t_loopInThisThread)

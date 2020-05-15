@@ -8,7 +8,7 @@
 #include "../base/Mutex.h"
 #include "../base/CurrentThread.h"
 #include "../base/Thread.h"
-#include "MySQL.h"
+#include "MySQLsOps.h"
 namespace ssxrver
 {
 namespace net
@@ -43,8 +43,7 @@ public:
 
     bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
     bool eventHandling() const { return eventHandling_; }
-    // bool mysqlInit() { return mysql_.mysqlInit(); }
-    // MySQL *getMySQL() { return &mysql_; }
+    MySQLsOps *getMySQL() { return &mysql_; }
     /* void setname(string name); */
 
 private:
@@ -68,7 +67,7 @@ private:
 
     mutable MutexLock mutex_;
     std::vector<Functor> pendingFunctors_;
-    // MySQL mysql_;
+    MySQLsOps mysql_;
 };
 } // namespace net
 } // namespace ssxrver

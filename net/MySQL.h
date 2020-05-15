@@ -3,6 +3,7 @@
 #include "../base/noncopyable.h"
 #include <string>
 #include <map>
+#include <vector>
 #include <functional>
 #include <mysql/mysql.h>
 namespace ssxrver
@@ -11,49 +12,21 @@ namespace net
 {
 
 using std::string;
+class CJsonObject;
 class MySQL : noncopyable
 {
-    typedef std::function<string(const string &)> sqlCallBack;
-
 public:
-    MySQL();
     ~MySQL();
-    bool mysqlInit(const string &addr = "127.0.0.1", const string &user = "root", const string &password = "123456", const string &dataBaseName = "ttms", unsigned int port = 0, const char *unixSocket = NULL, unsigned long clientFlag = 0);
-    int returnMin()
-    {
-        return MIN;
-    }
-    int returnMid()
-    {
-        return MID;
-    }
-    int returnMax()
-    {
-        return MAX;
-    }
-
-    int useNoResultMap(int x, const string &query)
-    {
-        return queryNoResult(sqlMap[x](query));
-    }
-
-    int useHasResultMap(int x, const string &query, string &reback)
-    {
-        return queryHasResult(sqlMap[x](query), reback);
-    }
-
+    MySQL(const string& addr="127.0.0.1",const string& user="root",const string& password="123456",const string& dataBaseName="ttms",unsigned int port = 0,const char* unixSocket=NULL,unsigned long clientFlag = 0);
+    int sqlSelectWhere(const CJsonObject& cjson,CJsonObject& result);
+    int sqlDeleteWhere(const CJsonObject& cjson);
+    int sqlUpdateWhere(const CJsonObject& cjson);
+    int sqlInsert(const CJsonObject& cjson);
+    int queryNoResult(const string& s);
+    int queryHasResult(const CJsonObject& s,CJsonObject &result);
 private:
-    enum
-    {
-        MIN,
-        REGISTER,
-        LOGIN,
-        MID,
-        MAX
-    };
-    int queryNoResult(const string &s);
-    int queryHasResult(const string &s, string &result);
-    std::map<int, sqlCallBack> sqlMap;
+    int queryTableColName(const string& s,CJsonObject& result);
+
     MYSQL mysql_;
     MYSQL_RES *res_;
     MYSQL_ROW sqlrow_;

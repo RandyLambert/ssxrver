@@ -5,24 +5,22 @@
 #include "http/HttpRequest.h"
 #include "http/HttpResponse.h"
 #include "net/EventLoop.h"
-#include "net/MySQL.h"
+#include "net/MySQLsOps.h"
+#include "net/CJsonObject.hpp"
 #include "base/Logging.h"
 #include "base/AsyncLogThread.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
-bool flag = true;
+bool flag = false;
 
-void message(const HttpRequest &req, HttpResponse *resp /*,  MySQL *mysql*/)
+void message(const HttpRequest &req, HttpResponse *resp ,  MySQLsOps *mysql)
 {
     if (!flag)
     {
-        int i = 0;
         const std::map<string, string> &headers = req.headers();
         for (const auto &x : headers)
         {
-            i++;
-            if (i == 1)
-                std::cout << x.first << " " << x.second << std::endl;
+            std::cout << x.first << " " << x.second << std::endl;
         }
     }
 
@@ -35,15 +33,52 @@ void message(const HttpRequest &req, HttpResponse *resp /*,  MySQL *mysql*/)
         resp->setBody("<html><head><title>This is title</title></head>"
                       "<body><h1>Hello World</h1></body></html>");
 
-        /* int x = 1; */
-        /* string p = "INSERT INTO studio VALUES(NULL,'IMAX大厅',5,7,'IMAX影厅,3D电影');"; */
-        /* if (x > mysql->returnMin() || x < mysql->returnMid()) */
-        /*     mysql->useNoResultMap(x, p); */
-        /* else if (x > mysql->returnMid() || x < mysql->returnMax()) */
-        /* { */
-        /*     string reback; */
-        /*     mysql->useHasResultMap(x, "query", reback); */
-        /* } */
+
+        CJsonObject obj1;
+        /****************************登录*/
+        obj1.AddEmptySubArray("what");
+        obj1["what"].Add("*");
+        /* obj1["what"].Add("userName"); */
+        /* obj1["what"].Add("PassWord"); */
+        /* obj1["what"].Add("sex"); */
+        obj1.AddEmptySubArray("op");
+        obj1["op"].Add("=");
+        obj1["op"].Add("=");
+        obj1.Add("tableName","user");
+        obj1.AddEmptySubObject("data");
+        obj1["data"].Add("userName","'管理员'");
+        obj1["data"].Add("passWord","'123456'");
+        std::cout<<obj1.ToFormattedString()<<std::endl;
+        int x = MySQLsOps::QUERYUSER;
+        CJsonObject reback;
+        if (x > MySQLsOps::MIN && x < MySQLsOps::MID)
+        {
+            if(mysql->queryNoResult(x, obj1) == -1)
+            {
+                reback.Add("state",400);
+                reback.Add("message","传递信息");
+            }
+            else
+            {
+                reback.Add("state",200);
+                reback.Add("message","传递信息");
+            }
+        }
+        else if (x > MySQLsOps::MID && x < MySQLsOps::MAX)
+        {
+            if(mysql->queryHasResult(x, obj1, reback) == -1)
+            {
+                reback.Add("state",400);
+                reback.Add("message","传递信息");
+            }
+            else
+            {
+                reback.Add("state",200);
+                reback.Add("message","传递信息");
+            }
+        }
+        std::cout<<reback.ToFormattedString()<<std::endl;
+
     }
 }
 
