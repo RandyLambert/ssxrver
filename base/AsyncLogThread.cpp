@@ -65,7 +65,7 @@ void AsyncLogThread::threadFunc()
 
     while (running_)
     {
-        std::cout << "thfunc" << std::endl;
+        /* std::cout << "thfunc" << std::endl; */
         assert(newBuffer1 && newBuffer1->length() == 0);
         assert(newBuffer2 && newBuffer2->length() == 0);
         assert(buffersToWrite.empty());

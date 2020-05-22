@@ -11,7 +11,7 @@
 #include "base/AsyncLogThread.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
-bool flag = false;
+bool flag = true;
 
 void message(const HttpRequest &req, HttpResponse *resp ,  MySQLsOps *mysql)
 {
