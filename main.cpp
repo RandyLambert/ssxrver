@@ -99,7 +99,7 @@ int main(int argv, char *argc[])
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_port = htons(4507);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    int threads = 2;
+    int threads = 4;
     EventLoop loop;
     /* loop.setname("大循环"); */
     HttpServer server(&loop, serv_addr);

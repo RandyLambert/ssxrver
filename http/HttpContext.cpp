@@ -1,5 +1,6 @@
 #include "HttpContext.h"
 #include "../net/Buffer.h"
+#include "../base/Logging.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -66,13 +67,12 @@ bool HttpContext::parseRequest(Buffer *buf)
                 const char *colon = std::find(buf->peek(), crlf, ':'); //查找冒号所在位置
                 if (colon != crlf)
                 {
-                    request().addHeader(buf->peek(), colon, crlf);
+                    request_.addHeader(buf->peek(), colon, crlf);
                 }
                 else
                 {
                     // 空行，头解析完毕
-                    receiveHeaders(); //httpcontext将状态改为kgotall
-                    hasMore = !gotAll();
+                    receiveHeaders(); //httpcontext将状态改为kreceiveBody
                 }
                 buf->retrieveUntil(crlf + 2); //将header从buf中取回，包括\r\n
             }
@@ -81,8 +81,25 @@ bool HttpContext::parseRequest(Buffer *buf)
                 hasMore = false;
             }
         }
-        else if (expectBody()) //当前还暂时不支持带body，需要补充
+        else if (expectBody()) //补充解析body
         {
+            if (request_.body().size() <= request_.bodySize())
+            {
+                size_t len = request_.bodySize() - request_.body().size();
+                const char *end = buf->peek() + (buf->readableBytes() < len ? buf->readableBytes() : len);
+                LOG_INFO << buf->peek() - end;
+                request_.addBody(buf->peek(), end);
+                if (request_.body().size() == request_.bodySize())
+                {
+                    receiveBody();
+                    hasMore = !gotAll();
+                }
+                else
+                {
+                    hasMore = false;
+                }
+                buf->retrieveUntil(end);
+            }
         }
     }
     return ok;

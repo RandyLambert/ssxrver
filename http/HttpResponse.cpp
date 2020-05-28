@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "HttpResponse.h"
 #include "../net/Buffer.h"
+#include <iostream>
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -36,4 +37,5 @@ void HttpResponse::appendToBuffer(Buffer *output) const
 
     output->append("\r\n"); //header与body之间的空行
     output->append(body_);
+    // std::cout << output->retrieveAllAsString() << std::endl;
 }

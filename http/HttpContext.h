@@ -16,7 +16,7 @@ public:
     {
         kExpectRequestLine, //正处于解析请求行的状态
         kExpectHeaders,     //正处于解析头部状态
-        kExpectBody,        //处于解析实体状态，未实现
+        kExpectBody,        //处于解析实体状态
         kGotAll             //全部解析完毕
     };
     HttpContext()
@@ -33,7 +33,8 @@ public:
     bool expectBody() const { return state_ == kExpectBody; }
     bool gotAll() const { return state_ == kGotAll; }
     void receiveRequestLine() { state_ = kExpectHeaders; }
-    void receiveHeaders() { state_ = kGotAll; }
+    void receiveHeaders() { state_ = kExpectBody; }
+    void receiveBody() { state_ = kGotAll; }
 
     void reset() //重置httpconrext状态
     {

@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <cstdio>
 #include <string>
+#include <boost/lexical_cast.hpp>
 
 namespace ssxrver
 { //http请求类封装
@@ -18,9 +19,11 @@ public:
         kInvalid, //请求方法
         kGet,
         kHead,
+        kPost,
     };
     HttpRequest()
-        : method_(kInvalid)
+        : method_(kInvalid),
+          bodysize_(0)
     {
     }
 
@@ -35,6 +38,10 @@ public:
         else if (m == "HEAD")
         {
             method_ = kHead;
+        }
+        else if (m == "POST")
+        {
+            method_ = kPost;
         }
         else
         {
@@ -55,6 +62,9 @@ public:
         case kHead:
             result = "HEAD";
             break;
+        case kPost:
+            result = "POST";
+            break;
         default:
             break;
         }
@@ -64,7 +74,11 @@ public:
     void setPath(const char *start, const char *end) { path_.assign(start, end); } //设置路径
     const string &path() const { return path_; }
     void setQuery(const char *start, const char *end) { query_.assign(start, end); }
-    const string query() const { return query_; }
+    const string &query() const { return query_; }
+    void setBodySize(int bodysize) { bodysize_ = bodysize; }
+    const size_t bodySize() const { return bodysize_; }
+    void addBody(const char *start, const char *end) { body_.append(start, end); }
+    const string &body() const { return body_; }
     void addHeader(const char *start, const char *colon, const char *end)
     {                               //添加一个头部信息
         string field(start, colon); //header域
@@ -77,6 +91,10 @@ public:
         while (!value.empty() && isspace(value[value.size() - 1]))
             value.resize(value.size() - 1);
         headers_[field] = value; //将value的值保存到headers中
+        if (field == "Content-Length")
+        {
+            setBodySize(boost::lexical_cast<size_t>(value));
+        }
     }
 
     string getHeader(const string &field) const //根据头域返回值
@@ -95,14 +113,18 @@ public:
         std::swap(method_, that.method_);
         path_.swap(that.path_);
         query_.swap(that.query_);
+        body_.swap(that.body_);
         headers_.swap(that.headers_);
+        std::swap(bodysize_, that.bodysize_);
     }
 
 private:
-    Method method_; //请求方法
-    string path_;   //请求路径
-    string query_;
+    Method method_;                    //请求方法
+    string path_;                      //请求路径
+    string query_;                     //查询参数
+    string body_;                      //请求实体
     std::map<string, string> headers_; //header列表
+    size_t bodysize_;                  //请求实体的大小
 };
 
 } // namespace net
