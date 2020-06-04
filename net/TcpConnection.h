@@ -6,6 +6,7 @@
 #include <functional>
 #include "Buffer.h"
 #include "../base/noncopyable.h"
+#include "../http/HttpParser.h"
 namespace ssxrver
 {
 namespace net
@@ -22,7 +23,6 @@ public:
     typedef std::function<void(const TcpConnectionPtr &,
                                Buffer *)>
         MessageCallback;
-    typedef std::function<void(const TcpConnectionPtr &)> ConnectionCallback;
     typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
     TcpConnection(EventLoop *loop,
                   int socked);
@@ -44,21 +44,16 @@ public:
     void stopRead();
     bool isReading() const { return reading_; }
 
-    void setContext(const boost::any &context) //把一个未知类型赋值
-    {
-        context_ = context;
-    }
-
-    const boost::any &getContext() const //获取未知类型，不能更改
+    const std::unique_ptr<HttpRequestParser>& getContext() const //获取未知类型，不能更改
     {
         return context_;
     }
 
-    boost::any *getMutableContext() //get可变的，可以更改
+    std::unique_ptr<HttpRequestParser>& getMutableContext() //get可变的，可以更改
     {
-        return &context_;
+        return context_;
     }
-    void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
+
     void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
     void setWriteCompleteCallback(const WriteCompleteCallback &cb) { writeCompleteCallback_ = cb; }
     int returnSockfd() const { return sockfd_; }
@@ -97,23 +92,20 @@ private:
     EventLoop *loop_; //所属eventloop
     StateE state_;    //FIXME atomic
     int sockfd_;
-/* public: */
     std::unique_ptr<Channel> channel_;
-    ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     CloseCallback closeCallback_;
 
     Buffer inputBuffer_;  //应用层的接收缓冲区
     Buffer outputBuffer_; //应用层的发送缓冲区，当outputbuffer高到一定程度
-    boost::any context_;  //提供一个借口绑定位置类型的上线文对象
+    std::unique_ptr<HttpRequestParser> context_;  //位置类型的上线文对象
     bool reading_;
 };
 
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 void defaultMessageCallback(const TcpConnectionPtr &conn,
                             Buffer *buffer);
-void defaultConnectionCallback(const TcpConnectionPtr &conn);
 } // namespace net
 } // namespace ssxrver
 

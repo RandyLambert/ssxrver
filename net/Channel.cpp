@@ -20,7 +20,6 @@ Channel::Channel(EventLoop *loop, int fd)
       tied_(false),
       eventHandling_(false),
       addedToLoop_(false)
-      /* name_("无名") */
 {
 }
 
@@ -93,8 +92,6 @@ void Channel::handleEventWithGuard()
     {
         if (readCallback_)
         {
-            /* LOG_INFO << "有返回" */
-            /*          << " channel_ " << name_; */
             readCallback_();
         }
     }

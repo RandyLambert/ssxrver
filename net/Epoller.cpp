@@ -27,7 +27,12 @@ Epoller::Epoller(EventLoop *loop)
 
 Epoller::~Epoller()
 {
-    close(epollfd_);
+
+     for (auto &item : connections_)
+     {
+         item.second.reset();
+     }
+    ::close(epollfd_);
 }
 
 void Epoller::poll(ChannelList *activeChannels)
@@ -77,7 +82,6 @@ void Epoller::updateChannel(Channel *channel)
         if (status_ == kNew)
         {
             channels_[fd] = channel; //新的，就加到关注队列
-            /* connections_.push_back(make_pair(fd,channel->getTie())); */
             connections_[fd] = channel->getTie();
 
         }
@@ -103,7 +107,6 @@ void Epoller::removeChannel(Channel *channel)
     ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
     int status_ = channel->status();
-    /* LOG_INFO << channel->name_; */
     if (channels_.erase(fd) != true)
         LOG_FATAL << "erase channel";
     if (connections_.erase(fd) != true)

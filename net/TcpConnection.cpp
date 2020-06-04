@@ -7,10 +7,6 @@
 #include "SocketOps.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
-void ssxrver::net::defaultConnectionCallback(const TcpConnectionPtr &conn)
-{ //默认的连接到来函数，如果自己设置，是在tcpserver设置
-    LOG_DEBUG << "TcpConnection::ctor at" << conn->returnSockfd();
-}
 
 void ssxrver::net::defaultMessageCallback(const TcpConnectionPtr &,
                                           Buffer *buf)
@@ -24,6 +20,7 @@ TcpConnection::TcpConnection(EventLoop *loop,
       state_(kConnected),
       sockfd_(sockfd),
       channel_(new Channel(loop, sockfd)),
+      context_(new HttpRequestParser()),
       reading_(true)
 {
     channel_->setReadCallback(
@@ -34,14 +31,13 @@ TcpConnection::TcpConnection(EventLoop *loop,
         std::bind(&TcpConnection::handleClose, this));
     channel_->setErrorCallback(
         std::bind(&TcpConnection::handleError, this));
-    /* channel_->name_ = "连接来的channel名"; */
     socketops::setKeepAlive(sockfd_, true);
-    LOG_INFO << "TcpConnection::ctor at" << this << "fd = " << sockfd_;
+    /* LOG_INFO << "TcpConnection::ctor at" << this << "fd = " << sockfd_; */
 }
 
 TcpConnection::~TcpConnection()
 {
-    LOG_INFO << "TcpConnection::dtor at" << this << "fd = " << sockfd_;
+    /* LOG_INFO << "TcpConnection::dtor at" << this << "fd = " << sockfd_; */
     assert(state_ == kDisconnected);
 }
 
@@ -157,7 +153,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len)
             //写完了，回调writecompletecallback
             if (remaining == 0 && writeCompleteCallback_) //如果等于0，说明都发送完毕，都拷贝到了内核缓冲区
             {
-                LOG_INFO << "SENDINLOOP";
+                /* LOG_INFO << "SENDINLOOP"; */
                 loop_->queueInLoop(std::bind(writeCompleteCallback_, shared_from_this()));
             }
         }
@@ -267,7 +263,6 @@ void TcpConnection::connectEstablished()
     assert(state_ == kConnected);
     setState(kConnected);
     channel_->enableReading();
-    connectionCallback_(shared_from_this());
 }
 
 void TcpConnection::connectDestroyed()
@@ -293,7 +288,6 @@ void TcpConnection::handleRead()
     }
     else if (n == 0)
     {
-        /* LOG_INFO << "handleclose" << channel_->name_; */
         handleClose();
     }
     else
@@ -337,15 +331,12 @@ void TcpConnection::handleWrite()
 
 void TcpConnection::handleClose()
 {
-    /* LOG_INFO << "handleCloce"; */
     loop_->assertInLoopThread();
     assert(state_ == kConnected || state_ == kDisconnecting);
-    // we don't close fd, leave it to dtor, so we can find leaks easily.
     setState(kDisconnected);
     channel_->disableAll();
 
     TcpConnectionPtr guardThis(shared_from_this());
-    // must be the last line
     closeCallback_(guardThis); //调用tcpserverremoveconnection
 }
 

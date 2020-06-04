@@ -56,10 +56,9 @@ EventLoop::EventLoop()
         t_loopInThisThread = this; //否则将刚出案件的线程付给指针
     wakeupChannel_->setReadCallback(
         std::bind(&EventLoop::handleRead, this)); //注册wakeup的回调函数
-    /* Epoller_->name_ = "io循环"; */
     wakeupChannel_->enableReading(); //在这里收纳到epoller管理便于唤醒
 }
-/* void EventLoop::setname(string name) { Epoller_->name_ = name; } */
+
 EventLoop::~EventLoop()
 {
     LOG_DEBUG << "EventLoop " << this << "of thread " << threadId_
@@ -84,9 +83,7 @@ void EventLoop::loop()
         eventHandling_ = true;
         for (Channel *channel : activeChannels_)
         {
-            // LOG_INFO << "handleEvent";
             channel->handleEvent();
-            // LOG_INFO << "handleEventafter";
         }
         eventHandling_ = false;
         doPendingFunctors(); //让io线程也可以执行一些小的任务
@@ -151,7 +148,6 @@ void EventLoop::abortNotInLoopThread()
 void EventLoop::wakeup()
 {
     uint64_t one = 1;
-    /* LOG_INFO << "WeakUp 函数"; */
     if (::write(wakeupFd_, &one, sizeof(one)) != sizeof(one))
         LOG_ERROR << "eventloop::wakeup() writes "
                   << "another bytes instead of 8";

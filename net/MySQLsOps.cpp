@@ -31,6 +31,10 @@ int sqlInsertStudio(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
 {
     return mysql->sqlInsert(cjson);
 }
+int sqlInsertTicket(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
+{
+    return mysql->sqlInsert(cjson);
+}
 /******************************************/
 int sqlUpdateUser(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
 {
@@ -49,6 +53,10 @@ int sqlUpdateSchedule(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
     return mysql->sqlUpdateWhere(cjson);
 }
 int sqlUpdateStudio(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
+{
+    return mysql->sqlUpdateWhere(cjson);
+}
+int sqlUpdateTicket(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
 {
     return mysql->sqlUpdateWhere(cjson);
 }
@@ -74,6 +82,10 @@ int sqlDeleteStudio(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
 {
     return mysql->sqlDeleteWhere(cjson);
 }
+int sqlDeleteTicket(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson)
+{
+    return mysql->sqlDeleteWhere(cjson);
+}
 /*********************************************/
 int sqlQueryUser(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson,CJsonObject& result)
 {
@@ -95,6 +107,10 @@ int sqlQueryStudio(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson,CJson
 {
     return mysql->sqlSelectWhere(cjson,result);
 }
+int sqlQueryTicket(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson,CJsonObject& result)
+{
+    return mysql->sqlSelectWhere(cjson,result);
+}
 
 }
 MySQLsOps::MySQLsOps(const string& addr,const string& user,const string& password,const string& dataBaseName,unsigned int port,const char* unixSocket,unsigned long clientFlag)
@@ -105,23 +121,28 @@ MySQLsOps::MySQLsOps(const string& addr,const string& user,const string& passwor
     sqlNoResultlMap[INSERTSEAT] = bind(sqlInsertSeat,_1,_2);
     sqlNoResultlMap[INSERTSCHEDULE] = bind(sqlInsertSchedule,_1,_2);
     sqlNoResultlMap[INSERTSTUDIO] = bind(sqlInsertStudio,_1,_2);
+    sqlNoResultlMap[INSERTTICKET] = bind(sqlInsertTicket,_1,_2);
     /*********************************************************/
     sqlNoResultlMap[UPDATEUSER] = bind(sqlUpdateUser,_1,_2);
     sqlNoResultlMap[UPDATEMOVIE] = bind(sqlUpdateMovie,_1,_2);
     sqlNoResultlMap[UPDATESEAT] = bind(sqlUpdateSeat,_1,_2);
     sqlNoResultlMap[UPDATESCHEDULE] = bind(sqlUpdateSchedule,_1,_2);
     sqlNoResultlMap[UPDATESTUDIO] = bind(sqlUpdateStudio,_1,_2);
+    sqlNoResultlMap[UPDATETICKET] = bind(sqlUpdateTicket,_1,_2);
     /*********************************************************/
     sqlNoResultlMap[DELETEUSER] = bind(sqlDeleteUser,_1,_2);
     sqlNoResultlMap[DELETEMOVIE] = bind(sqlDeleteMovie,_1,_2);
     sqlNoResultlMap[DELETESEAT] = bind(sqlDeleteSeat,_1,_2);
     sqlNoResultlMap[DELETESCHEDULE] = bind(sqlDeleteSchedule,_1,_2);
     sqlNoResultlMap[DELETESTUDIO] = bind(sqlDeleteStudio,_1,_2);
+    sqlNoResultlMap[DELETETICKET] = bind(sqlDeleteTicket,_1,_2);
     /*********************************************************/
     sqlHasResultlMap[QUERYUSER] = bind(sqlQueryUser,_1,_2,_3);
     sqlHasResultlMap[QUERYMOVIE] = bind(sqlQueryMovie,_1,_2,_3);
     sqlHasResultlMap[QUERYSEAT] = bind(sqlQuerySeat,_1,_2,_3);
     sqlHasResultlMap[QUERYSCHEDULE] = bind(sqlQuerySchedule,_1,_2,_3);
     sqlHasResultlMap[QUERYSTUDIO] = bind(sqlQueryStudio,_1,_2,_3);
+    sqlHasResultlMap[QUERYTICKET] = bind(sqlQueryTicket,_1,_2,_3);
 }
+
 

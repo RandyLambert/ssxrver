@@ -103,8 +103,6 @@ private:
     EventCallback closeCallback_;
     EventCallback errorCallback_;
 
-/* public: */
-/*     std::string name_; */
 };
 
 } // namespace net

@@ -169,7 +169,7 @@ int MySQL::sqlSelectWhere(const CJsonObject &cjson, CJsonObject &result)
 
     queryStr.back() = ' ';
     queryStr += "FROM " + cjson("tableName");
-    if (!cjson("op").empty())
+    if (!cjsonRef["op"].IsEmpty())
     {
         queryStr += " WHERE ";
         int i = 0;
@@ -190,7 +190,7 @@ int MySQL::sqlSelectWhere(const CJsonObject &cjson, CJsonObject &result)
         }
     }
 
-    if (!cjsonRef("limit").empty())
+    if (!cjsonRef["limit"].IsEmpty())
     {
         queryStr += " LIMIT " + cjsonRef("limit");
     }

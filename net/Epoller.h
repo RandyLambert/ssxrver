@@ -38,8 +38,6 @@ private:
     EventList events_; //实际返回的事件列表
     EventLoop *ownerLoop_;
 
-/* public: */
-/*     std::string name_; */
 };
 
 } // namespace net
