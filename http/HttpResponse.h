@@ -19,12 +19,16 @@ public:
         k404NotFound = 404         //请求的网页不存在
     };
 
-    explicit HttpResponse(bool close)
+    HttpResponse()
         : statusCode_(kUnknown),
-          closeConnection_(close)
+          closeConnection_(false),
+          version_(0x00)
     {
     }
 
+    void swap(HttpResponse &that);
+    bool setVersion(const char *start, const int length);
+    void setClose(const string &conection) { closeConnection_ = (conection == "close" ? true : false); }
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
     void setStatusMessage(const string &message) { statusMessage_ = message; }
     void setCloseConnection(bool on) { closeConnection_ = on; }
@@ -40,6 +44,7 @@ private:
     string statusMessage_;             //状态响应码对应的文本信息
     bool closeConnection_;             //是否关闭连接
     string body_;                      //实体
+    uint8_t version_;                  //http版本
 };
 
 } // namespace net
