@@ -20,7 +20,7 @@ namespace base
 class AsyncLogThread : noncopyable
 {
 public:
-    AsyncLogThread(const std::string basename, int flushInterval = 2);
+    AsyncLogThread(const std::string basename, int flushInterval = 3);
     ~AsyncLogThread()
     {
         if (running_)

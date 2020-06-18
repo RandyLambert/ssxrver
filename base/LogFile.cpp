@@ -31,10 +31,10 @@ void LogFile::getLogFileName(string &name)
     char timebuf[32];
     strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
     name = baseName_ + timebuf;
-    name += ".log";
+    name += "log";
 }
 
-void LogFile::append(char *log_, int len) //添加日志
+void LogFile::append(const char *log_, int len) //添加日志
 {
     if (mutex_)
     {

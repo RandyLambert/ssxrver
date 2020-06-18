@@ -1,6 +1,5 @@
 #include "AsyncLogThread.h"
-#include "File.h"
-#include <iostream>
+#include "LogFile.h"
 using namespace ssxrver;
 using namespace ssxrver::base;
 AsyncLogThread::AsyncLogThread(const std::string basename, int flushInterval)
@@ -54,7 +53,7 @@ void AsyncLogThread::threadFunc()
 {
     assert(running_ == true);
     latch_.countDown();
-    file::writeFile output(basename_);
+    file::LogFile output(basename_);
     BufferPtr newBuffer1(new Buffer);
     BufferPtr newBuffer2(new Buffer);
 

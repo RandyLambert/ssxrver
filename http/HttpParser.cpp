@@ -171,7 +171,7 @@ int HttpRequestParser::isFinished()
 
 int HttpRequestParser::hasError()
 {
-    LOG_ERROR << error_ << "   " << http_parser_has_error(&parser_);
+    /* LOG_ERROR << error_ << "   " << http_parser_has_error(&parser_); */
     return error_ || http_parser_has_error(&parser_);
 }
 void HttpRequestParser::reset()
@@ -214,7 +214,7 @@ int HttpResponseParser::isFinished()
 
 int HttpResponseParser::hasError()
 {
-    LOG_ERROR << error_ << "   " << httpclient_parser_has_error(&parser_);
+    /* LOG_ERROR << error_ << "   " << httpclient_parser_has_error(&parser_); */
     return error_ || httpclient_parser_has_error(&parser_);
 }
 
