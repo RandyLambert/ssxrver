@@ -343,6 +343,9 @@ void TcpConnection::handleClose()
 void TcpConnection::handleError()
 {
     int err = socketops::getSocketError(channel_->fd());
-    LOG_ERROR << "TcpConnection::handleError "
-              << "] - SO_ERROR = " << err << " " << strerror_tl(err);
+    if(err != 104) //忽略Connection reset by peer错误,不输出log
+    {
+        LOG_ERROR << "TcpConnection::handleError "
+                  << "- SO_ERROR = " << err << " " << strerror_tl(err);
+    }
 }
