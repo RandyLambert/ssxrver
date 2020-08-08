@@ -2,7 +2,7 @@
 #define SSXRVER_BASE_LOGFILE_H
 #include <memory>
 #include "Mutex.h"
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 namespace base
@@ -11,7 +11,7 @@ namespace file
 {
 
 class writeFile;
-class LogFile : noncopyable
+class LogFile : boost::noncopyable
 {
 public:
     LogFile(const std::string &baseName, size_t rollSize = 1024 * 64, bool threadSafe = true);

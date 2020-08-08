@@ -2,7 +2,7 @@
 #define SSXRVER_BASE_FILE_H
 #include <string>
 #include <stdio.h>
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 namespace base
@@ -10,7 +10,7 @@ namespace base
 namespace file
 { //封装文件操作
 using std::string;
-class writeFile : noncopyable
+class writeFile : boost::noncopyable
 {
 public:
     writeFile(const string &fileName);

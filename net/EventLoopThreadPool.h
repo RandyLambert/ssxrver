@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 namespace net
@@ -11,7 +11,7 @@ namespace net
 class EventLoop;
 class EventLoopThread;
 
-class EventLoopThreadPool : noncopyable
+class EventLoopThreadPool : boost::noncopyable
 {
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;

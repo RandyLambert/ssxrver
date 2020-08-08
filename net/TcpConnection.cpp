@@ -41,46 +41,6 @@ TcpConnection::~TcpConnection()
     assert(state_ == kDisconnected);
 }
 
-void TcpConnection::send(const void *data, int len)
-{
-    send(string(static_cast<const char *>(data), len));
-}
-
-void TcpConnection::send(const char *data)
-{
-    string tp(data);
-    if (state_ == kConnected)
-    {
-        if (loop_->isInLoopThread())
-        {
-            sendInLoop(tp);
-        }
-    }
-    else
-    {
-        void (TcpConnection::*fp)(const string &message) = &TcpConnection::sendInLoop;
-        loop_->runInLoop(
-            std::bind(fp,
-                      this,
-                      tp));
-    }
-}
-void TcpConnection::send(string &&message)
-{
-    if (state_ == kConnected)
-    {
-        if (loop_->isInLoopThread())
-            sendInLoop(message);
-    }
-    else
-    {
-        void (TcpConnection::*fp)(const string &message) = &TcpConnection::sendInLoop;
-        loop_->runInLoop(
-            std::bind(fp,
-                      this,
-                      std::forward<string>(message)));
-    }
-}
 
 void TcpConnection::send(Buffer *buf)
 {
@@ -93,47 +53,32 @@ void TcpConnection::send(Buffer *buf)
         }
         else
         {
-            void (TcpConnection::*fp)(const string &message) = &TcpConnection::sendInLoop;
+            void (TcpConnection::*fp)(std::string_view,size_t) = &TcpConnection::sendInLoop;
             loop_->runInLoop(
                 std::bind(fp,
                           this,
-                          buf->retrieveAllAsString()));
+                          buf->retrieveAllAsString(),buf->readableBytes()));
         }
     }
 }
 
-//线程安全的，可以跨线程调用
-void TcpConnection::send(Buffer &&buf)
-{
+void TcpConnection::send(std::string_view message){
     if (state_ == kConnected)
     {
         if (loop_->isInLoopThread())
-        {
-            sendInLoop(buf.peek(), buf.readableBytes());
-            buf.retrieveAll(); //把缓冲区数据移除
-        }
-        else
-        {
-            void (TcpConnection::*fp)(const string &message) = &TcpConnection::sendInLoop;
-            loop_->runInLoop(
+            sendInLoop(message,message.size());
+    }
+    else
+    {
+        void (TcpConnection::*fp)(std::string_view,size_t) = &TcpConnection::sendInLoop;
+        loop_->runInLoop(
                 std::bind(fp,
                           this,
-                          buf.retrieveAllAsString()));
-        }
+                          message,message.size()));
     }
 }
 
-void TcpConnection::sendInLoop(const string &message)
-{
-    sendInLoop(message.data(), message.size());
-}
-
-void TcpConnection::sendInLoop(const char *message)
-{
-    sendInLoop(message, strlen(message));
-}
-
-void TcpConnection::sendInLoop(const void *data, size_t len)
+void TcpConnection::sendInLoop(std::string_view data, size_t len)
 {
     loop_->assertInLoopThread();
     ssize_t nwrote = 0;
@@ -146,7 +91,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len)
     }
     if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0) //没有关注可写时间，且outputbuffer缓冲区没有数据
     {
-        nwrote = socketops::write(channel_->fd(), data, len); //可以直接write
+        nwrote = socketops::write(channel_->fd(), data.begin(), len); //可以直接write
         if (nwrote >= 0)
         {
             remaining = len - nwrote;
@@ -174,7 +119,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len)
     //没有错误，并且还有未写完的数据(说明内核发送缓冲区满，要将未写完的数据添加到output buffer中)
     if (!faultError && remaining > 0)
     {
-        outputBuffer_.append(static_cast<const char *>(data) + nwrote, remaining);
+        outputBuffer_.append(data.begin() + nwrote, remaining);
         //然后后面还有(data) + nwrote的数据没发送，就把他添加到outputbuffer中
         if (!channel_->isWriting())
             channel_->enableWriting(); //关注epollout事件，等对等方接受了数据，tcp的滑动窗口滑动了，

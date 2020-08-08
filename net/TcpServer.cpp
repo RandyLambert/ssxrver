@@ -6,7 +6,6 @@
 #include "EventLoop.h"
 #include "EventLoopThreadPool.h"
 #include "SocketOps.h"
-#include "../base/Logging.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -63,7 +62,7 @@ void TcpServer::acceptHandRead()
         if (errno == EMFILE) //文件描述符太多了
         {
             ::close(idleFd_);                        //先关闭开始的空闲文件描述符
-            idleFd_ = accept(acceptfd_, NULL, NULL); //用这个描述符先接收
+            idleFd_ = accept(acceptfd_, nullptr, nullptr); //用这个描述符先接收
             ::close(idleFd_);                        //接收完在关闭，因为使用的是lt模式，不然accept会一直触发
             idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
         }

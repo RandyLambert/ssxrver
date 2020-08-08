@@ -12,12 +12,11 @@
 
 #include <vector>
 #include <memory>
-namespace ssxrver
-{
-namespace base
+
+namespace ssxrver::base
 {
 
-class AsyncLogThread : noncopyable
+class AsyncLogThread : boost::noncopyable
 {
 public:
     AsyncLogThread(const std::string basename, int flushInterval = 3);
@@ -48,7 +47,7 @@ private:
     BufferVector buffers_;
     CountDownLatch latch_;
 };
-} // namespace base
-} // namespace ssxrver
+} // namespace ssxrver::base
+
 
 #endif

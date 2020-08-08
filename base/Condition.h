@@ -3,10 +3,10 @@
 #include <pthread.h>
 #include <errno.h>
 #include "Mutex.h"
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
-class Condition : noncopyable
+class Condition : boost::noncopyable
 {
 public:
     explicit Condition(MutexLock &mutex) : mutex_(mutex)

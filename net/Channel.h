@@ -3,14 +3,14 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 namespace net
 {
 class EventLoop;
 class TcpConnection;
-class Channel : noncopyable
+class Channel : boost::noncopyable
 {
 public:
     typedef std::function<void()> EventCallback;

@@ -4,9 +4,12 @@
 #include <boost/any.hpp>
 #include <netinet/in.h>
 #include <functional>
+#include <string_view>
+#include <atomic>
 #include "Buffer.h"
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "../http/HttpParser.h"
+
 namespace ssxrver
 {
 namespace net
@@ -14,7 +17,7 @@ namespace net
 class EventLoop;
 class Channel;
 
-class TcpConnection : noncopyable,
+class TcpConnection : boost::noncopyable,
                       public std::enable_shared_from_this<TcpConnection>
 {
 public:
@@ -31,12 +34,8 @@ public:
     EventLoop *getLoop() const { return loop_; }
 
     bool connected() const { return state_ == kConnected; }
-    void send(string &&message); // C++11
-    void send(const void *message, int len);
-    void send(const char *message);
-    void send(const string &message);
-    void send(Buffer &&message); // C++11
-    void send(Buffer *message);  // this one will swap data
+    void send(std::string_view message);
+    void send(Buffer *buf);
     void shutdown();
     void forceClose();
     void setTcpNoDelay(bool on);
@@ -79,9 +78,7 @@ private:
     void handleClose();
     void handleError();
 
-    void sendInLoop(const string &message);
-    void sendInLoop(const char *message);
-    void sendInLoop(const void *message, size_t len);
+    void sendInLoop(std::string_view message, size_t len);
     void shutdownInLoop();
     void forceCloseInLoop();
 
@@ -90,7 +87,7 @@ private:
     void stopReadInLoop();
 
     EventLoop *loop_; //所属eventloop
-    StateE state_;    //FIXME atomic
+    std::atomic_uint8_t state_;
     int sockfd_;
     std::unique_ptr<Channel> channel_;
     MessageCallback messageCallback_;

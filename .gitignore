@@ -39,3 +39,4 @@ tags
 build/
 .vscode/
 logs/
+cmake-build-debug

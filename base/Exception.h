@@ -12,7 +12,7 @@ public:
     explicit Exception(const string &what) : message_(what) { fillStackTrace(); }
     virtual ~Exception() noexcept = default;
     virtual const char *what() const noexcept { return message_.c_str(); }
-    const char *stackTrace() const noexcept { return stack_.c_str(); }
+    [[nodiscard]] const char *stackTrace() const noexcept { return stack_.c_str(); }
 
 private:
     void fillStackTrace();

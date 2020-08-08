@@ -2,14 +2,14 @@
 #define SSXRVER_BASE_MUTEX_H
 #include <assert.h>
 #include <pthread.h>
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "CurrentThread.h"
 #define MCHECK(ret) ({ __typeof__ (ret) errnum = (ret);         \
                        assert(errnum == 0); (void) errnum; })
 
 namespace ssxrver
 {
-class MutexLock : noncopyable
+class MutexLock : boost::noncopyable
 {
 public:
     MutexLock()
@@ -52,7 +52,7 @@ private:
     pid_t holder_;
 };
 
-class MutexLockGuard : noncopyable
+class MutexLockGuard : boost::noncopyable
 {
 public:
     explicit MutexLockGuard(MutexLock &_mutex) : mutex(_mutex) { mutex.lock(); }

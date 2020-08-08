@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 #include "MySQL.h"
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 namespace net
@@ -15,7 +15,7 @@ namespace net
 using std::string;
 using std::vector;
 class CJsonObject;
-class MySQLsOps : noncopyable 
+class MySQLsOps : boost::noncopyable
 {
     typedef std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&)> sqlNoResultCallBack;
     typedef std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&,CJsonObject &)> sqlHasResultCallBack;

@@ -4,7 +4,7 @@
 #include <memory>
 #include <functional>
 #include <atomic>
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "../base/Mutex.h"
 #include "../base/CurrentThread.h"
 #include "../base/Thread.h"
@@ -16,7 +16,7 @@ namespace net
 class Channel;
 class Epoller;
 
-class EventLoop : noncopyable
+class EventLoop : boost::noncopyable
 {
 public:
     typedef std::function<void()> Functor;
@@ -43,7 +43,7 @@ public:
 
     bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
     bool eventHandling() const { return eventHandling_; }
-    MySQLsOps *getMySQL() { return &mysql_; }
+//    MySQLsOps *getMySQL() { return &mysql_; }
 
 private:
     void abortNotInLoopThread();
@@ -66,7 +66,7 @@ private:
 
     mutable MutexLock mutex_;
     std::vector<Functor> pendingFunctors_;
-    MySQLsOps mysql_;
+//    MySQLsOps mysql_;
 };
 } // namespace net
 } // namespace ssxrver

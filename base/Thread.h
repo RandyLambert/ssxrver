@@ -5,12 +5,12 @@
 #include <functional>
 #include <atomic>
 #include "CountDownLatch.h"
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 using std::string;
 
-class Thread : noncopyable
+class Thread : boost::noncopyable
 {
 public:
     typedef std::function<void()> ThreadFunc;

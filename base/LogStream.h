@@ -3,7 +3,7 @@
 #include <string>
 #include <cstring>
 #include <cassert>
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 namespace ssxrver
 {
 namespace detail
@@ -12,7 +12,7 @@ const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000 * 1000;
 
 template <int SIZE>
-class FixedBuffer : noncopyable
+class FixedBuffer : boost::noncopyable
 {
 public:
     FixedBuffer()
@@ -39,17 +39,17 @@ public:
         }
     }
 
-    const char *data() const { return data_; } //首地址，current-data是缓冲区所有的数据
-    size_t length() const { return static_cast<size_t>(cur_ - data_); }
+    [[nodiscard]] const char *data() const { return data_; } //首地址，current-data是缓冲区所有的数据
+    [[nodiscard]] size_t length() const { return static_cast<size_t>(cur_ - data_); }
     void add(size_t len) { cur_ += len; }
     char *current() { return cur_; } //目前缓冲区使用的位置，end-current是当前可用空间
-    size_t avail() const { return static_cast<size_t>(end() - cur_); }
+    [[nodiscard]] size_t avail() const { return static_cast<size_t>(end() - cur_); }
 
     void reset() { cur_ = data_; } //重置，只要把指针移到开头，不需要清0
     void bzero() { ::bzero(data_, sizeof(data_)); }
 
 private:
-    const char *end() const { return data_ + sizeof(data_); } //整个缓冲区size位的下一位
+    [[nodiscard]] const char *end() const { return data_ + sizeof(data_); } //整个缓冲区size位的下一位
     // Must be outline function for cookies.
 
     char data_[SIZE]; //缓冲区大小通过模板传递
@@ -57,7 +57,7 @@ private:
 };
 } // namespace detail
 
-class LogStream : noncopyable
+class LogStream : boost::noncopyable
 {
     typedef LogStream self;
 
@@ -115,7 +115,7 @@ public:
         return *this;
     }
     void append(const char *data, int len) { buffer_.append(data, len); }
-    const Buffer &buffer() const { return buffer_; }
+    [[nodiscard]] const Buffer &buffer() const { return buffer_; }
     void resetBuffer() { buffer_.reset(); }
 
 private:

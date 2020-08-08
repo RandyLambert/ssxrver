@@ -12,7 +12,7 @@ using namespace ssxrver;
 using namespace ssxrver::net;
 bool flag = true;
 const char *http11 = "HTTP/1.1";
-void message(const HttpRequest &req, HttpResponse *resp ,  MySQLsOps *mysql)
+void message(const HttpRequest &req, HttpResponse *resp /*,  MySQLsOps *mysql*/)
 {
     if (!flag)
     {
@@ -36,7 +36,7 @@ void message(const HttpRequest &req, HttpResponse *resp ,  MySQLsOps *mysql)
     }
 }
 
-ssxrver::base::AsyncLogThread *g_asyncLog = NULL;
+ssxrver::base::AsyncLogThread *g_asyncLog = nullptr;
 void asyncOutput(const char *msg, int len)
 {
     g_asyncLog->append(msg, len);
@@ -55,7 +55,7 @@ int main(int argv, char *argc[])
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_port = htons(4507);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    int threads = 1;
+    int threads = 2;
     EventLoop loop;
     /* loop.setname("大循环"); */
     HttpServer server(&loop, serv_addr);

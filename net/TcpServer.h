@@ -4,7 +4,7 @@
 #include <memory>
 #include <functional>
 #include <atomic>
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "TcpConnection.h"
 #include "Channel.h"
 namespace ssxrver
@@ -14,7 +14,7 @@ namespace net
 
 class EventLoop;
 class EventLoopThreadPool;
-class TcpServer : noncopyable
+class TcpServer : boost::noncopyable
 {
 public:
     typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
@@ -41,7 +41,6 @@ public:
 private:
     void newConnection(int socked);
     void removeConnection(const TcpConnectionPtr &conn);
-    void removeConnectionInLoop(const TcpConnectionPtr &conn);
     void acceptHandRead();
 
     EventLoop *loop_;

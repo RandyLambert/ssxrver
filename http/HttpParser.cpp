@@ -1,4 +1,3 @@
-#include <map>
 #include "../base/Logging.h"
 #include "../net/Buffer.h"
 #include "HttpParser.h"
@@ -8,9 +7,9 @@ namespace
 {
 void onRequestMethod(void *data, const char *at, size_t length)
 {
-    HttpRequestParser *parser = static_cast<HttpRequestParser *>(data);
+    auto *parser = static_cast<HttpRequestParser *>(data);
     bool flag = parser->getRequest().setMethod(at, length);
-    if (flag == false)
+    if (!flag)
     {
         LOG_ERROR << "invalid http request method: " << string(at, length);
         parser->setError(1000);
@@ -19,36 +18,30 @@ void onRequestMethod(void *data, const char *at, size_t length)
 
 void onRequestUri(void *data, const char *at, size_t length)
 {
-    (void)data;
-    (void)at;
-    (void)length;
 }
 
 void onRequestFragment(void *data, const char *at, size_t length)
 {
-    (void)data;
-    (void)at;
-    (void)length;
     /* HttpRequestParser *parser = static_cast<HttpRequestParser *>(data); */
     /* parser->getRequest().setFragment(at, length); */
 }
 
 void onRequestPath(void *data, const char *at, size_t length)
 {
-    HttpRequestParser *parser = static_cast<HttpRequestParser *>(data);
+    auto *parser = static_cast<HttpRequestParser *>(data);
     parser->getRequest().setPath(at, length);
 }
 void onRequestQuery(void *data, const char *at, size_t length)
 {
-    HttpRequestParser *parser = static_cast<HttpRequestParser *>(data);
+    auto *parser = static_cast<HttpRequestParser *>(data);
     parser->getRequest().setQuery(at, length);
 }
 void onRequestVersion(void *data, const char *at, size_t length)
 {
-    HttpRequestParser *parser = static_cast<HttpRequestParser *>(data);
+    auto *parser = static_cast<HttpRequestParser *>(data);
     bool flag = parser->getRequest().setVersion(at, length);
 
-    if (flag == false)
+    if (!flag)
     {
         LOG_ERROR << "invalid http request version: " << string(at, length);
         parser->setError(1001);
@@ -56,14 +49,11 @@ void onRequestVersion(void *data, const char *at, size_t length)
 }
 void onRequestHeaderDone(void *data, const char *at, size_t length)
 {
-    (void)data;
-    (void)at;
-    (void)length;
 }
 
 void onRequestHttpField(void *data, const char *field, size_t flen, const char *value, size_t vlen)
 {
-    HttpRequestParser *parser = static_cast<HttpRequestParser *>(data);
+    auto *parser = static_cast<HttpRequestParser *>(data);
     if (flen == 0)
     {
         LOG_ERROR << "invalid http request field length == 0";
@@ -76,30 +66,26 @@ void onRequestHttpField(void *data, const char *field, size_t flen, const char *
 
 void onResponseReason(void *data, const char *at, size_t length)
 {
-    HttpResponseParser *parser = static_cast<HttpResponseParser *>(data);
+    auto *parser = static_cast<HttpResponseParser *>(data);
     parser->getResponse().setStatusMessage(std::string(at, length));
 }
 
 void onResponseStatus(void *data, const char *at, size_t length)
 {
-    (void)length;
-    HttpResponseParser *parser = static_cast<HttpResponseParser *>(data);
-    ssxrver::net::HttpResponse::HttpStatus status = static_cast<ssxrver::net::HttpResponse::HttpStatus>(atoi(at));
+    auto *parser = static_cast<HttpResponseParser *>(data);
+    auto status = static_cast<ssxrver::net::HttpResponse::HttpStatus>(atoi(at));
     parser->getResponse().setStatusCode(status);
 }
 
 void onResponseChunk(void *data, const char *at, size_t length)
 {
-    (void)data;
-    (void)at;
-    (void)length;
 }
 
 void onResponseVersion(void *data, const char *at, size_t length)
 {
-    HttpResponseParser *parser = static_cast<HttpResponseParser *>(data);
+    auto *parser = static_cast<HttpResponseParser *>(data);
     bool flag = parser->getResponse().setVersion(at, length);
-    if (flag == false)
+    if (!flag)
     {
         LOG_ERROR << "invalid http response version: " << string(at, length);
         parser->setError(1001);
@@ -108,21 +94,15 @@ void onResponseVersion(void *data, const char *at, size_t length)
 
 void onResponseHeaderDone(void *data, const char *at, size_t length)
 {
-    (void)data;
-    (void)at;
-    (void)length;
 }
 
 void onResponseLastChunk(void *data, const char *at, size_t length)
 {
-    (void)data;
-    (void)at;
-    (void)length;
 }
 
 void onResponseHttpField(void *data, const char *field, size_t flen, const char *value, size_t vlen)
 {
-    HttpResponseParser *parser = static_cast<HttpResponseParser *>(data);
+    auto *parser = static_cast<HttpResponseParser *>(data);
     if (flen == 0)
     {
         LOG_ERROR << "invalid http response field length == 0";

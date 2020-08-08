@@ -1,6 +1,6 @@
 #ifndef SSXRVER_NET_EVENTLOOPTHREAD_H
 #define SSXRVER_NET_EVENTLOOPTHREAD_H
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "../base/Thread.h"
 #include "../base/Mutex.h"
 namespace ssxrver
@@ -9,7 +9,7 @@ namespace net
 {
 class EventLoop;
 
-class EventLoopThread : noncopyable
+class EventLoopThread : boost::noncopyable
 {
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;

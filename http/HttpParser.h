@@ -5,7 +5,6 @@
 #include "HttpResponse.h"
 #include "http11_parser.h"
 #include "httpclient_parser.h"
-#include "../base/noncopyable.h"
 namespace ssxrver
 {
 namespace net

@@ -1,7 +1,7 @@
 #ifndef SSXRVER_HTTP_HTTTPSERVER_H
 #define SSXRVER_HTTP_HTTTPSERVER_H
 #include "../net/TcpServer.h"
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "../net/EventLoop.h"
 #include <iostream>
 namespace ssxrver
@@ -11,13 +11,13 @@ namespace net
 class HttpRequest;
 class HttpResponse;
 class MySQLsOps;
-class HttpServer : noncopyable
+class HttpServer : boost::noncopyable
 {
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;
     typedef std::function<void(const HttpRequest &,
-                               HttpResponse *,
-                    MySQLsOps *)>
+                               HttpResponse */*,
+                    MySQLsOps* */)>
         HttpCallback;
     HttpServer(EventLoop *looop,
                const struct sockaddr_in listenAddr);

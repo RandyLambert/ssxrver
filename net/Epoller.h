@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include "EventLoop.h"
 
 struct epoll_event;
@@ -13,7 +13,7 @@ namespace net
 {
 class Channel;
 class TcpConnection;
-class Epoller : noncopyable
+class Epoller : boost::noncopyable
 {
 public:
     typedef std::vector<Channel *> ChannelList;

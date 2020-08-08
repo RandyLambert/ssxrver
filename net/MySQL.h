@@ -1,6 +1,6 @@
 #ifndef SSXERVER_NET_MYSQL_H
 #define SSXERVER_NET_MYSQL_H
-#include "../base/noncopyable.h"
+#include <boost/noncopyable.hpp>
 #include <string>
 #include <map>
 #include <vector>
@@ -13,7 +13,7 @@ namespace net
 
 using std::string;
 class CJsonObject;
-class MySQL : noncopyable
+class MySQL : boost::noncopyable
 {
 public:
     ~MySQL();

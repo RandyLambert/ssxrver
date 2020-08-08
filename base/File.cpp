@@ -1,5 +1,5 @@
 #include "File.h"
-#include <stdio.h>
+#include <cstdio>
 using namespace ssxrver;
 using namespace ssxrver::base::file;
 

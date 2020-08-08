@@ -1,6 +1,7 @@
 #ifndef SSXRVER_HTTP_HTTPRESPONSE_H
 #define SSXRVER_HTTP_HTTPRESPONSE_H
 #include <map>
+#include <string_view>
 namespace ssxrver
 {
 namespace net
@@ -28,7 +29,7 @@ public:
 
     void swap(HttpResponse &that);
     bool setVersion(const char *start, const int length);
-    void setClose(const string &conection) { closeConnection_ = (conection == "close" ? true : false); }
+    void setClose(std::string_view connection) { closeConnection_ = (connection == "close"); }
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
     void setStatusMessage(const string &message) { statusMessage_ = message; }
     void setCloseConnection(bool on) { closeConnection_ = on; }

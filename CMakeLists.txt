@@ -6,9 +6,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -g -Wall -Wno-unused-variable -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g -Wall -Wno-unused-variable -Wshadow -Werror -Wold-style-cast -pthread -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
 elseif( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -I/usr/include/mysql -o2 -Wall -Wshadow -Werror -Wold-style-cast -L/usr/lib/mysql -lmysqlclient -pthread -fopenmp")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -o2 -Wall -Wshadow -Werror -Wold-style-cast -pthread -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
 endif()
 
 message("Build Type:" ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
