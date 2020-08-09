@@ -8,7 +8,7 @@ AsyncLogThread::AsyncLogThread(const std::string basename, int flushInterval)
       basename_(basename),
       thread_(std::bind(&AsyncLogThread::threadFunc, this), "AsyncLogThread"),
       mutex_(),
-      cond_(mutex_),
+      cond_(),
       currentBuffer_(new Buffer),
       nextBuffer_(new Buffer),
       buffers_(),
@@ -28,12 +28,12 @@ void AsyncLogThread::start()
 void AsyncLogThread::stop()
 {
     running_ = false;
-    cond_.notifyOne();
+    cond_.notify_one();
 }
 
 void AsyncLogThread::append(const char *log_, int len)
 {
-    MutexLockGuard lock(mutex_);
+    std::unique_lock <std::mutex> lock(mutex_);
     if (currentBuffer_->avail() > static_cast<size_t>(len))
         currentBuffer_->append(log_, len);
     else
@@ -44,7 +44,7 @@ void AsyncLogThread::append(const char *log_, int len)
         else
             currentBuffer_.reset(new Buffer);
         currentBuffer_->append(log_, len);
-        cond_.notifyOne();
+        cond_.notify_one();
     }
 }
 
@@ -69,10 +69,10 @@ void AsyncLogThread::threadFunc()
         assert(buffersToWrite.empty());
 
         {
-            MutexLockGuard lock(mutex_);
+            std::unique_lock <std::mutex> lock(mutex_);
             if (buffers_.empty())
             {
-                cond_.waitForSeconds(flushInterval_);
+                cond_.wait_for(lock,std::chrono::seconds(flushInterval_));
             }
             buffers_.push_back(std::move(currentBuffer_));
             currentBuffer_ = std::move(newBuffer1);

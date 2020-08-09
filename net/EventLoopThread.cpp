@@ -1,4 +1,5 @@
 #include <functional>
+#include <cassert>
 #include "EventLoopThread.h"
 #include "EventLoop.h"
 using namespace ssxrver;
@@ -9,7 +10,7 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback &cb)
       exiting_(false),
       thread_(std::bind(&EventLoopThread::threadFunc, this)),
       mutex_(),
-      cond_(mutex_),
+      cond_(),
       callback_(cb)
 {
 }
@@ -30,10 +31,10 @@ EventLoop *EventLoopThread::startLoop()
     assert(!thread_.startorNot());
     thread_.start();
     {
-        MutexLockGuard lock(mutex_);
+        std::unique_lock <std::mutex> lck(mutex_);
         while (loop_ == nullptr)
         {
-            cond_.wait();
+            cond_.wait(lck);
         }
     }
     return loop_;
@@ -48,12 +49,12 @@ void EventLoopThread::threadFunc()
     }
 
     {
-        MutexLockGuard lock(mutex_);
+        std::unique_lock <std::mutex> lck(mutex_);
         loop_ = &loop;
-        cond_.notifyOne();
+        cond_.notify_one();
     }
 
     loop.loop();
-    MutexLockGuard lock(mutex_);
+    std::unique_lock <std::mutex> lck(mutex_);
     loop_ = nullptr;
 }

@@ -3,9 +3,9 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include "Condition.h"
+//#include "Condition.h"
 #include "Thread.h"
-#include "Mutex.h"
+//#include "Mutex.h"
 #include "Thread.h"
 #include "CountDownLatch.h"
 #include "LogStream.h"
@@ -40,8 +40,8 @@ private:
     bool running_;
     std::string basename_;
     Thread thread_;
-    MutexLock mutex_;
-    Condition cond_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
     BufferPtr currentBuffer_;
     BufferPtr nextBuffer_;
     BufferVector buffers_;

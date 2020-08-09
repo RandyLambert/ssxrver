@@ -1,8 +1,10 @@
 #ifndef SSXRVER_NET_EVENTLOOPTHREAD_H
 #define SSXRVER_NET_EVENTLOOPTHREAD_H
 #include <boost/noncopyable.hpp>
+#include <mutex>
+#include <condition_variable>
 #include "../base/Thread.h"
-#include "../base/Mutex.h"
+//#include "../base/Mutex.h"
 namespace ssxrver
 {
 namespace net
@@ -24,8 +26,8 @@ private:
     EventLoop *loop_; //loop_指针指向一个eventloop对象
     bool exiting_;    //是否退出
     Thread thread_;
-    MutexLock mutex_;
-    Condition cond_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
     ThreadInitCallback callback_;
 };
 } // namespace net

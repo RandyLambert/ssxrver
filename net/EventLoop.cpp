@@ -2,10 +2,9 @@
 #include <signal.h>
 #include "EventLoop.h"
 #include "../base/Logging.h"
-#include "../base/Mutex.h"
+//#include "../base/Mutex.h"
 #include "Channel.h"
 #include "Epoller.h"
-#include "SocketOps.h"
 
 using namespace ssxrver;
 using namespace ssxrver::net;

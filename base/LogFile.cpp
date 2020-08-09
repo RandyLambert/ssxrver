@@ -1,6 +1,6 @@
 #include "LogFile.h"
 #include "File.h"
-#include <time.h>
+#include <ctime>
 using namespace ssxrver;
 using namespace ssxrver::base::file;
 using std::string;
@@ -8,7 +8,7 @@ LogFile::LogFile(const string &baseName, size_t rollSize, bool threadSafe)
     : baseName_(baseName),
       count_(0),
       rollSize_(rollSize),
-      mutex_(threadSafe ? new MutexLock : NULL)
+      mutex_(threadSafe ? new std::mutex : nullptr)
 {
     rollFile();
 }
@@ -26,7 +26,7 @@ void LogFile::getLogFileName(string &name)
 {
     time_t now = 0;
     struct tm tm;
-    now = time(NULL);
+    now = time(nullptr);
     gmtime_r(&now, &tm);
     char timebuf[32];
     strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
@@ -38,7 +38,7 @@ void LogFile::append(const char *log_, int len) //添加日志
 {
     if (mutex_)
     {
-        MutexLockGuard lock(*mutex_);
+        std::lock_guard<std::mutex> loker(*mutex_);
         append_unlocked(log_, len);
     }
     else
@@ -50,7 +50,7 @@ void LogFile::flush()
 {
     if (mutex_)
     {
-        MutexLockGuard lock(*mutex_);
+        std::lock_guard<std::mutex> loker(*mutex_);
         file_->flush();
     }
     else

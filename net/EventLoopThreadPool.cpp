@@ -1,4 +1,5 @@
 #include <functional>
+#include <cassert>
 #include "EventLoop.h"
 #include "EventLoopThread.h"
 #include "EventLoopThreadPool.h"

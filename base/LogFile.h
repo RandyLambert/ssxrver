@@ -1,13 +1,10 @@
 #ifndef SSXRVER_BASE_LOGFILE_H
 #define SSXRVER_BASE_LOGFILE_H
 #include <memory>
-#include "Mutex.h"
+#include <mutex>
+//#include "Mutex.h"
 #include <boost/noncopyable.hpp>
-namespace ssxrver
-{
-namespace base
-{
-namespace file
+namespace ssxrver::base::file
 {
 
 class writeFile;
@@ -26,14 +23,12 @@ private:
     const std::string baseName_;
     int count_;
     size_t rollSize_;
-    std::unique_ptr<MutexLock> mutex_;
+    std::unique_ptr<std::mutex> mutex_;
     std::unique_ptr<file::writeFile> file_;
 
     const static int kFlushInterval_ = 3; //间隔刷新次数
 };
-} // namespace file
-} // namespace base
 
-} // namespace ssxrver
+} // namespace ssxrver::base::file
 
 #endif
