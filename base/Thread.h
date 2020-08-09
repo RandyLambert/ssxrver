@@ -5,8 +5,9 @@
 #include <string>
 #include <functional>
 #include <atomic>
-#include "CountDownLatch.h"
 #include <boost/noncopyable.hpp>
+#include "CountDownLatch.h"
+
 namespace ssxrver
 {
     using std::string;

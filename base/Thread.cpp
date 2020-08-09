@@ -3,9 +3,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <sys/prctl.h>
-#include <sys/syscall.h>
-#include <sys/types.h>
-#include <assert.h>
+#include <cassert>
 
 #include "CurrentThread.h"
 #include "Thread.h"

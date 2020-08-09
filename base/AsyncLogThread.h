@@ -3,9 +3,6 @@
 #include <vector>
 #include <string>
 #include <functional>
-//#include "Condition.h"
-#include "Thread.h"
-//#include "Mutex.h"
 #include "Thread.h"
 #include "CountDownLatch.h"
 #include "LogStream.h"

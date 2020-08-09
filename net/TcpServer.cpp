@@ -83,7 +83,6 @@ void TcpServer::newConnection(int sockfd)
     loop_->assertInLoopThread(); //断言在io线程
     //按照轮叫的方式选择一个eventloop，将这个歌新连接交给这个eventloop
     EventLoop *ioLoop = threadPool_->getNextLoop(); //选出这个io线程
-    /* LOG_INFO << "TcpServer::newConnection" << sockfd; */
     TcpConnectionPtr conn(new TcpConnection(ioLoop, //所属ioloop
                                             sockfd));
     conn->setMessageCallback(messageCallback_);
@@ -96,7 +95,6 @@ void TcpServer::newConnection(int sockfd)
 
 void TcpServer::removeConnection(const TcpConnectionPtr &conn)
 {
-    /* LOG_INFO << "TcpServer::removeConnection " << conn->returnSockfd(); */
     EventLoop *ioLoop = conn->getLoop();
     ioLoop->runInLoop(
         std::bind(&TcpConnection::connectDestroyed, conn));

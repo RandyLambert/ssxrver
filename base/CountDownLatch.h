@@ -1,7 +1,5 @@
 #ifndef SSXRVER_BASE_COUNTDOWMLATCH_H
 #define SSXRVER_BASE_COUNTDOWMLATCH_H
-//#include "Condition.h"
-//#include "Mutex.h"
 #include <mutex>
 #include <condition_variable>
 #include <boost/noncopyable.hpp>

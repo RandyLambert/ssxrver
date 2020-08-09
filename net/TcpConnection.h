@@ -50,7 +50,6 @@ public:
 
     void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
     void setWriteCompleteCallback(const WriteCompleteCallback &cb) { writeCompleteCallback_ = cb; }
-    int returnSockfd() const { return sockfd_; }
     std::unique_ptr<Channel>& getChannel(){ return channel_; }
 
     Buffer *inputBuffer() { return &inputBuffer_; }
