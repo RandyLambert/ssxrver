@@ -6,8 +6,9 @@
 #include <functional>
 #include <string_view>
 #include <atomic>
-#include "Buffer.h"
 #include <boost/noncopyable.hpp>
+#include "Buffer.h"
+#include "CallBacks.h"
 #include "../http/HttpParser.h"
 
 namespace ssxrver
@@ -21,12 +22,6 @@ class TcpConnection : boost::noncopyable,
                       public std::enable_shared_from_this<TcpConnection>
 {
 public:
-    typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
-    typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
-    typedef std::function<void(const TcpConnectionPtr &,
-                               Buffer *)>
-        MessageCallback;
-    typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
     TcpConnection(EventLoop *loop,
                   int socked);
     ~TcpConnection();

@@ -14,83 +14,83 @@
 
 namespace ssxrver
 {
-namespace CurrentThread
-{
-__thread int t_cachedTid = 0;
-__thread char t_tidString[32];
-__thread int t_tidStringLength = 6;
-__thread const char *t_threadName = "noname";
-} // namespace CurrentThread
-
-namespace detail
-{
-
-struct ThreadData //把整个线程数据传进去
-{
-    typedef ssxrver::Thread::ThreadFunc ThreadFunc;
-    ThreadFunc func_;
-    string name_;
-    pid_t *tid_;
-    CountDownLatch *latch_;
-
-    ThreadData(ThreadFunc func,
-               const string &name,
-               pid_t *tid,
-               CountDownLatch *latch)
-        : func_(std::move(func)),
-          name_(name),
-          tid_(tid),
-          latch_(latch)
+    namespace CurrentThread
     {
-    }
+        __thread int t_cachedTid = 0;
+        __thread char t_tidString[32];
+        __thread int t_tidStringLength = 6;
+        __thread const char *t_threadName = "noname";
+    } // namespace CurrentThread
 
-    void runInThread() //真正创建线程后,穿进去的函数会直接调用他
+    namespace detail
     {
-        *tid_ = ssxrver::CurrentThread::tid();
-        tid_ = NULL;
-        latch_->countDown();
-        latch_ = NULL;
 
-        ssxrver::CurrentThread::t_threadName = name_.empty() ? "ssxrverThread" : name_.c_str();
-        ::prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName);
+        struct ThreadData //把整个线程数据传进去
+        {
+            typedef ssxrver::Thread::ThreadFunc ThreadFunc;
+            ThreadFunc func_;
+            string name_;
+            pid_t *tid_;
+            CountDownLatch *latch_;
 
-        try
-        {
-            func_();                                           //传入函数
-            ssxrver::CurrentThread::t_threadName = "finished"; //线程状态
-        }
-        catch (const Exception &ex) //异常捕捉，先在自己写的函数，在是函数库，最后是不得已的捕捉
-        {
-            ssxrver::CurrentThread::t_threadName = "crashed";
-            fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
-            fprintf(stderr, "reason: %s\n", ex.what());
-            fprintf(stderr, "stack trace: %s\n", ex.stackTrace());
-            abort();
-        }
-        catch (const std::exception &ex)
-        {
-            ssxrver::CurrentThread::t_threadName = "crashed";
-            fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
-            fprintf(stderr, "reason: %s\n", ex.what());
-            abort();
-        }
-        catch (...)
-        {
-            ssxrver::CurrentThread::t_threadName = "crashed";
-            fprintf(stderr, "unknown exception caught in Thread %s\n", name_.c_str());
-            throw; // rethrow
-        }
-    }
-};
+            ThreadData(ThreadFunc func,
+                       const string &name,
+                       pid_t *tid,
+                       CountDownLatch *latch)
+                    : func_(std::move(func)),
+                      name_(name),
+                      tid_(tid),
+                      latch_(latch)
+            {
+            }
 
-void *startThread(void *obj) //void *func(void *obj)
-{
-    ThreadData *data = static_cast<ThreadData *>(obj);
-    data->runInThread();
-    return NULL;
-}
+            void runInThread() //真正创建线程后,穿进去的函数会直接调用他
+            {
+                *tid_ = ssxrver::CurrentThread::tid();
+                tid_ = NULL;
+                latch_->countDown();
+                latch_ = NULL;
 
-} // namespace detail
+                ssxrver::CurrentThread::t_threadName = name_.empty() ? "ssxrverThread" : name_.c_str();
+                ::prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName);
+
+                try
+                {
+                    func_();                                           //传入函数
+                    ssxrver::CurrentThread::t_threadName = "finished"; //线程状态
+                }
+                catch (const Exception &ex) //异常捕捉，先在自己写的函数，在是函数库，最后是不得已的捕捉
+                {
+                    ssxrver::CurrentThread::t_threadName = "crashed";
+                    fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
+                    fprintf(stderr, "reason: %s\n", ex.what());
+                    fprintf(stderr, "stack trace: %s\n", ex.stackTrace());
+                    abort();
+                }
+                catch (const std::exception &ex)
+                {
+                    ssxrver::CurrentThread::t_threadName = "crashed";
+                    fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
+                    fprintf(stderr, "reason: %s\n", ex.what());
+                    abort();
+                }
+                catch (...)
+                {
+                    ssxrver::CurrentThread::t_threadName = "crashed";
+                    fprintf(stderr, "unknown exception caught in Thread %s\n", name_.c_str());
+                    throw; // rethrow
+                }
+            }
+        };
+
+        void *startThread(void *obj) //void *func(void *obj)
+        {
+            ThreadData *data = static_cast<ThreadData *>(obj);
+            data->runInThread();
+            return NULL;
+        }
+
+    } // namespace detail
 
 } // namespace ssxrver
 using namespace ssxrver;
@@ -101,13 +101,13 @@ bool CurrentThread::isMainThread()
 }
 
 Thread::Thread(ThreadFunc func, const string n)
-    : started_(false),
-      joined_(false),
-      pthreadId_(0),
-      tid_(0),
-      func_(std::move(func)),
-      name_(std::move(n)),
-      latch_(1)
+        : started_(false),
+          joined_(false),
+          pthreadId_(0),
+          tid_(0),
+          func_(std::move(func)),
+          name_(std::move(n)),
+          latch_(1)
 {
     setDdfaultName();
 }

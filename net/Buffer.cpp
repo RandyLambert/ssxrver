@@ -1,4 +1,4 @@
-#include <errno.h>
+#include <cerrno>
 #include <sys/uio.h>
 #include "Buffer.h"
 #include "SocketOps.h"

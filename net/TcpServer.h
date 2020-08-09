@@ -7,6 +7,7 @@
 #include <boost/noncopyable.hpp>
 #include "TcpConnection.h"
 #include "Channel.h"
+#include "CallBacks.h"
 namespace ssxrver
 {
 namespace net
@@ -17,21 +18,13 @@ class EventLoopThreadPool;
 class TcpServer : boost::noncopyable
 {
 public:
-    typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
-    typedef std::function<void(EventLoop *)> ThreadInitCallback;
-    typedef std::function<void(const TcpConnectionPtr &)> CloseCallback;
-    typedef std::function<void(const TcpConnectionPtr &,
-                               Buffer *buffer)>
-        MessageCallback;
-    typedef std::function<void(const TcpConnectionPtr &)> WriteCompleteCallback;
+    typedef std::function<void(EventLoop*)> ThreadInitCallback;
     TcpServer(EventLoop *loop,
               struct sockaddr_in listenAddr);
     ~TcpServer();
 
     EventLoop *getLoop() const { return loop_; }
     void setThreadNum(int numThreads);
-    void setThreadInitCallback(const ThreadInitCallback &cb) { threadInitCallback_ = cb; }
-    //std::unique_ptr<EventLoopThreadPool> threadPool() { return threadPool_; }
 
     void start(); //启动线程池
     void setMessageCallback(MessageCallback cb) { messageCallback_ = std::move(cb); }

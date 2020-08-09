@@ -31,13 +31,13 @@ public:
     bool setVersion(const char *start, const int length);
     void setClose(std::string_view connection) { closeConnection_ = (connection == "close"); }
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
-    void setStatusMessage(const string &message) { statusMessage_ = message; }
+    void setStatusMessage(std::string_view message) { statusMessage_ = message; }
     void setCloseConnection(bool on) { closeConnection_ = on; }
     bool closeConnection() const { return closeConnection_; }
     //设置文档的媒体类型
-    void setContentType(const string &contentType) { addHeader("Content-Type", contentType); }
-    void addHeader(const string &key, const string &value) { headers_[key] = value; }
-    void setBody(const string &body) { body_ = body; }
+    void setContentType(std::string_view contentType) { addHeader("Content-Type", contentType); }
+    void addHeader(const string& key, std::string_view value) { headers_[key] = value; }
+    void setBody(std::string_view body) { body_ = body; }
     void appendToBuffer(Buffer *output) const; //将httpresponse添加到buffer
 private:
     std::map<string, string> headers_; //header列表

@@ -29,7 +29,6 @@ void AsyncLogThread::stop()
 {
     running_ = false;
     cond_.notifyOne();
-    thread_.join();
 }
 
 void AsyncLogThread::append(const char *log_, int len)
@@ -51,7 +50,7 @@ void AsyncLogThread::append(const char *log_, int len)
 
 void AsyncLogThread::threadFunc()
 {
-    assert(running_ == true);
+    assert(running_);
     latch_.countDown();
     file::LogFile output(basename_);
     BufferPtr newBuffer1(new Buffer);

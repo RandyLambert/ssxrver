@@ -2,7 +2,7 @@
 #define SSXRVER_NET_BUFFER_H
 #include <cstring>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 #include <string>
 namespace ssxrver

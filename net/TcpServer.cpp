@@ -1,7 +1,6 @@
-#include <cstdio>
 #include <fcntl.h>
 #include <boost/get_pointer.hpp>
-#include <assert.h>
+#include <cassert>
 #include "TcpServer.h"
 #include "EventLoop.h"
 #include "EventLoopThreadPool.h"
@@ -90,7 +89,7 @@ void TcpServer::newConnection(int sockfd)
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(
-        std::bind(&TcpServer::removeConnection, this, std::placeholders::_1));
+        std::bind(&TcpServer::removeConnection, this, _1));
     conn->getChannel()->tie(conn);
     ioLoop->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
 }

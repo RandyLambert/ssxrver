@@ -2,6 +2,7 @@
 #define SSXRVER_BASE_MUTEX_H
 #include <assert.h>
 #include <pthread.h>
+#include <mutex>
 #include <boost/noncopyable.hpp>
 #include "CurrentThread.h"
 #define MCHECK(ret) ({ __typeof__ (ret) errnum = (ret);         \
@@ -14,15 +15,14 @@ class MutexLock : boost::noncopyable
 public:
     MutexLock()
     {
+//        std::mutex mutexx;
+//        mutexx.native_handle();
         MCHECK(pthread_mutex_init(&mutex_, nullptr));
     }
     ~MutexLock()
     {
         MCHECK(pthread_mutex_destroy(&mutex_));
     }
-
-    bool isLockByThisThread() const { return CurrentThread::tid() == holder_; }
-    void assertLocked() const { assert(isLockByThisThread()); }
 
     void lock()
     {

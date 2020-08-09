@@ -5,7 +5,7 @@
 #include <functional>
 #include <atomic>
 #include <boost/noncopyable.hpp>
-#include "../base/Mutex.h"
+#include <mutex>
 #include "../base/CurrentThread.h"
 #include "../base/Thread.h"
 #include "MySQLsOps.h"
@@ -64,7 +64,7 @@ private:
 
     ChannelList activeChannels_;
 
-    mutable MutexLock mutex_;
+    mutable std::mutex mutex_;
     std::vector<Functor> pendingFunctors_;
 //    MySQLsOps mysql_;
 };
