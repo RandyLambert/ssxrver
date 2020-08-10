@@ -2,23 +2,14 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <cstring>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <netinet/tcp.h>
-
 #include "SocketOps.h"
 #include "../base/Logging.h"
 
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-//在该文件忽略掉-wold-style-cast参数
 using namespace ssxrver::net;
-namespace
+void socketops::bindOrDie(int sockfd, struct sockaddr_in *addr)
 {
-typedef struct sockaddr SA;
-}
-void socketops::bindOrDie(int sockfd, const struct sockaddr_in &addr)
-{
-    if (::bind(sockfd, (struct sockaddr *)&addr, static_cast<socklen_t>(sizeof addr)) < 0)
+    if (::bind(sockfd, reinterpret_cast<struct sockaddr *>(addr), static_cast<socklen_t>(sizeof (struct sockaddr_in))) < 0)
         LOG_SYSFATAL << "socketops error";
 }
 void socketops::listenOrDie(int sockfd)
@@ -28,7 +19,7 @@ void socketops::listenOrDie(int sockfd)
 }
 int socketops::createNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
 {
-    //linux 2.6.27以上的内核支持sock_nonblock和sock_cloexec的检测，就不需要上面的set函数了
+    //linux 2.6.27以上的内核支持sock_nonblock和sock_cloexec的检测
     int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     if (sockfd < 0)
     {
@@ -39,8 +30,8 @@ int socketops::createNonblockingOrDie() //创建非阻塞套接字，创建失�
 
 int socketops::accept(int sockfd, struct sockaddr_in *addr)
 {
-    socklen_t addrlen = static_cast<socklen_t>(sizeof *addr);
-    int connfd = ::accept4(sockfd, (struct sockaddr *)&addr,
+    auto addrlen = static_cast<socklen_t>(sizeof *addr);
+    int connfd = ::accept4(sockfd, reinterpret_cast<struct sockaddr *>(addr),
                            &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
     if (connfd < 0)
     {
@@ -75,9 +66,9 @@ int socketops::accept(int sockfd, struct sockaddr_in *addr)
     return connfd;
 }
 
-int socketops::connect(int sockfd, const struct sockaddr_in &addr)
+int socketops::connect(int sockfd, struct sockaddr_in *addr)
 {
-    return ::connect(sockfd, (struct sockaddr *)&addr, static_cast<socklen_t>(sizeof addr));
+    return ::connect(sockfd, reinterpret_cast<struct sockaddr *>(addr), static_cast<socklen_t>(sizeof (struct sockaddr_in)));
 }
 
 ssize_t socketops::read(int sockfd, void *buf, size_t count)
@@ -114,7 +105,7 @@ void socketops::shutdownWrite(int sockfd)
 int socketops::getSocketError(int sockfd)
 {
     int optval;
-    socklen_t optlen = static_cast<socklen_t>(sizeof optval);
+    auto optlen = static_cast<socklen_t>(sizeof optval);
 
     if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
     {
@@ -128,10 +119,10 @@ int socketops::getSocketError(int sockfd)
 
 struct sockaddr_in socketops::getPeerAddr(int sockfd)
 {
-    struct sockaddr_in peeraddr;
+    struct sockaddr_in peeraddr{};
     bzero(&peeraddr, sizeof peeraddr);
-    socklen_t addrlen = static_cast<socklen_t>(sizeof peeraddr);
-    if (::getpeername(sockfd, (struct sockaddr *)&peeraddr, &addrlen) < 0) //获取对方地址
+    auto addrlen = static_cast<socklen_t>(sizeof peeraddr);
+    if (::getpeername(sockfd, reinterpret_cast<struct sockaddr *>(&peeraddr), &addrlen) < 0) //获取对方地址
     {
         LOG_SYSERR << "sockets::getPeerAddr";
     }
@@ -140,10 +131,10 @@ struct sockaddr_in socketops::getPeerAddr(int sockfd)
 
 struct sockaddr_in socketops::getLocalAddr(int sockfd)
 {
-    struct sockaddr_in localaddr;
+    struct sockaddr_in localaddr{};
     bzero(&localaddr, sizeof(localaddr));
-    socklen_t addrlen = static_cast<socklen_t>(sizeof localaddr);
-    if (::getsockname(sockfd, (struct sockaddr *)&localaddr, &addrlen) < 0)
+    auto addrlen = static_cast<socklen_t>(sizeof localaddr);
+    if (::getsockname(sockfd, reinterpret_cast<struct sockaddr *>(&localaddr), &addrlen) < 0)
     {
         LOG_SYSERR << "scokets::getLocalAddr";
     }

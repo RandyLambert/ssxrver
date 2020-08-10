@@ -15,9 +15,8 @@ namespace ssxrver
     namespace CurrentThread
     {
         thread_local int t_cachedTid = 0;
-        thread_local char t_tidString[32];
-        thread_local int t_tidStringLength = 6;
-        thread_local const char *t_threadName = "noname";
+        thread_local string t_tidString;
+        thread_local string t_threadName;
     } // namespace CurrentThread
 
     namespace detail
@@ -25,15 +24,13 @@ namespace ssxrver
 
         using ThreadFunc = ssxrver::Thread::ThreadFunc;
 
-        void runInThread(ThreadFunc func,string name,pid_t *tid,CountDownLatch *latch) //真正创建线程后,穿进去的函数会直接调用他
+        void runInThread(ThreadFunc func,const string& name,pid_t *tid,CountDownLatch *latch) //真正创建线程后,穿进去的函数会直接调用他
         {
             *tid = ssxrver::CurrentThread::tid();
-            tid = nullptr;
             latch->countDown();
-            latch = nullptr;
 
-            ssxrver::CurrentThread::t_threadName = name.empty() ? "ssxrverThread" : name.c_str();
-            ::prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName);
+            ssxrver::CurrentThread::t_threadName = name.empty() ? "ssxrverThread" : name;
+            ::prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName.c_str());
 
             try
             {

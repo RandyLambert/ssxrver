@@ -20,7 +20,7 @@ TcpServer::TcpServer(EventLoop *loop,
 {
     socketops::setReuseAddr(acceptfd_, true);
     socketops::setReusePort(acceptfd_, true);
-    socketops::bindOrDie(acceptfd_, listenAddr);
+    socketops::bindOrDie(acceptfd_, &listenAddr);
     acceptChannel_.setReadCallback(
         std::bind(&TcpServer::acceptHandRead, this));
 }
@@ -47,12 +47,12 @@ void TcpServer::acceptSockListen()
 void TcpServer::acceptHandRead()
 {
     loop_->assertInLoopThread();
-    struct sockaddr_in peerAddr;
+    struct sockaddr_in peerAddr{};
     bzero(&peerAddr, sizeof peerAddr);
     int connfd = socketops::accept(acceptfd_, &peerAddr);
     if (connfd >= 0) //得到了一个连接
     {
-        /* LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr); */
+//        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
         newConnection(connfd);
     }
     else

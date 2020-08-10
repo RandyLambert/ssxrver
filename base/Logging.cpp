@@ -56,8 +56,7 @@ LogStream &operator<<(LogStream &s, const Logger::SourceFile &v)
 
 void defaultOutput(const char *msg, int len)
 {
-    size_t n = fwrite(msg, 1, len, stdout);
-    (void)n;
+    [[maybe_unused]] size_t n = fwrite(msg, 1, len, stdout);
 }
 
 void defaultFlush()
@@ -78,9 +77,8 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile &file, int l
       line_(line),
       basename_(file)
 {
-    CurrentThread::tid(); //当前线程的tid
+    CurrentThread::tid(); //当前线程的cage一下tid
     stream_ << CurrentThread::tidString() << " ";
-    stream_ << CurrentThread::tidStringLength();
     stream_ << LogLevelName[level];
     if (savedErrno != 0) //在把级别格式化进去
     {

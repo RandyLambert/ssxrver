@@ -1,6 +1,5 @@
 #ifndef SSXRVER_BASE_THREAD_H
 #define SSXRVER_BASE_THREAD_H
-#include <pthread.h>
 #include <thread>
 #include <string>
 #include <functional>

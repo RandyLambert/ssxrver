@@ -2,33 +2,27 @@
 #define SSXRVER_BASE_CURRENTTHREAD_H
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <string>
 #include <unistd.h>
-#include <stdio.h>
-namespace ssxrver
-{
-namespace CurrentThread
+namespace ssxrver::CurrentThread
 {
 extern thread_local int t_cachedTid;
-extern thread_local char t_tidString[32];
-extern thread_local int t_tidStringLength;
-extern thread_local const char *t_threadName;
+extern thread_local std::string t_tidString;
+extern thread_local std::string t_threadName;
 
 inline int tid()
 {
     if (t_cachedTid == 0)
     {
         t_cachedTid = static_cast<pid_t>(syscall(SYS_gettid));
-        t_tidStringLength = snprintf(t_tidString, sizeof(t_tidString), "%5d ", t_cachedTid);
+        t_tidString = std::to_string(t_cachedTid) + " ";
     }
     return t_cachedTid;
 }
 
-inline int tidStringLength() { return t_tidStringLength; }
-inline const char *tidString() { return t_tidString; }
-inline const char *name() { return t_threadName; }
+inline const char *tidString() { return t_tidString.c_str(); }
+inline const char *name() { return t_threadName.c_str(); }
 bool isMainThread();
 
-} // namespace CurrentThread
-
-} // namespace ssxrver
+} // namespace ssxrver::CurrentThread
 #endif

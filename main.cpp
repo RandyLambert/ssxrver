@@ -50,16 +50,13 @@ int main(int argv, char *argc[])
     log_.start();
     g_asyncLog = &log_;
     ssxrver::Logger::setOutput(asyncOutput);
-
-    struct sockaddr_in serv_addr;
+    struct sockaddr_in serv_addr{};
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_port = htons(4507);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    int threads = 2;
+    int threads = 4;
     EventLoop loop;
-    /* loop.setname("大循环"); */
     HttpServer server(&loop, serv_addr);
-    /* EchoServer server(&loop, serv_addr); */
     server.setHttpCallback(message);
     server.setThreadNum(threads);
     server.start();
