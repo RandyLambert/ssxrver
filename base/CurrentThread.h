@@ -8,10 +8,10 @@ namespace ssxrver
 {
 namespace CurrentThread
 {
-extern __thread int t_cachedTid;
-extern __thread char t_tidString[32];
-extern __thread int t_tidStringLength;
-extern __thread const char *t_threadName;
+extern thread_local int t_cachedTid;
+extern thread_local char t_tidString[32];
+extern thread_local int t_tidStringLength;
+extern thread_local const char *t_threadName;
 
 inline int tid()
 {

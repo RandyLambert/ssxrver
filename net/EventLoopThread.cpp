@@ -21,14 +21,13 @@ EventLoopThread::~EventLoopThread()
     if (loop_ != nullptr)
     {
         loop_->quit();
-        thread_.join();
     }
 }
 
 EventLoop *EventLoopThread::startLoop()
 {
 
-    assert(!thread_.startorNot());
+    assert(!thread_.started());
     thread_.start();
     {
         std::unique_lock <std::mutex> lock(mutex_);
