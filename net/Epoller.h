@@ -17,7 +17,7 @@ class Epoller : boost::noncopyable
 {
 public:
     typedef std::vector<Channel *> ChannelList;
-    Epoller(EventLoop *loop);
+    explicit Epoller(EventLoop *loop);
     ~Epoller();
     void updateChannel(Channel *channel);
     void removeChannel(Channel *channel);
@@ -29,6 +29,7 @@ private:
     void fillActiveChannels(int numEvents, ChannelList *activeChannels) const;
     void update(int operation, Channel *channel);
 
+    //无须map还是有序map？？ unordered_
     typedef std::map<int, Channel *> ChannelMap;                      //fd和事件指针
     typedef std::map<int, std::shared_ptr<TcpConnection>> TcpConnMap; //TcpConnectionmap
     ChannelMap channels_;                                             //监听检测通道

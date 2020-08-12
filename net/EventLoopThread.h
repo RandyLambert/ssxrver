@@ -15,7 +15,7 @@ class EventLoopThread : boost::noncopyable
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;
 
-    EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback());
+    explicit EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback());
     ~EventLoopThread();
     EventLoop *startLoop();
 

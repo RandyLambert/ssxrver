@@ -13,8 +13,8 @@ class TcpConnection;
 class Channel : boost::noncopyable
 {
 public:
-    typedef std::function<void()> EventCallback;
-    typedef std::function<void()> ReadEventCallback;
+    using EventCallback = std::function<void()>;
+    using ReadEventCallback = std::function<void()>;
 
     Channel(EventLoop *loop, int fd); //一个eventloop可能会包含多个channel，但一个channel只能包含一个channel
     ~Channel();
@@ -68,8 +68,8 @@ public:
         events_ = kNoneEvent;
     }
 
-    bool isWriting() const { return events_ & kWriteEvent; }
-    bool isReading() const { return events_ & kReadEvent; }
+    [[nodiscard]] bool isWriting() const { return events_ & kWriteEvent; }
+    [[nodiscard]] bool isReading() const { return events_ & kReadEvent; }
 
     int status() { return status_; }
     void set_status(int idx) { status_ = idx; }

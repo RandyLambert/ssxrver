@@ -15,13 +15,13 @@ class EventLoopThreadPool : boost::noncopyable
 {
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;
-    EventLoopThreadPool(EventLoop *baseLoop);
+    explicit EventLoopThreadPool(EventLoop *baseLoop);
     ~EventLoopThreadPool();
     void setThreadNum(int numThreads) { numThreads_ = numThreads; }
     void start(const ThreadInitCallback &cb = ThreadInitCallback());
     EventLoop *getNextLoop();
 
-    bool started() const { return started_; }
+    [[nodiscard]] bool started() const { return started_; }
 
 private:
     EventLoop *baseLoop_;
