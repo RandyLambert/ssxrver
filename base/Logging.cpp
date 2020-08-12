@@ -54,7 +54,7 @@ LogStream &operator<<(LogStream &s, const Logger::SourceFile &v)
     return s;
 }
 
-void defaultOutput(const char *msg, int len)
+void defaultOutput(const char *msg, size_t len)
 {
     [[maybe_unused]] size_t n = fwrite(msg, 1, len, stdout);
 }

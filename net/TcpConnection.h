@@ -95,8 +95,6 @@ private:
 };
 
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
-void defaultMessageCallback(const TcpConnectionPtr &conn,
-                            Buffer *buffer);
 } // namespace net
 } // namespace ssxrver
 

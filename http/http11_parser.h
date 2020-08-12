@@ -3,6 +3,9 @@
 
 #include "http11_common.h"
 
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 typedef struct http_parser
 {
     int cs;

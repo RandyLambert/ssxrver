@@ -1,0 +1,23 @@
+{
+  "port": 4507,
+  "address": "127.0.0.1",
+  "worker_processes": 4,
+  "root_path": null,
+  "log": {
+    "ansync_started": "on",
+    "flush_second": 3,
+    "roll_size": 65536,
+    "path": "./logs/",
+    "base_name": "ssxrver"
+  },
+  "mysql": {
+    "mysql_started": "off",
+    "address": "127.0.0.1",
+    "user": "root",
+    "password": "123456",
+    "database_name": "ttms",
+    "port": 0,
+    "unix_socket": null,
+    "client_flag": 0
+  }
+}

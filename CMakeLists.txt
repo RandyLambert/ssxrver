@@ -1,58 +1,82 @@
-#CMake 最低版本好要求
-cmake_minimum_required (VERSION 3.11.2)
+#CMake 最低版本号
+cmake_minimum_required(VERSION 3.11.2)
+project(ssxrver)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g -Wall -Wno-unused-variable -Wshadow -Werror -Wold-style-cast -pthread -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g -Wall -Wconversion -Wredundant-decls -Wcast-align -Wshadow -Werror -Wold-style-cast -march=native -pthread -Wno-unused-variable -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
 elseif( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -o2 -Wall -Wshadow -Werror -Wold-style-cast -pthread -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -o2 -Wall -Wconversion -Wredundant-decls -Wcast-align -Wshadow -Werror -Wold-style-cast -march=native -pthread -Wno-unused-variable -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
 endif()
 
 message("Build Type:" ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
 
 
-# set(CXX_FLAGS
-#  -g
-#  # -DVALGRIND
-#  -DCHECK_PTHREAD_RETURN_VALUE
-#  -D_FILE_OFFSET_BITS=64
-#  -Wall
-#  -Wextra
-#  -Werror
-#  -Wconversion
-#  -Wno-unused-parameter
-#  -Wold-style-cast
-#  -Woverloaded-virtual
-#  -Wpointer-arith
-#  -Wshadow
-#  -Wwrite-strings
-#  -march=native
-#  # -MMD
-#  -lstd=c++17
-#  -rdynamic
-#  )
+include_directories(base)
+include_directories(http)
+include_directories(net)
+include_directories(util)
 
-#项目信息
-project(web_ssxrver)
-
-# 查找当前目录下的所有源文件
-# 并将名称保存到DIR——SRCS变量
-aux_source_directory(. DIR_SRCS)
-
-# 添加net http base子目录
-add_subdirectory(base)
-add_subdirectory(net)
-add_subdirectory(http)
-
-# 指定生成目标
-add_executable(ssxrver main.cpp)
-
-# 添加链接库
-target_link_libraries(ssxrver NetFunctions)
-target_link_libraries(ssxrver BaseFunctions)
-target_link_libraries(ssxrver NetFunctions)
-target_link_libraries(ssxrver HttpFunctions)
-
+add_executable(ssxrver
+        base/AsyncLogThread.cpp
+        base/AsyncLogThread.h
+        base/CountDownLatch.cpp
+        base/CountDownLatch.h
+        base/CurrentThread.h
+        base/Exception.cpp
+        base/Exception.h
+        base/File.cpp
+        base/File.h
+        base/LogFile.cpp
+        base/LogFile.h
+        base/Logging.cpp
+        base/Logging.h
+        base/LogStream.cpp
+        base/LogStream.h
+        base/Thread.cpp
+        base/Thread.h
+        http/http11_common.h
+        http/http11_parser.cpp
+        http/http11_parser.h
+        http/httpclient_parser.cpp
+        http/httpclient_parser.h
+        http/HttpParser.cpp
+        http/HttpParser.h
+        http/HttpRequest.h
+        http/HttpResponse.cpp
+        http/HttpResponse.h
+        http/HttpServer.cpp
+        http/HttpServer.h
+        net/Buffer.cpp
+        net/Buffer.h
+        net/CallBacks.h
+        net/Channel.cpp
+        net/Channel.h
+        net/cJSON.c
+        net/cJSON.h
+        net/CJsonObject.cpp
+        net/CJsonObject.hpp
+        net/Epoller.cpp
+        net/Epoller.h
+        net/EventLoop.cpp
+        net/EventLoop.h
+        net/EventLoopThread.cpp
+        net/EventLoopThread.h
+        net/EventLoopThreadPool.cpp
+        net/EventLoopThreadPool.h
+        net/MySQL.cpp
+        net/MySQL.h
+        net/MySQLsOps.cpp
+        net/MySQLsOps.h
+        net/SocketOps.cpp
+        net/SocketOps.h
+        net/TcpConnection.cpp
+        net/TcpConnection.h
+        net/TcpServer.cpp
+        net/TcpServer.h
+        util/Init.cpp
+        util/Init.h
+        main.cpp)

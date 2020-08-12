@@ -1,30 +1,32 @@
 #include "MySQL.h"
-#include "MySQLsOps.h"
 #include "CJsonObject.hpp"
 #include "../base/Logging.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 
-MySQL::MySQL(const string &addr, const string &user, const string &password, const string &dataBaseName, unsigned int port, const char *unixSocket, unsigned long clientFlag)
-    : res_(NULL),
-      sqlrow_(0)
+MySQL::MySQL(const string& password,
+      const string& dataBaseName,
+      const string& addr,
+      const string& user,
+      unsigned int port,
+      const char* unixSocket,
+      unsigned long clientFlag)
+      :res_(nullptr),
+       sqlrow_(nullptr)
 {
-    res_ = nullptr;
-    sqlrow_ = 0;
-    res_ = 0;
-    if (NULL == mysql_init(&mysql_))
+    if (nullptr == mysql_init(&mysql_))
     {
         LOG_SYSFATAL << mysql_error(&mysql_);
     }
 
     //初始化一个句柄;
     //初始化数据库
-    if (mysql_library_init(0, NULL, NULL) != 0)
+    if (mysql_library_init(0, nullptr, nullptr) != 0)
     {
         LOG_SYSFATAL << mysql_error(&mysql_);
     }
 
-    if (mysql_real_connect(&mysql_, addr.c_str(), user.c_str(), password.c_str(), dataBaseName.c_str(), port, unixSocket, clientFlag) == NULL)
+    if (mysql_real_connect(&mysql_, addr.c_str(), user.c_str(), password.c_str(), dataBaseName.c_str(), port, unixSocket, clientFlag) ==nullptr)
     {
         LOG_SYSFATAL << mysql_error(&mysql_);
     }
@@ -60,10 +62,10 @@ int MySQL::queryTableColName(const string &tableName, CJsonObject &result)
         return -1;
     }
 
-    int count = mysql_num_fields(res_);
+    unsigned count = mysql_num_fields(res_);
     while ((sqlrow_ = mysql_fetch_row(res_)))
     {
-        for (int j = 0; j < count; j++)
+        for (unsigned j = 0; j < count; j++)
         {
             result["what"].Add(sqlrow_[j]);
         }
@@ -101,13 +103,13 @@ int MySQL::queryHasResult(const CJsonObject &s, CJsonObject &result)
         return -1;
     }
 
-    int count = mysql_num_fields(res_);
+    unsigned int count = mysql_num_fields(res_);
     CJsonObject temp;
     CJsonObject sRef = const_cast<CJsonObject &>(s);
     while ((sqlrow_ = mysql_fetch_row(res_)))
     {
         temp.Clear();
-        for (int j = 0; j < count; j++)
+        for (unsigned int j = 0; j < count; j++)
         {
             temp.Add(sRef["what"](j), sqlrow_[j]);
         }
@@ -124,10 +126,10 @@ int MySQL::sqlInsert(const CJsonObject &cjson)
     string keyStr;
     string valueStrs("VALUES");
     bool flag = false;
-    CJsonObject &cjsonRef = const_cast<CJsonObject &>(cjson);
+    auto &cjsonRef = const_cast<CJsonObject &>(cjson);
     for (int i = 0; i < cjsonRef["data"].GetArraySize(); i++)
     {
-        if (flag == false)
+        if (!flag)
         {
             flag = true;
             valueStrs += "(";
@@ -161,7 +163,7 @@ int MySQL::sqlSelectWhere(const CJsonObject &cjson, CJsonObject &result)
 
     string queryStr("SELECT ");
     string keyStr;
-    CJsonObject &cjsonRef = const_cast<CJsonObject &>(cjson);
+    auto &cjsonRef = const_cast<CJsonObject &>(cjson);
     for (int i = 0; i < cjsonRef["what"].GetArraySize(); i++)
     {
         queryStr += cjsonRef["what"](i) + ',';
@@ -172,7 +174,7 @@ int MySQL::sqlSelectWhere(const CJsonObject &cjson, CJsonObject &result)
     if (!cjsonRef["op"].IsEmpty())
     {
         queryStr += " WHERE ";
-        int i = 0;
+        unsigned i = 0;
         while (cjsonRef["data"].GetKey(keyStr))
         {
             if (i == 0)
@@ -217,8 +219,8 @@ int MySQL::sqlDeleteWhere(const CJsonObject &cjson)
 
     string queryStr("DELETE FROM " + cjson("tableName") + " WHERE ");
     string keyStr;
-    CJsonObject &cjsonRef = const_cast<CJsonObject &>(cjson);
-    int i = 0;
+    auto &cjsonRef = const_cast<CJsonObject &>(cjson);
+    unsigned i = 0;
     while (cjsonRef["data"].GetKey(keyStr))
     {
         if (i == 0)
@@ -243,7 +245,7 @@ int MySQL::sqlUpdateWhere(const CJsonObject &cjson)
 {
     string queryStr("UPDATE " + cjson("tableName") + " SET ");
     string keyStr;
-    CJsonObject &cjsonRef = const_cast<CJsonObject &>(cjson);
+    auto &cjsonRef = const_cast<CJsonObject &>(cjson);
     while (cjsonRef["set"].GetKey(keyStr))
     {
         queryStr += keyStr + "=";
@@ -252,7 +254,7 @@ int MySQL::sqlUpdateWhere(const CJsonObject &cjson)
     queryStr.back() = ' ';
     queryStr += "WHERE ";
 
-    int i = 0;
+    unsigned i = 0;
     while (cjsonRef["data"].GetKey(keyStr))
     {
         if (i == 0)

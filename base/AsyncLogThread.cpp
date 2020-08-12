@@ -2,10 +2,11 @@
 #include "LogFile.h"
 using namespace ssxrver;
 using namespace ssxrver::base;
-AsyncLogThread::AsyncLogThread(const std::string basename, int flushInterval)
-    : flushInterval_(flushInterval),
+AsyncLogThread::AsyncLogThread(std::string basename, int flushSecond,size_t rollSize)
+    : flushSecond_(flushSecond),
+      rollSize_(rollSize),
       running_(false),
-      basename_(basename),
+      basename_(std::move(basename)),
       thread_(std::bind(&AsyncLogThread::threadFunc, this), "AsyncLogThread"),
       mutex_(),
       cond_(),
@@ -18,6 +19,7 @@ AsyncLogThread::AsyncLogThread(const std::string basename, int flushInterval)
     nextBuffer_->bzero();
     buffers_.reserve(16);
 }
+
 void AsyncLogThread::start()
 {
     running_ = true;
@@ -31,7 +33,7 @@ void AsyncLogThread::stop()
     cond_.notify_one();
 }
 
-void AsyncLogThread::append(const char *log_, int len)
+void AsyncLogThread::append(const char *log_, size_t len)
 {
     std::unique_lock <std::mutex> lock(mutex_);
     if (currentBuffer_->avail() > static_cast<size_t>(len))
@@ -52,7 +54,7 @@ void AsyncLogThread::threadFunc()
 {
     assert(running_);
     latch_.countDown();
-    file::LogFile output(basename_);
+    file::LogFile output(basename_,rollSize_);
     BufferPtr newBuffer1(new Buffer);
     BufferPtr newBuffer2(new Buffer);
 
@@ -63,7 +65,6 @@ void AsyncLogThread::threadFunc()
 
     while (running_)
     {
-        /* std::cout << "thfunc" << std::endl; */
         assert(newBuffer1 && newBuffer1->length() == 0);
         assert(newBuffer2 && newBuffer2->length() == 0);
         assert(buffersToWrite.empty());
@@ -72,7 +73,7 @@ void AsyncLogThread::threadFunc()
             std::unique_lock <std::mutex> lock(mutex_);
             if (buffers_.empty())
             {
-                cond_.wait_for(lock,std::chrono::seconds(flushInterval_));
+                cond_.wait_for(lock,std::chrono::seconds(flushSecond_));
             }
             buffers_.push_back(std::move(currentBuffer_));
             currentBuffer_ = std::move(newBuffer1);
@@ -117,7 +118,7 @@ void AsyncLogThread::threadFunc()
         }
 
         buffersToWrite.clear();
-        output.flush();
+        output.flush(); //刷新条件1，到达超时时间，刷新条件2，有某个缓冲区写满了数据
     }
     output.flush();
 }

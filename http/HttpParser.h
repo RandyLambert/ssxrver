@@ -43,7 +43,7 @@ public:
     int getError() const { return error_; }
     size_t execute(Buffer *data);
     HttpResponse &getResponse() { return response_; } //获取httprequest
-    const httpclient_parser &getParser() const { return parser_; }
+    [[nodiscard]] const httpclient_parser &getParser() const { return parser_; }
     void reset();
 
 private:

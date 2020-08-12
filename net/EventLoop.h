@@ -19,7 +19,7 @@ class Epoller;
 class EventLoop : boost::noncopyable
 {
 public:
-    typedef std::function<void()> Functor;
+    using Functor = std::function<void()>;
     EventLoop();
     ~EventLoop();
     void loop();

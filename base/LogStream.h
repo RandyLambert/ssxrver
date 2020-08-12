@@ -114,7 +114,7 @@ public:
         buffer_.append(v.c_str(), v.size());
         return *this;
     }
-    void append(const char *data, int len) { buffer_.append(data, len); }
+    void append(const char *data, size_t len) { buffer_.append(data, len); }
     [[nodiscard]] const Buffer &buffer() const { return buffer_; }
     void resetBuffer() { buffer_.reset(); }
 

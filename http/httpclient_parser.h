@@ -36,7 +36,7 @@
 #define httpclient_parser_h
 
 #include "http11_common.h"
-
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 typedef struct httpclient_parser
 {
     int cs;

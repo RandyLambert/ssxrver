@@ -6,7 +6,6 @@
 #include "Thread.h"
 #include "CountDownLatch.h"
 #include "LogStream.h"
-
 #include <vector>
 #include <memory>
 
@@ -16,14 +15,14 @@ namespace ssxrver::base
 class AsyncLogThread : boost::noncopyable
 {
 public:
-    AsyncLogThread(const std::string basename, int flushInterval = 3);
+    explicit AsyncLogThread(std::string basename, int flushSecond = 3,size_t rollSize = 64*1024);
     ~AsyncLogThread()
     {
         if (running_)
             stop();
     }
 
-    void append(const char *log_, int len);
+    void append(const char *log_, size_t len);
     void start();
     void stop();
 
@@ -33,7 +32,8 @@ private:
     typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
     typedef std::unique_ptr<Buffer> BufferPtr;
 
-    const int flushInterval_;
+    const int flushSecond_;
+    const size_t rollSize_;
     bool running_;
     std::string basename_;
     Thread thread_;

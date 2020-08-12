@@ -58,7 +58,7 @@ public:
     static LogLevel logLevel();
     static void setLogLevel(LogLevel level);
 
-    typedef void (*OutputFunc)(const char *msg, int len); //函数指针，下同
+    typedef void (*OutputFunc)(const char *msg, size_t len); //函数指针，下同
     typedef void (*FlushFunc)();
     static void setOutput(OutputFunc); //设置输出函数
     static void setFlush(FlushFunc);   //清空缓冲

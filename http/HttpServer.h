@@ -3,7 +3,6 @@
 #include "../net/TcpServer.h"
 #include <boost/noncopyable.hpp>
 #include "../net/EventLoop.h"
-#include <iostream>
 namespace ssxrver
 {
 namespace net

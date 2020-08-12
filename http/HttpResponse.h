@@ -33,7 +33,7 @@ public:
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
     void setStatusMessage(std::string_view message) { statusMessage_ = message; }
     void setCloseConnection(bool on) { closeConnection_ = on; }
-    bool closeConnection() const { return closeConnection_; }
+    [[nodiscard]] bool closeConnection() const { return closeConnection_; }
     //设置文档的媒体类型
     void setContentType(std::string_view contentType) { addHeader("Content-Type", contentType); }
     void addHeader(const string& key, std::string_view value) { headers_[key] = value; }

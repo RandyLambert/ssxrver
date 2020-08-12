@@ -17,7 +17,13 @@ class MySQL : boost::noncopyable
 {
 public:
     ~MySQL();
-    MySQL(const string& addr="127.0.0.1",const string& user="root",const string& password="123456",const string& dataBaseName="ttms",unsigned int port = 0,const char* unixSocket=NULL,unsigned long clientFlag = 0);
+    MySQL(const string& password,
+            const string& dataBaseName,
+            const string& addr="127.0.0.1",
+            const string& user="root",
+            unsigned int port = 0,
+            const char* unixSocket= nullptr ,
+            unsigned long clientFlag = 0);
     int sqlSelectWhere(const CJsonObject& cjson,CJsonObject& result);
     int sqlDeleteWhere(const CJsonObject& cjson);
     int sqlUpdateWhere(const CJsonObject& cjson);
