@@ -66,8 +66,8 @@ void Epoller::fillActiveChannels(int numEvents,                     //返回活�
 {
     for (int i = 0; i < numEvents; i++)
     {
-        Channel *channel = static_cast<Channel *>(events_[i].data.ptr);
-        channel->set_revents(events_[i].events); //把返回的事件写到这个通道里
+        auto *channel = static_cast<Channel *>(events_[i].data.ptr);
+        channel->setRevents(events_[i].events); //把返回的事件写到这个通道里
         activeChannels->push_back(channel);      //继而返回到eventloop中
     }
 }
@@ -107,9 +107,9 @@ void Epoller::removeChannel(Channel *channel)
     ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
     int status_ = channel->status();
-    if (channels_.erase(fd) != true)
+    if (channels_.erase(fd) == 0)
         LOG_FATAL << "erase channel";
-    if (connections_.erase(fd) != true)
+    if (connections_.erase(fd) == 0)
         LOG_FATAL << "erase connections_";
 
     if (status_ == kAdded)

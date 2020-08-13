@@ -40,10 +40,10 @@ public:
     void tie(std::shared_ptr<TcpConnection> &); //和tcpconnection对象有关系，防止对象销毁
     std::shared_ptr<TcpConnection> getTie();
 
-    int fd() const { return fd_; }                             //channel对应的文件描述符
-    int events() const { return events_; }                     //channel注册了那些时间保存在events中
-    void set_revents(int revt) { revents_ = revt; }            //epoll
-    bool isNoneEvent() const { return events_ == kNoneEvent; } //判断是否没有事件
+    [[nodiscard]] int fd() const { return fd_; }                             //channel对应的文件描述符
+    [[nodiscard]] unsigned events() const { return events_; }                     //channel注册了那些时间保存在events中
+    void setRevents(size_t revt) { revents_ = revt; }            //epoll
+    [[nodiscard]] bool isNoneEvent() const { return events_ == kNoneEvent; } //判断是否没有事件
     void enableReading()                                       //关注读事件，或者加入这个事件
     {
         events_ |= kReadEvent;
@@ -55,6 +55,19 @@ public:
         events_ &= ~kReadEvent;
         update();
     }
+
+    void enableReadingET()                                       //关注读事件，或者加入这个事件
+    {
+        events_ |= kReadEventET;
+        update();
+    }
+
+    void disableReadingET()
+    {
+        events_ &= ~kReadEventET;
+        update();
+    }
+
     void enableWriting()
     {
         events_ |= kWriteEvent;
@@ -83,14 +96,15 @@ private:
     void update();
     void handleEventWithGuard();
 
-    static const int kNoneEvent;  //没有关注事件
-    static const int kReadEvent;  //POLLIN | POLLPRI（紧急事件），默认LT
-    static const int kWriteEvent; //POLLOUT写
+    static const unsigned kNoneEvent;  //没有关注事件
+    static const unsigned kReadEvent;  //EPOLLIN | EPOLLPRI（紧急事件），默认LT
+    static const unsigned kReadEventET; //关注ET模式
+    static const unsigned kWriteEvent; //EPOLLOUT写
 
     EventLoop *loop_; //记录所属的eventloop
     const int fd_;    //文件描述符，负责关闭
-    int events_;      //关注的事件
-    int revents_;     //epoll实际返回的事件个数
+    unsigned int events_;      //关注的事件
+    size_t revents_;     //epoll实际返回的事件个数
     int status_;      //epoll中通道的状态
     bool logHup_;     //for EPOLLHUP
 

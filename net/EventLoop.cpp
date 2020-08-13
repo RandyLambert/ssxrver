@@ -1,8 +1,7 @@
 #include <sys/eventfd.h>
-#include <signal.h>
+#include <csignal>
 #include "EventLoop.h"
 #include "../base/Logging.h"
-//#include "../base/Mutex.h"
 #include "Channel.h"
 #include "Epoller.h"
 

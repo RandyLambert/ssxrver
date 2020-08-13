@@ -4,7 +4,7 @@
 using namespace ssxrver;
 using namespace ssxrver::base::file;
 using std::string;
-LogFile::LogFile(std::string_view baseName, size_t rollSize, bool threadSafe)
+LogFile::LogFile(const std::string& baseName, size_t rollSize, bool threadSafe)
     : baseName_(baseName),
       count_(0),
       rollSize_(rollSize),

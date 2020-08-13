@@ -6,9 +6,10 @@
 using namespace ssxrver;
 using namespace ssxrver::net;
 
-const int Channel::kNoneEvent = 0; //初始化为默认值
-const int Channel::kReadEvent = EPOLLIN | EPOLLPRI;
-const int Channel::kWriteEvent = EPOLLOUT;
+const unsigned Channel::kNoneEvent = 0; //初始化为默认值
+const unsigned Channel::kReadEvent = EPOLLIN | EPOLLPRI;
+const unsigned Channel::kReadEventET = EPOLLIN | EPOLLPRI | EPOLLET;
+const unsigned Channel::kWriteEvent = EPOLLOUT;
 
 Channel::Channel(EventLoop *loop, int fd)
     : loop_(loop),

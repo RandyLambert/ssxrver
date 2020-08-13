@@ -2,7 +2,6 @@
 #define SSXRVER_BASE_LOGFILE_H
 #include <memory>
 #include <mutex>
-#include <string_view>
 #include <boost/noncopyable.hpp>
 namespace ssxrver::base::file
 {
@@ -11,7 +10,7 @@ class writeFile;
 class LogFile : boost::noncopyable
 {
 public:
-    explicit LogFile(std::string_view baseName, size_t rollSize = 1024 * 64, bool threadSafe = true);
+    explicit LogFile(const std::string& baseName, size_t rollSize = 1024 * 64, bool threadSafe = true);
     ~LogFile();
     void append(const char *log_, size_t len); //添加日志
     void flush();

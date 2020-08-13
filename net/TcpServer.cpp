@@ -41,7 +41,9 @@ void TcpServer::setThreadNum(int numThreads)
 void TcpServer::acceptSockListen()
 {
     socketops::listenOrDie(acceptfd_);
-    acceptChannel_.enableReading();
+    acceptChannel_.enableReadingET();
+//    acceptChannel_.enableReading();
+//    strace -o et.txt trace=all -p 28979
 }
 
 void TcpServer::acceptHandRead()
@@ -49,23 +51,51 @@ void TcpServer::acceptHandRead()
     loop_->assertInLoopThread();
     struct sockaddr_in peerAddr{};
     bzero(&peerAddr, sizeof peerAddr);
-    int connfd = socketops::accept(acceptfd_, &peerAddr);
-    if (connfd >= 0) //得到了一个连接
+
+    int connfd = 0;
+    while (true)
     {
-//        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
-        newConnection(connfd);
-    }
-    else
-    {
-        LOG_SYSERR << "in TcpServer Accepteror";
-        if (errno == EMFILE) //文件描述符太多了
+        connfd = socketops::accept(acceptfd_, &peerAddr);
+        if (connfd >= 0) //得到了一个连接
         {
-            ::close(idleFd_);                        //先关闭开始的空闲文件描述符
-            idleFd_ = accept(acceptfd_, nullptr, nullptr); //用这个描述符先接收
-            ::close(idleFd_);                        //接收完在关闭，因为使用的是lt模式，不然accept会一直触发
-            idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+    //        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
+            newConnection(connfd);
+        }
+        else
+        {
+            if(errno == EAGAIN) //ET模式读完了
+            {
+                break;
+            }
+
+            if (errno == EMFILE) //文件描述符太多了
+            {
+                LOG_SYSERR << "in TcpServer Accepteror";
+                ::close(idleFd_);                        //先关闭开始的空闲文件描述符
+                idleFd_ = accept(acceptfd_, nullptr, nullptr); //用这个描述符先接收
+                ::close(idleFd_);                        //接收完在关闭，因为使用的是LT模式，不然accept会一直触发
+                idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            }
         }
     }
+
+//    int connfd = socketops::accept(acceptfd_, &peerAddr);
+//    if (connfd >= 0) //得到了一个连接
+//    {
+////        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
+//        newConnection(connfd);
+//    }
+//    else
+//    {
+//        LOG_SYSERR << "in TcpServer Accepteror";
+//        if (errno == EMFILE) //文件描述符太多了
+//        {
+//            ::close(idleFd_);                        //先关闭开始的空闲文件描述符
+//            idleFd_ = accept(acceptfd_, nullptr, nullptr); //用这个描述符先接收
+//            ::close(idleFd_);                        //接收完在关闭，因为使用的是LT模式，不然accept会一直触发
+//            idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+//        }
+//    }
 }
 
 void TcpServer::start() //这个函数就是的Acceptor处于监听状态
