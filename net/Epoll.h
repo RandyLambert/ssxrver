@@ -1,5 +1,5 @@
-#ifndef SSXRVER_NET_EPOLLER_H
-#define SSXRVER_NET_EPOLLER_H
+#ifndef SSXRVER_NET_EPOLL_H
+#define SSXRVER_NET_EPOLL_H
 #include <vector>
 #include <map>
 #include <string>
@@ -13,12 +13,12 @@ namespace net
 {
 class Channel;
 class TcpConnection;
-class Epoller : boost::noncopyable
+class Epoll : boost::noncopyable
 {
 public:
-    typedef std::vector<Channel *> ChannelList;
-    explicit Epoller(EventLoop *loop);
-    ~Epoller();
+    using ChannelList = std::vector<Channel *>;
+    explicit Epoll(EventLoop *loop);
+    ~Epoll();
     void updateChannel(Channel *channel);
     void removeChannel(Channel *channel);
     void poll(ChannelList *activeChannels);
@@ -29,13 +29,12 @@ private:
     void fillActiveChannels(int numEvents, ChannelList *activeChannels) const;
     void update(int operation, Channel *channel);
 
-    //无须map还是有序map？？ unordered_
-    typedef std::map<int, Channel *> ChannelMap;                      //fd和事件指针
-    typedef std::map<int, std::shared_ptr<TcpConnection>> TcpConnMap; //TcpConnectionmap
+    using ChannelMap = std::unordered_map<int, Channel *>;                      //fd和事件指针
+    using TcpConnMap = std::unordered_map<int, std::shared_ptr<TcpConnection>>; //TcpConnectionMap
     ChannelMap channels_;                                             //监听检测通道
     TcpConnMap connections_;
     int epollfd_;
-    typedef std::vector<struct epoll_event> EventList;
+    using EventList = std::vector<struct epoll_event>;
     EventList events_; //实际返回的事件列表
     EventLoop *ownerLoop_;
 

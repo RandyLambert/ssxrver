@@ -4,8 +4,7 @@
 
 #include <boost/assert.hpp>
 #include <cstdlib>
-//#include <map>
-#include <iostream>
+//#include <iostream>
 #include <string>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -14,7 +13,6 @@
 #include "EventLoop.h"
 #include "../http/HttpServer.h"
 #include "../base/File.h"
-
 using namespace ssxrver::base;
 using namespace ssxrver::net;
 using namespace ssxrver::util;
@@ -27,6 +25,13 @@ namespace ssxrver::util
     bool outPutFlag = false;
     const char *http11 = "HTTP/1.1";
     const char *http10 = "HTTP/1.0";
+    std::map<string,ssxrver::Logger::LogLevel> logMap{{"DEBUG",ssxrver::Logger::LogLevel::DEBUG},
+                                                      {"INFO",ssxrver::Logger::LogLevel::INFO},
+                                                      {"WARN",ssxrver::Logger::LogLevel::WARN},
+                                                      {"ERROR",ssxrver::Logger::LogLevel::ERROR},
+                                                      {"FATAL",ssxrver::Logger::LogLevel::FATAL}};
+
+    std::unordered_set<string> blocksIp;
 }
 
 void asyncOutput(const char *msg, size_t len)
@@ -34,6 +39,18 @@ void asyncOutput(const char *msg, size_t len)
     g_asyncLog->append(msg, len);
 }
 
+template <class T>
+T getTypeConversion(std::string_view value, const T &def = T()) //类型转换模板函数，可设置默认值
+{
+    try
+    {
+        return boost::lexical_cast<T>(value);
+    }
+    catch (...)
+    {
+        return def;
+    }
+}
 
 void initConf()
 {
@@ -44,51 +61,46 @@ void initConf()
     ssxrver::util::confData = CJsonObject(conf.buffer());
 
     try{
-        if(!confData["log"]("ansync_started").compare("on")  && !confData["log"]("ansync_started").compare("off")){
+        if(!(confData["log"]("ansync_started") == "on") && !(confData["log"]("ansync_started") == "off")){
             throw ;
         }
     } catch (...){
-        std::cout<<"test"<<std::endl;
         confData["log"].Replace("ansync_started","off");
     }
 
-    try{
-        if(std::stoi(confData["log"]("flush_second")) <= 0){
-            throw ;
-        }
-    } catch (...){
-        confData["log"].Replace("flush_second",3);
-    }
+    int flushSecond = getTypeConversion<int>(confData["log"]("flush_second"),3);
+    confData["log"].Replace(
+            ("flush_second"),
+            flushSecond > 0 ? flushSecond : 3);
 
-    try{
-        if(std::stoi(confData["log"]("roll_size")) <= 0){
-            throw ;
-        }
-    } catch (...){
-        confData["log"].Replace("row_size",65536);
-    }
+    int rollSize = getTypeConversion<int>(confData["log"]("roll_size"),65536);
+    confData["log"].Replace(
+            ("roll_size"),
+            rollSize > 0 ? rollSize : 65536);
 
-    try{
-        if(std::stoi(confData("port")) <= 0){
-            throw ;
-        }
-    } catch (...) {
-        confData.Replace("port",4507);
-    }
+    int port = getTypeConversion<int>(confData("port"),4507);
+    confData.Replace(
+            ("port"),
+            port > 0 ? port : 4507);
 
-    try{
-        if(std::stoi(confData("worker_processes")) <= 0){
-            throw ;
-        }
-    } catch (...){
-        confData.Replace("worker_processes",4);
+    int workerProcesses = getTypeConversion<int>(confData("worker_processes"),4);
+    confData.Replace(
+            ("worker_processes"),
+            workerProcesses > 0 ? workerProcesses : 4);
+
+    string ip;
+    for(int i = 0;i < confData["blocks_ip"].GetArraySize();i++)
+    {
+        confData["blocks_ip"].Get(i,ip);
+        blocksIp.insert(ip);
     }
 }
 
 void initAsyncLogThreadLog()
 {
     std::string logName = confData["log"]("path") + confData["log"]("base_name");
-    g_asyncLog.reset(new AsyncLogThread(logName,std::stoi(confData["log"]("flush_second")),std::stoi(confData["log"]("roll_size"))));
+    g_asyncLog.reset(new AsyncLogThread(logName,std::stoi(confData["log"]("flush_second")),
+            std::stoi(confData["log"]("roll_size"))));
     g_asyncLog->start();
     ssxrver::Logger::setOutput(asyncOutput);
 }
@@ -119,10 +131,10 @@ void message(const HttpRequest &req, HttpResponse *resp)
 
 void ssxrver::util::start()
 {
-
     initConf();
-    if(confData("ansync_started").compare("on"))
+    if(confData["log"]("ansync_started") == "on")
         initAsyncLogThreadLog();
+    ssxrver::Logger::setLogLevel(logMap[confData["log"]("level")]);
 
     struct sockaddr_in serv_addr{};
     bzero(&serv_addr, sizeof(serv_addr));
@@ -140,5 +152,3 @@ void ssxrver::util::start()
     loop.loop();
 
 }
-
-

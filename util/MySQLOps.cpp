@@ -1,11 +1,9 @@
 #include <string>
-#include <iostream>
 #include <vector>
-#include <cstring>
 #include "CJsonObject.hpp"
-#include "MySQLsOps.h"
+#include "MySQLOps.h"
 using namespace ssxrver;
-using namespace ssxrver::net;
+using namespace ssxrver::util;
 using std::bind;
 using namespace std::placeholders;
 namespace 
@@ -113,8 +111,14 @@ int sqlQueryTicket(const unique_ptr<MySQL>& mysql,const CJsonObject& cjson,CJson
 }
 
 }
-MySQLsOps::MySQLsOps(const string& addr,const string& user,const string& password,const string& dataBaseName,unsigned int port,const char* unixSocket,unsigned long clientFlag)
-    : mysql_(new MySQL(addr,user,password,dataBaseName,port,unixSocket,clientFlag))
+MySQLOps::MySQLOps(const string& password,
+                   const string& dataBaseName,
+                   const string& addr,
+                   const string& user,
+                   unsigned int port,
+                   const char* unixSocket,
+                   unsigned long clientFlag)
+    : mysql_(new MySQL(password,dataBaseName,addr,user,port,unixSocket,clientFlag))
 {
     sqlNoResultlMap[INSERTUSER] = bind(sqlInsertUser,_1,_2);
     sqlNoResultlMap[INSERTMOVIE] = bind(sqlInsertMovie,_1,_2);

@@ -1,8 +1,5 @@
 #include <functional>
-#include <memory>
 #include "HttpServer.h"
-#include "../base/Logging.h"
-#include "../net/MySQLsOps.h"
 #include "HttpParser.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
@@ -12,7 +9,7 @@ using namespace ssxrver::net;
 namespace ssxrver::net::detail
 {
 
-void defaultHttpCallback(const HttpRequest &, HttpResponse *resp/*, const MySQLsOps **/)
+void defaultHttpCallback(const HttpRequest &, HttpResponse *resp)
 {
     resp->setStatusCode(HttpResponse::k404NotFound);
     resp->setStatusMessage("Not Found");
@@ -72,7 +69,6 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
 void HttpServer::onRequest(const TcpConnectionPtr &conn, const HttpRequest &req)
 {
     const string &connection = req.getHeader<string>("Connection");
-//    MySQLsOps *mysql = conn->getLoop()->getMySQL();
     HttpResponse response;
     response.setClose(connection);
     httpCallback_(req, &response/*, mysql*/);

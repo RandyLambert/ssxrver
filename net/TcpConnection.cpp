@@ -31,12 +31,10 @@ TcpConnection::TcpConnection(EventLoop *loop,
     channel_->setErrorCallback(
         std::bind(&TcpConnection::handleError, this));
     socketops::setKeepAlive(sockfd_, true);
-    /* LOG_INFO << "TcpConnection::ctor at" << this << "fd = " << sockfd_; */
 }
 
 TcpConnection::~TcpConnection()
 {
-    /* LOG_INFO << "TcpConnection::dtor at" << this << "fd = " << sockfd_; */
     assert(state_ == kDisconnected);
 }
 
@@ -121,7 +119,7 @@ void TcpConnection::sendInLoop(std::string_view data, size_t len)
         outputBuffer_.append(data.begin() + nwrote, remaining);
         //然后后面还有(data) + nwrote的数据没发送，就把他添加到outputbuffer中
         if (!channel_->isWriting())
-            channel_->enableWriting(); //关注epollout事件，等对等方接受了数据，tcp的滑动窗口滑动了，
+            channel_->enableEvents(kWriteEvent); //关注epollout事件，等对等方接受了数据，tcp的滑动窗口滑动了，
                                        //这时内核的发送缓冲区有位置了，epollout事件被触发，会回调tcpconnection::handlewrite
     }
 }
@@ -180,7 +178,7 @@ void TcpConnection::startReadInLoop()
     loop_->assertInLoopThread();
     if (!reading_ || !channel_->isReading())
     {
-        channel_->enableReading();
+        channel_->enableEvents(kReadEventLT);
         reading_ = true;
     }
 }
@@ -195,7 +193,7 @@ void TcpConnection::stopReadInLoop()
     loop_->assertInLoopThread();
     if (reading_ || channel_->isReading())
     {
-        channel_->disableReading();
+        channel_->disableEvents(kReadEventLT);
         reading_ = false;
     }
 }
@@ -206,7 +204,7 @@ void TcpConnection::connectEstablished()
 
     assert(state_ == kConnected);
     setState(kConnected);
-    channel_->enableReading();
+    channel_->enableEvents(kReadEventLT);
 }
 
 void TcpConnection::connectDestroyed()
@@ -215,7 +213,7 @@ void TcpConnection::connectDestroyed()
     if (state_ == kConnected)
     {
         setState(kDisconnected);
-        channel_->disableAll();
+        channel_->disableEvents(kNoneEvent);
     }
     channel_->remove();
 }
@@ -255,7 +253,7 @@ void TcpConnection::handleWrite()
             outputBuffer_.retrieve(n);              //缓冲区下标的移动，因为这是已经写了n个字节了
             if (outputBuffer_.readableBytes() == 0) //==0说明发送缓冲区已经清空
             {
-                channel_->disableWriting(); //停止关注了pollout时间，以免出现busy_loop
+                channel_->disableEvents(kWriteEvent); //停止关注了pollout时间，以免出现busy_loop
                 if (writeCompleteCallback_) //回调writecomplatecallback
                 {
                     //应用层发送缓冲区被清空，就回调writecomplatecallback
@@ -278,7 +276,7 @@ void TcpConnection::handleClose()
     loop_->assertInLoopThread();
     assert(state_ == kConnected || state_ == kDisconnecting);
     setState(kDisconnected);
-    channel_->disableAll();
+    channel_->disableEvents(kNoneEvent);
 
     TcpConnectionPtr guardThis(shared_from_this());
     closeCallback_(guardThis); //调用tcpserverremoveconnection

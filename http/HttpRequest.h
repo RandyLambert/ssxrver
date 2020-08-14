@@ -29,7 +29,7 @@ public:
     {
     }
 
-    bool setMethod(const char *start, const int length)
+    bool setMethod(const char *start, const size_t length)
     {
         assert(method_ == kInvalid);
         if (strncmp(start, "GET", length) == 0)
@@ -51,7 +51,7 @@ public:
         return method_ != kInvalid; //看是否请求成功
     }
 
-    bool setVersion(const char *start, const int length)
+    bool setVersion(const char *start, const size_t length)
     {
         assert(version_ == 0x00);
         if (strncmp(start, "HTTP/1.1", length) == 0)

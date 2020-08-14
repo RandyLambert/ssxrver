@@ -6,10 +6,13 @@
 using namespace ssxrver;
 using namespace ssxrver::net;
 
-const unsigned Channel::kNoneEvent = 0; //初始化为默认值
-const unsigned Channel::kReadEvent = EPOLLIN | EPOLLPRI;
-const unsigned Channel::kReadEventET = EPOLLIN | EPOLLPRI | EPOLLET;
-const unsigned Channel::kWriteEvent = EPOLLOUT;
+namespace ssxrver::net
+{
+    const unsigned kNoneEvent = 0; //初始化为默认值
+    const unsigned kReadEventLT = EPOLLIN | EPOLLPRI;
+    const unsigned kReadEventET = EPOLLIN | EPOLLPRI | EPOLLET;
+    const unsigned kWriteEvent = EPOLLOUT;
+}
 
 Channel::Channel(EventLoop *loop, int fd)
     : loop_(loop),

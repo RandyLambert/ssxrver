@@ -3,7 +3,7 @@
 #include "EventLoop.h"
 #include "../base/Logging.h"
 #include "Channel.h"
-#include "Epoller.h"
+#include "Epoll.h"
 
 using namespace ssxrver;
 using namespace ssxrver::net;
@@ -39,7 +39,7 @@ EventLoop::EventLoop()
       eventHandling_(false),
       callingPendingFuctors_(false),
       threadId_(CurrentThread::tid()),
-      Epoller_(new Epoller(this)),
+      Epoller_(new Epoll(this)),
       wakeupFd_(createEventfd()), //创建一个eventfd
       wakeupChannel_(new Channel(this, wakeupFd_))
 //      mysql_()
@@ -54,14 +54,14 @@ EventLoop::EventLoop()
         t_loopInThisThread = this; //否则将刚出案件的线程付给指针
     wakeupChannel_->setReadCallback(
         std::bind(&EventLoop::handleRead, this)); //注册wakeup的回调函数
-    wakeupChannel_->enableReading(); //在这里收纳到epoller管理便于唤醒
+    wakeupChannel_->enableEvents(kReadEventLT); //在这里收纳到epoller管理便于唤醒
 }
 
 EventLoop::~EventLoop()
 {
     LOG_DEBUG << "EventLoop " << this << "of thread " << threadId_
               << " destructs in thread " << CurrentThread::tid();
-    wakeupChannel_->disableAll();
+    wakeupChannel_->disableEvents(kNoneEvent);
     wakeupChannel_->remove();
     ::close(wakeupFd_);
     t_loopInThisThread = nullptr;

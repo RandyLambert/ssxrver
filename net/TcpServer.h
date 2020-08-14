@@ -18,12 +18,12 @@ class EventLoopThreadPool;
 class TcpServer : boost::noncopyable
 {
 public:
-    typedef std::function<void(EventLoop*)> ThreadInitCallback;
+    using ThreadInitCallback = std::function<void(EventLoop*)>;
     TcpServer(EventLoop *loop,
               struct sockaddr_in listenAddr);
     ~TcpServer();
 
-    EventLoop *getLoop() const { return loop_; }
+    [[nodiscard]] EventLoop *getLoop() const { return loop_; }
     void setThreadNum(int numThreads);
 
     void start(); //启动线程池

@@ -10,6 +10,12 @@ namespace net
 {
 class EventLoop;
 class TcpConnection;
+
+extern const unsigned kNoneEvent; //初始化为默认值
+extern const unsigned kReadEventLT;
+extern const unsigned kReadEventET;
+extern const unsigned kWriteEvent;
+
 class Channel : boost::noncopyable
 {
 public:
@@ -41,51 +47,17 @@ public:
     std::shared_ptr<TcpConnection> getTie();
 
     [[nodiscard]] int fd() const { return fd_; }                             //channel对应的文件描述符
-    [[nodiscard]] unsigned events() const { return events_; }                     //channel注册了那些时间保存在events中
-    void setRevents(size_t revt) { revents_ = revt; }            //epoll
+    [[nodiscard]] unsigned events() const { return events_; }                //channel注册了那些时间保存在events中
+    void setRevents(unsigned revents) { revents_ = revents; }            //epoll
+    void enableEvents(unsigned events) {events_ |= events; update(); }
+    void disableEvents(unsigned events) {events_ &= ~events; update(); }
+
     [[nodiscard]] bool isNoneEvent() const { return events_ == kNoneEvent; } //判断是否没有事件
-    void enableReading()                                       //关注读事件，或者加入这个事件
-    {
-        events_ |= kReadEvent;
-        update();
-    }
-
-    void disableReading()
-    {
-        events_ &= ~kReadEvent;
-        update();
-    }
-
-    void enableReadingET()                                       //关注读事件，或者加入这个事件
-    {
-        events_ |= kReadEventET;
-        update();
-    }
-
-    void disableReadingET()
-    {
-        events_ &= ~kReadEventET;
-        update();
-    }
-
-    void enableWriting()
-    {
-        events_ |= kWriteEvent;
-    }
-    void disableWriting()
-    {
-        events_ |= kWriteEvent;
-    }
-    void disableAll() //不关注事件了
-    {
-        events_ = kNoneEvent;
-    }
-
     [[nodiscard]] bool isWriting() const { return events_ & kWriteEvent; }
-    [[nodiscard]] bool isReading() const { return events_ & kReadEvent; }
+    [[nodiscard]] bool isReading() const { return events_ & kReadEventLT; }
 
-    int status() { return status_; }
-    void set_status(int idx) { status_ = idx; }
+    [[nodiscard]] int status() const { return status_; }
+    void setStatus(int status) { status_ = status; }
 
     void doNotLogHup() { logHup_ = false; }
 
@@ -96,15 +68,10 @@ private:
     void update();
     void handleEventWithGuard();
 
-    static const unsigned kNoneEvent;  //没有关注事件
-    static const unsigned kReadEvent;  //EPOLLIN | EPOLLPRI（紧急事件），默认LT
-    static const unsigned kReadEventET; //关注ET模式
-    static const unsigned kWriteEvent; //EPOLLOUT写
-
     EventLoop *loop_; //记录所属的eventloop
     const int fd_;    //文件描述符，负责关闭
-    unsigned int events_;      //关注的事件
-    size_t revents_;     //epoll实际返回的事件个数
+    unsigned events_;      //关注的事件
+    unsigned revents_;     //epoll实际返回的事件个数
     int status_;      //epoll中通道的状态
     bool logHup_;     //for EPOLLHUP
 

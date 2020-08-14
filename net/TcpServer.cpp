@@ -5,6 +5,8 @@
 #include "EventLoop.h"
 #include "EventLoopThreadPool.h"
 #include "SocketOps.h"
+#include "../util/Init.h"
+
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -41,8 +43,8 @@ void TcpServer::setThreadNum(int numThreads)
 void TcpServer::acceptSockListen()
 {
     socketops::listenOrDie(acceptfd_);
-    acceptChannel_.enableReadingET();
-//    acceptChannel_.enableReading();
+    acceptChannel_.enableEvents(kReadEventET);
+//    acceptChannel_.enableEvents(kReadEventLT);
 //    strace -o et.txt trace=all -p 28979
 }
 
@@ -59,14 +61,13 @@ void TcpServer::acceptHandRead()
         if (connfd >= 0) //得到了一个连接
         {
     //        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
-            newConnection(connfd);
+            if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0)
+                newConnection(connfd);
         }
         else
         {
             if(errno == EAGAIN) //ET模式读完了
-            {
                 break;
-            }
 
             if (errno == EMFILE) //文件描述符太多了
             {
@@ -83,7 +84,8 @@ void TcpServer::acceptHandRead()
 //    if (connfd >= 0) //得到了一个连接
 //    {
 ////        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
-//        newConnection(connfd);
+//            if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0);
+//                newConnection(connfd);
 //    }
 //    else
 //    {

@@ -1,4 +1,3 @@
-#include <sstream>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -7,7 +6,7 @@
 namespace ssxrver
 {
 
-__thread char t_errnobuf[512];
+thread_local char t_errnobuf[512];
 const char *strerror_tl(int savedErrno)
 {
     return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);

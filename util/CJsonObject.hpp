@@ -30,7 +30,7 @@ extern "C" {
 
 namespace ssxrver
 {
-namespace net
+namespace util
 {
 
 class CJsonObject

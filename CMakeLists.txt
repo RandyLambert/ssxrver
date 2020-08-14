@@ -55,22 +55,22 @@ add_executable(ssxrver
         net/CallBacks.h
         net/Channel.cpp
         net/Channel.h
-        net/cJSON.c
-        net/cJSON.h
-        net/CJsonObject.cpp
-        net/CJsonObject.hpp
-        net/Epoller.cpp
-        net/Epoller.h
+        util/cJSON.c
+        util/cJSON.h
+        util/CJsonObject.cpp
+        util/CJsonObject.hpp
+        net/Epoll.cpp
+        net/Epoll.h
         net/EventLoop.cpp
         net/EventLoop.h
         net/EventLoopThread.cpp
         net/EventLoopThread.h
         net/EventLoopThreadPool.cpp
         net/EventLoopThreadPool.h
-        net/MySQL.cpp
-        net/MySQL.h
-        net/MySQLsOps.cpp
-        net/MySQLsOps.h
+        util/MySQL.cpp
+        util/MySQL.h
+        util/MySQLOps.cpp
+        util/MySQLOps.h
         net/SocketOps.cpp
         net/SocketOps.h
         net/TcpConnection.cpp

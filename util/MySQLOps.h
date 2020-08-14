@@ -5,22 +5,28 @@
 #include <map>
 #include <functional>
 #include <memory>
-#include "MySQL.h"
 #include <boost/noncopyable.hpp>
+#include "MySQL.h"
 namespace ssxrver
 {
-namespace net
+namespace util
 {
 
 using std::string;
 using std::vector;
 class CJsonObject;
-class MySQLsOps : boost::noncopyable
+class MySQLOps : boost::noncopyable
 {
-    typedef std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&)> sqlNoResultCallBack;
-    typedef std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&,CJsonObject &)> sqlHasResultCallBack;
+    using sqlNoResultCallBack = std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&)>;
+    using sqlHasResultCallBack = std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&,CJsonObject &)>;
 public:
-    MySQLsOps(const string& addr="127.0.0.1",const string& user="root",const string& password="123456",const string& dataBaseName="ttms",unsigned int port = 0,const char* unixSocket=NULL,unsigned long clientFlag = 0);
+    MySQLOps(const string& password,
+            const string& dataBaseName,
+            const string& addr="127.0.0.1",
+            const string& user="root",
+            unsigned int port = 0,
+            const char* unixSocket= nullptr,
+            unsigned long clientFlag = 0);
     enum 
     {
         MIN,

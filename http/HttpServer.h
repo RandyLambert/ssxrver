@@ -9,19 +9,16 @@ namespace net
 {
 class HttpRequest;
 class HttpResponse;
-class MySQLsOps;
 class HttpServer : boost::noncopyable
 {
 public:
     typedef std::function<void(EventLoop *)> ThreadInitCallback;
-    typedef std::function<void(const HttpRequest &,
-                               HttpResponse */*,
-                    MySQLsOps* */)>
-        HttpCallback;
+    using HttpCallback = std::function<void(const HttpRequest &,
+                               HttpResponse *)>;
     HttpServer(EventLoop *looop,
                const struct sockaddr_in listenAddr);
     ~HttpServer() = default;
-    EventLoop *getLoop() const { return server_.getLoop(); }
+    [[nodiscard]] EventLoop *getLoop() const { return server_.getLoop(); }
     void setHttpCallback(const HttpCallback &cb) { httpCallback_ = cb; }
     void setThreadNum(int numThreads) { server_.setThreadNum(numThreads); } //多线程
     void start();

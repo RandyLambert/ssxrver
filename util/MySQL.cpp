@@ -1,8 +1,8 @@
 #include "MySQL.h"
 #include "CJsonObject.hpp"
-#include "../base/Logging.h"
+#include "Logging.h"
 using namespace ssxrver;
-using namespace ssxrver::net;
+using namespace ssxrver::util;
 
 MySQL::MySQL(const string& password,
       const string& dataBaseName,

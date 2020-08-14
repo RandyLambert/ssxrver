@@ -1,7 +1,6 @@
 #ifndef SSXRVER_NET_TCPCONNECTION_H
 #define SSXRVER_NET_TCPCONNECTION_H
 #include <memory>
-#include <boost/any.hpp>
 #include <netinet/in.h>
 #include <functional>
 #include <string_view>

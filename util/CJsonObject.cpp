@@ -13,7 +13,7 @@
 
 namespace ssxrver
 {
-namespace net
+namespace util
 {
 
 CJsonObject::CJsonObject()

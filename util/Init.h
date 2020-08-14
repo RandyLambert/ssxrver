@@ -5,18 +5,20 @@
 #ifndef SSXRVER_UTIL_INIT_H
 #define SSXRVER_UTIL_INIT_H
 
-#include "../net/CJsonObject.hpp"
+#include "CJsonObject.hpp"
 #include "../base/AsyncLogThread.h"
 #include "../http/HttpRequest.h"
 #include "../http/HttpResponse.h"
+#include <unordered_set>
 
 namespace ssxrver::util
 {
 
-extern ssxrver::net::CJsonObject confData;
+extern CJsonObject confData;
 extern std::unique_ptr<ssxrver::base::AsyncLogThread> g_asyncLog;
 extern const char *http11;
 extern const char *http10;
+extern std::unordered_set<std::string> blocksIp;
 
 void start();
 }

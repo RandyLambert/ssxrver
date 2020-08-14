@@ -13,12 +13,12 @@ namespace ssxrver
     class Thread : boost::noncopyable
     {
     public:
-        typedef std::function<void()> ThreadFunc;
+        using ThreadFunc = std::function<void()>;
         explicit Thread(ThreadFunc,std::string name = "DefaultThread");
         ~Thread();
 
         void start(); //初始化
-        bool started() const { return started_; }
+        [[nodiscard]] bool started() const { return started_; }
         const std::string &name() { return name_; }
 
     private:

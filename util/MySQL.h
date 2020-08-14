@@ -8,7 +8,7 @@
 #include <mysql/mysql.h>
 namespace ssxrver
 {
-namespace net
+namespace util
 {
 
 using std::string;

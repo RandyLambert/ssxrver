@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <sys/epoll.h>
 #include <poll.h>
-#include "Epoller.h"
+#include "Epoll.h"
 #include "../base/Logging.h"
 #include "Channel.h"
 using namespace ssxrver;
@@ -14,7 +14,7 @@ enum
     kDeleted = 2 //删除
 };
 
-Epoller::Epoller(EventLoop *loop)
+Epoll::Epoll(EventLoop *loop)
     : epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
       events_(kInitEventListSize),
       ownerLoop_(loop)
@@ -25,7 +25,7 @@ Epoller::Epoller(EventLoop *loop)
     }
 }
 
-Epoller::~Epoller()
+Epoll::~Epoll()
 {
 
      for (auto &item : connections_)
@@ -35,7 +35,7 @@ Epoller::~Epoller()
     ::close(epollfd_);
 }
 
-void Epoller::poll(ChannelList *activeChannels)
+void Epoll::poll(ChannelList *activeChannels)
 {
     int numEvents = ::epoll_wait(epollfd_,
                                  &*events_.begin(), //事件动态数组，提前设好大小
@@ -61,7 +61,7 @@ void Epoller::poll(ChannelList *activeChannels)
     }
 }
 
-void Epoller::fillActiveChannels(int numEvents,                     //返回活跃的事件个数
+void Epoll::fillActiveChannels(int numEvents,                     //返回活跃的事件个数
                                  ChannelList *activeChannels) const //返回活跃的事件
 {
     for (int i = 0; i < numEvents; i++)
@@ -72,7 +72,7 @@ void Epoller::fillActiveChannels(int numEvents,                     //返回活�
     }
 }
 
-void Epoller::updateChannel(Channel *channel)
+void Epoll::updateChannel(Channel *channel)
 {
     ownerLoop_->assertInLoopThread();
     const int status_ = channel->status();
@@ -85,7 +85,7 @@ void Epoller::updateChannel(Channel *channel)
             connections_[fd] = channel->getTie();
 
         }
-        channel->set_status(kAdded);
+        channel->setStatus(kAdded);
         update(EPOLL_CTL_ADD, channel);
     }
     else
@@ -95,14 +95,14 @@ void Epoller::updateChannel(Channel *channel)
         if (channel->isNoneEvent())
         {
             update(EPOLL_CTL_DEL, channel);
-            channel->set_status(kDeleted); //这里状态需要改变，处理kdeleted，仅仅表示是没有在epoll中关注，并不表示从channelmap中移除了，想要在次关注，执行上面代码
+            channel->setStatus(kDeleted); //这里状态需要改变，处理kdeleted，仅仅表示是没有在epoll中关注，并不表示从channelmap中移除了，想要在次关注，执行上面代码
         }
         else
             update(EPOLL_CTL_MOD, channel); //修改这个通道
     }
 }
 
-void Epoller::removeChannel(Channel *channel)
+void Epoll::removeChannel(Channel *channel)
 {
     ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
@@ -114,10 +114,10 @@ void Epoller::removeChannel(Channel *channel)
 
     if (status_ == kAdded)
         update(EPOLL_CTL_DEL, channel);
-    channel->set_status(kNew);
+    channel->setStatus(kNew);
 }
 
-void Epoller::update(int operation, Channel *channel)
+void Epoll::update(int operation, Channel *channel)
 {
     struct epoll_event event; //准备一个epoll_event
     bzero(&event, sizeof(event));

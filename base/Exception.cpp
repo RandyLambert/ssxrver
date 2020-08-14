@@ -1,6 +1,6 @@
 #include <execinfo.h>
 #include <cxxabi.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include "Exception.h"
 using namespace ssxrver;
 
@@ -50,7 +50,7 @@ string Exception::demangle(const char *symbol)
     //尝试去demandle c++ name
     if (1 == sscanf(symbol, "%*[^(]%*[^_]%127[^)+]", temp))
     {
-        if (NULL != (demangled = abi::__cxa_demangle(temp, NULL, &size, &status)))
+        if (nullptr != (demangled = abi::__cxa_demangle(temp, nullptr, &size, &status)))
         {
             string result(demangled);
             free(demangled);
