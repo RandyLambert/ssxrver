@@ -1,17 +1,18 @@
 #include <functional>
 #include <cassert>
+#include <utility>
 #include "EventLoopThread.h"
 #include "EventLoop.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback &cb)
+EventLoopThread::EventLoopThread(ThreadInitCallback cb)
     : loop_(nullptr),
       exiting_(false),
       thread_(std::bind(&EventLoopThread::threadFunc, this)),
       mutex_(),
       cond_(),
-      callback_(cb)
+      callback_(std::move(cb))
 {
 }
 

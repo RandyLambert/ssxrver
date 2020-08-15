@@ -71,10 +71,14 @@ void HttpServer::onRequest(const TcpConnectionPtr &conn, const HttpRequest &req)
     const string &connection = req.getHeader<string>("Connection");
     HttpResponse response;
     response.setClose(connection);
-    httpCallback_(req, &response/*, mysql*/);
+    httpCallback_(req, &response);
     Buffer buf;
     response.appendToBuffer(&buf);  //将对象转化为一个字符串到buf中
     conn->send(&buf);               //将缓冲区发送到客户端
     if (response.closeConnection()) //如果需要关闭，短连接
         conn->shutdown();
+}
+
+void HttpServer::onConnection(const TcpConnectionPtr &conn) {
+
 }

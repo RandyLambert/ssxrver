@@ -2,11 +2,7 @@
 #define SSXRVER_BASE_FILE_H
 #include <string>
 #include <boost/noncopyable.hpp>
-namespace ssxrver
-{
-namespace base
-{
-namespace file
+namespace ssxrver::base::file
 { //封装文件操作
 using std::string;
 static const int kFileBufferSize = 64 * 1024;
@@ -47,8 +43,6 @@ private:
     char buf_[kFileBufferSize];
 };
 
-} // namespace file
-} // namespace base
-} // namespace ssxrver
+} // namespace ssxrver::base::file
 
 #endif

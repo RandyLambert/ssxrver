@@ -8,9 +8,7 @@
 #include <mutex>
 #include "../base/CurrentThread.h"
 #include "../base/Thread.h"
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 class Channel;
 class Epoll;
@@ -24,8 +22,8 @@ public:
     void loop();
     void quit();
 
-    void runInLoop(Functor cb);
-    void queueInLoop(Functor cb);
+    void runInLoop(const Functor& cb);
+    void queueInLoop(const Functor& cb);
     size_t queueSize() const;
 
     void wakeup();
@@ -65,6 +63,5 @@ private:
     mutable std::mutex mutex_;
     std::vector<Functor> pendingFunctors_;
 };
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

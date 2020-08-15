@@ -4,9 +4,7 @@
 #include <memory>
 #include <string>
 #include <boost/noncopyable.hpp>
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 class EventLoop;
 class TcpConnection;
@@ -22,7 +20,7 @@ public:
     using EventCallback = std::function<void()>;
     using ReadEventCallback = std::function<void()>;
 
-    Channel(EventLoop *loop, int fd); //一个eventloop可能会包含多个channel，但一个channel只能包含一个channel
+    Channel(EventLoop *loop, int fd); //一个eventloop可能会包含多个channel，但一个channel只能包含一个eventloop
     ~Channel();
 
     void handleEvent(); //重点，执行epoll的任务
@@ -86,6 +84,5 @@ private:
 
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

@@ -1,4 +1,6 @@
 #include "AsyncLogThread.h"
+
+#include <memory>
 #include "LogFile.h"
 using namespace ssxrver;
 using namespace ssxrver::base;
@@ -10,8 +12,8 @@ AsyncLogThread::AsyncLogThread(std::string basename, int flushSecond,size_t roll
       thread_(std::bind(&AsyncLogThread::threadFunc, this), "AsyncLogThread"),
       mutex_(),
       cond_(),
-      currentBuffer_(new Buffer),
-      nextBuffer_(new Buffer),
+      currentBuffer_(std::make_unique<Buffer>()),
+      nextBuffer_(std::make_unique<Buffer>()),
       buffers_(),
       latch_(1)
 {
@@ -44,7 +46,7 @@ void AsyncLogThread::append(const char *log_, size_t len)
         if (nextBuffer_)
             currentBuffer_ = std::move(nextBuffer_);
         else
-            currentBuffer_.reset(new Buffer);
+            currentBuffer_ = std::make_unique<Buffer>();
         currentBuffer_->append(log_, len);
         cond_.notify_one();
     }
@@ -55,8 +57,8 @@ void AsyncLogThread::threadFunc()
     assert(running_);
     latch_.countDown();
     file::LogFile output(basename_,rollSize_);
-    BufferPtr newBuffer1(new Buffer);
-    BufferPtr newBuffer2(new Buffer);
+    BufferPtr newBuffer1 = std::make_unique<Buffer>();
+    BufferPtr newBuffer2 = std::make_unique<Buffer>();
 
     newBuffer1->bzero();
     newBuffer2->bzero();

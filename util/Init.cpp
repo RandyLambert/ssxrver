@@ -5,6 +5,7 @@
 #include <boost/assert.hpp>
 #include <cstdlib>
 //#include <iostream>
+#include <memory>
 #include <string>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -27,9 +28,7 @@ namespace ssxrver::util
     const char *http10 = "HTTP/1.0";
     std::map<string,ssxrver::Logger::LogLevel> logMap{{"DEBUG",ssxrver::Logger::LogLevel::DEBUG},
                                                       {"INFO",ssxrver::Logger::LogLevel::INFO},
-                                                      {"WARN",ssxrver::Logger::LogLevel::WARN},
-                                                      {"ERROR",ssxrver::Logger::LogLevel::ERROR},
-                                                      {"FATAL",ssxrver::Logger::LogLevel::FATAL}};
+                                                      {"WARN",ssxrver::Logger::LogLevel::WARN}};
 
     std::unordered_set<string> blocksIp;
 }
@@ -99,8 +98,8 @@ void initConf()
 void initAsyncLogThreadLog()
 {
     std::string logName = confData["log"]("path") + confData["log"]("base_name");
-    g_asyncLog.reset(new AsyncLogThread(logName,std::stoi(confData["log"]("flush_second")),
-            std::stoi(confData["log"]("roll_size"))));
+    g_asyncLog = std::make_unique<AsyncLogThread>(logName,std::stoi(confData["log"]("flush_second")),
+            std::stoi(confData["log"]("roll_size")));
     g_asyncLog->start();
     ssxrver::Logger::setOutput(asyncOutput);
 }

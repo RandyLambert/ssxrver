@@ -8,9 +8,7 @@
 #include "TcpConnection.h"
 #include "Channel.h"
 #include "CallBacks.h"
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 
 class EventLoop;
@@ -47,6 +45,5 @@ private:
     Channel acceptChannel_;
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

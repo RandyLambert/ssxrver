@@ -1,6 +1,7 @@
 #include "LogFile.h"
 #include "File.h"
 #include <ctime>
+#include <memory>
 using namespace ssxrver;
 using namespace ssxrver::base::file;
 using std::string;
@@ -19,7 +20,7 @@ void LogFile::rollFile()
 {
     string fileName;
     getLogFileName(fileName);
-    file_.reset(new writeFile(fileName));
+    file_ = std::make_unique<writeFile>(fileName);
 }
 
 void LogFile::getLogFileName(string &name)

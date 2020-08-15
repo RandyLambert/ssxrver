@@ -13,7 +13,7 @@ using namespace ssxrver::net;
 TcpServer::TcpServer(EventLoop *loop,
                      struct sockaddr_in listenAddr) //在main函数初始化
     : loop_(loop),
-      threadPool_(new EventLoopThreadPool(loop)),
+      threadPool_(std::make_unique<EventLoopThreadPool>(loop)),
       messageCallback_(defaultMessageCallback),
       started_(false),
       acceptfd_(socketops::createNonblockingOrDie()),
@@ -63,6 +63,8 @@ void TcpServer::acceptHandRead()
     //        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
             if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0)
                 newConnection(connfd);
+            else
+                ::close(connfd);
         }
         else
         {
@@ -79,25 +81,6 @@ void TcpServer::acceptHandRead()
             }
         }
     }
-
-//    int connfd = socketops::accept(acceptfd_, &peerAddr);
-//    if (connfd >= 0) //得到了一个连接
-//    {
-////        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
-//            if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0);
-//                newConnection(connfd);
-//    }
-//    else
-//    {
-//        LOG_SYSERR << "in TcpServer Accepteror";
-//        if (errno == EMFILE) //文件描述符太多了
-//        {
-//            ::close(idleFd_);                        //先关闭开始的空闲文件描述符
-//            idleFd_ = accept(acceptfd_, nullptr, nullptr); //用这个描述符先接收
-//            ::close(idleFd_);                        //接收完在关闭，因为使用的是LT模式，不然accept会一直触发
-//            idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-//        }
-//    }
 }
 
 void TcpServer::start() //这个函数就是的Acceptor处于监听状态
@@ -115,8 +98,8 @@ void TcpServer::newConnection(int sockfd)
     loop_->assertInLoopThread(); //断言在io线程
     //按照轮叫的方式选择一个eventloop，将这个歌新连接交给这个eventloop
     EventLoop *ioLoop = threadPool_->getNextLoop(); //选出这个io线程
-    TcpConnectionPtr conn(new TcpConnection(ioLoop, //所属ioloop
-                                            sockfd));
+    TcpConnectionPtr conn = std::make_shared<TcpConnection>(ioLoop, //所属ioloop
+                                            sockfd);
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(

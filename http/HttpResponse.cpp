@@ -1,7 +1,6 @@
-#include <stdio.h>
+#include <cstdio>
 #include "HttpResponse.h"
 #include "../net/Buffer.h"
-#include <iostream>
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -46,7 +45,7 @@ void HttpResponse::appendToBuffer(Buffer *output) const
     output->append(body_);
     // std::cout << output->retrieveAllAsString() << std::endl;
 }
-bool HttpResponse::setVersion(const char *start, const int length)
+bool HttpResponse::setVersion(const char *start, const size_t length)
 {
     assert(version_ == 0x00);
     if (strncmp(start, "HTTP/1.1", length) == 0)

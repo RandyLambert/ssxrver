@@ -90,8 +90,6 @@ void Epoll::updateChannel(Channel *channel)
     }
     else
     {
-        int fd = channel->fd();
-        (void)fd;
         if (channel->isNoneEvent())
         {
             update(EPOLL_CTL_DEL, channel);
@@ -119,7 +117,7 @@ void Epoll::removeChannel(Channel *channel)
 
 void Epoll::update(int operation, Channel *channel)
 {
-    struct epoll_event event; //准备一个epoll_event
+    struct epoll_event event{}; //准备一个epoll_event
     bzero(&event, sizeof(event));
     event.events = channel->events(); //关注这个事件
     event.data.ptr = channel;

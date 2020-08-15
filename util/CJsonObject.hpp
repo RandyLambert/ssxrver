@@ -8,8 +8,8 @@
  * Modify history:
  ******************************************************************************/
 
-#ifndef SSXERVER_NET_CJSONOBJECT_HPP
-#define SSXERVER_NET_CJSONOBJECT_HPP
+#ifndef SSXERVER_UTIL_CJSONOBJECT_HPP
+#define SSXERVER_UTIL_CJSONOBJECT_HPP
 
 #include <stdio.h>
 #include <stddef.h>

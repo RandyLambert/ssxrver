@@ -5,10 +5,9 @@
 #include <cassert>
 #include <algorithm>
 #include <string>
-namespace ssxrver
+namespace ssxrver::net
 {
-namespace net
-{
+
 using std::string;
 class Buffer
 {
@@ -29,16 +28,16 @@ public:
         std::swap(writerIndex_, rhs.writerIndex_);
     }
 
-    size_t readableBytes() const { return writerIndex_ - readerIndex_; }
-    size_t writeableBytes() const { return buffer_.size() - writerIndex_; }
-    size_t prependableBytes() const { return readerIndex_; };
-    const char *peek() const { return begin() + readerIndex_; }
+    [[nodiscard]] size_t readableBytes() const { return writerIndex_ - readerIndex_; }
+    [[nodiscard]] size_t writeableBytes() const { return buffer_.size() - writerIndex_; }
+    [[nodiscard]] size_t prependableBytes() const { return readerIndex_; };
+    [[nodiscard]] const char *peek() const { return begin() + readerIndex_; }
     char *beginWrite() { return begin() + writerIndex_; }
-    const char *beginWrite() const { return begin() + writerIndex_; }
-    const char *findCRLF() const
+    [[nodiscard]] const char *beginWrite() const { return begin() + writerIndex_; }
+    [[nodiscard]] const char *findCRLF() const
     {
         const char *crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF + 2);
-        return crlf == beginWrite() ? NULL : crlf;
+        return crlf == beginWrite() ? nullptr : crlf;
     }
 
     const char *findCRLF(const char *start) const //从start处往后寻找结束符
@@ -46,10 +45,10 @@ public:
         assert(peek() <= start);
         assert(start <= beginWrite());
         const char *crlf = std::search(start, beginWrite(), kCRLF, kCRLF + 2);
-        return crlf == beginWrite() ? NULL : crlf;
+        return crlf == beginWrite() ? nullptr : crlf;
     }
 
-    const char *findEOL() const //返回结束处
+    [[nodiscard]] const char *findEOL() const //返回结束处
     {
         const void *eol = memchr(peek(), '\n', readableBytes());
         return static_cast<const char *>(eol);
@@ -211,16 +210,16 @@ public:
         buffer_.shrink_to_fit();
     }
 
-    size_t internalCapacity() const { return buffer_.capacity(); }
+    [[nodiscard]] size_t internalCapacity() const { return buffer_.capacity(); }
     ssize_t readFd(int fd, int *saveErrno);
 
     ~Buffer() = default;
 
 private:
     char *begin() { return &*buffer_.begin(); }
-    const char *begin() const { return &*buffer_.begin(); }
+    [[nodiscard]] const char *begin() const { return &*buffer_.begin(); }
 
-    int64_t peekInt64() const
+    [[nodiscard]] int64_t peekInt64() const
     {
         assert(readableBytes() >= sizeof(int64_t));
         int64_t be64 = 0;
@@ -228,7 +227,7 @@ private:
         return be64toh(be64);                 //转为主机字节序
     }
 
-    int32_t peekInt32() const
+    [[nodiscard]] int32_t peekInt32() const
     {
         assert(readableBytes() >= sizeof(int32_t));
         int32_t be32 = 0;
@@ -236,7 +235,7 @@ private:
         return be32toh(be32);
     }
 
-    int16_t peekInt16() const
+    [[nodiscard]] int16_t peekInt16() const
     {
         assert(readableBytes() >= sizeof(int16_t));
         int16_t be16 = 0;
@@ -244,7 +243,7 @@ private:
         return be16toh(be16);
     }
 
-    int8_t peekInt8() const
+    [[nodiscard]] int8_t peekInt8() const
     {
         assert(readableBytes() >= sizeof(int8_t));
         int8_t x = *peek();
@@ -284,6 +283,5 @@ private:
     static const char kCRLF[]; //"\r\n"
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

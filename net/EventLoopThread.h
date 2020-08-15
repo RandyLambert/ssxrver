@@ -4,18 +4,16 @@
 #include <mutex>
 #include <condition_variable>
 #include "../base/Thread.h"
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 class EventLoop;
 
 class EventLoopThread : boost::noncopyable
 {
 public:
-    typedef std::function<void(EventLoop *)> ThreadInitCallback;
+    using ThreadInitCallback = std::function<void(EventLoop *)>;
 
-    explicit EventLoopThread(const ThreadInitCallback &cb = ThreadInitCallback());
+    explicit EventLoopThread(ThreadInitCallback cb = ThreadInitCallback());
     ~EventLoopThread();
     EventLoop *startLoop();
 
@@ -29,7 +27,6 @@ private:
     std::condition_variable cond_;
     ThreadInitCallback callback_;
 };
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 
 #endif

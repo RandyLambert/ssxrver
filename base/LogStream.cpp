@@ -1,5 +1,5 @@
 #include <cstring>
-#include <stdint.h>
+#include <cstdint>
 #include <limits>
 #include <algorithm>
 #include "LogStream.h"
@@ -7,9 +7,7 @@
 using namespace ssxrver;
 using namespace ssxrver::detail;
 
-namespace ssxrver
-{
-namespace detail
+namespace ssxrver::detail
 {
 
 const char digits[] = "9876543210123456789";
@@ -36,7 +34,7 @@ size_t convert(char buf[], T value)
     std::reverse(buf, p);
 
     return p - buf;
-}
+} //ssxrver::detail
 
 size_t convertHex(char buf[], uintptr_t value)
 {
@@ -58,7 +56,6 @@ size_t convertHex(char buf[], uintptr_t value)
 
 template class FixedBuffer<kSmallBuffer>;
 template class FixedBuffer<kLargeBuffer>;
-} // namespace detail
 } // namespace ssxrver
 
 template <typename T>
@@ -117,7 +114,7 @@ LogStream &LogStream::operator<<(unsigned long long v)
 
 LogStream &LogStream::operator<<(const void *p)
 {
-    uintptr_t v = reinterpret_cast<uintptr_t>(p);
+    auto v = reinterpret_cast<uintptr_t>(p);
     if (buffer_.avail() >= kMaxNumericSize)
     {
         char *buf = buffer_.current();

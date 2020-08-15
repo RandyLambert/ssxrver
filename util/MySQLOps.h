@@ -1,5 +1,5 @@
-#ifndef SSXERVER_NET_MYSQLSOPS_H
-#define SSXERVER_NET_MYSQLSOPS_H
+#ifndef SSXERVER_UTIL_MYSQLSOPS_H
+#define SSXERVER_UTIL_MYSQLSOPS_H
 #include <string>
 #include <vector>
 #include <map>
@@ -7,9 +7,7 @@
 #include <memory>
 #include <boost/noncopyable.hpp>
 #include "MySQL.h"
-namespace ssxrver
-{
-namespace util
+namespace ssxrver::util
 {
 
 using std::string;
@@ -76,7 +74,6 @@ private:
 };
 
 
-}
 }
 
 #endif

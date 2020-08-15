@@ -12,7 +12,6 @@ namespace ssxrver
 {
     using std::placeholders::_1;
     using std::placeholders::_2;
-    using std::placeholders::_3;
     namespace net
     {
         class Buffer;

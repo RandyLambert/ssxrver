@@ -1,14 +1,12 @@
-#ifndef SSXERVER_NET_MYSQL_H
-#define SSXERVER_NET_MYSQL_H
+#ifndef SSXERVER_UTIL_MYSQL_H
+#define SSXERVER_UTIL_MYSQL_H
 #include <boost/noncopyable.hpp>
 #include <string>
 #include <map>
 #include <vector>
 #include <functional>
 #include <mysql/mysql.h>
-namespace ssxrver
-{
-namespace util
+namespace ssxrver::util
 {
 
 using std::string;
@@ -38,6 +36,5 @@ private:
     MYSQL_ROW sqlrow_;
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

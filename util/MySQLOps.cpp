@@ -120,33 +120,33 @@ MySQLOps::MySQLOps(const string& password,
                    unsigned long clientFlag)
     : mysql_(new MySQL(password,dataBaseName,addr,user,port,unixSocket,clientFlag))
 {
-    sqlNoResultlMap[INSERTUSER] = bind(sqlInsertUser,_1,_2);
-    sqlNoResultlMap[INSERTMOVIE] = bind(sqlInsertMovie,_1,_2);
-    sqlNoResultlMap[INSERTSEAT] = bind(sqlInsertSeat,_1,_2);
-    sqlNoResultlMap[INSERTSCHEDULE] = bind(sqlInsertSchedule,_1,_2);
-    sqlNoResultlMap[INSERTSTUDIO] = bind(sqlInsertStudio,_1,_2);
-    sqlNoResultlMap[INSERTTICKET] = bind(sqlInsertTicket,_1,_2);
+    sqlNoResultlMap[INSERTUSER] = [](auto && arg1, auto && arg2) { return sqlInsertUser(arg1, arg2); };
+    sqlNoResultlMap[INSERTMOVIE] = [](auto && arg1, auto && arg2) { return sqlInsertMovie(arg1, arg2); };
+    sqlNoResultlMap[INSERTSEAT] = [](auto && arg1, auto && arg2) { return sqlInsertSeat(arg1, arg2); };
+    sqlNoResultlMap[INSERTSCHEDULE] = [](auto && arg1, auto && arg2) { return sqlInsertSchedule(arg1, arg2); };
+    sqlNoResultlMap[INSERTSTUDIO] = [](auto && arg1, auto && arg2) { return sqlInsertStudio(arg1, arg2); };
+    sqlNoResultlMap[INSERTTICKET] = [](auto && arg1, auto && arg2) { return sqlInsertTicket(arg1, arg2); };
     /*********************************************************/
-    sqlNoResultlMap[UPDATEUSER] = bind(sqlUpdateUser,_1,_2);
-    sqlNoResultlMap[UPDATEMOVIE] = bind(sqlUpdateMovie,_1,_2);
-    sqlNoResultlMap[UPDATESEAT] = bind(sqlUpdateSeat,_1,_2);
-    sqlNoResultlMap[UPDATESCHEDULE] = bind(sqlUpdateSchedule,_1,_2);
-    sqlNoResultlMap[UPDATESTUDIO] = bind(sqlUpdateStudio,_1,_2);
-    sqlNoResultlMap[UPDATETICKET] = bind(sqlUpdateTicket,_1,_2);
+    sqlNoResultlMap[UPDATEUSER] = [](auto && arg1, auto && arg2) { return sqlUpdateUser(arg1, arg2); };
+    sqlNoResultlMap[UPDATEMOVIE] = [](auto && arg1, auto && arg2) { return sqlUpdateMovie(arg1, arg2); };
+    sqlNoResultlMap[UPDATESEAT] = [](auto && arg1, auto && arg2) { return sqlUpdateSeat(arg1, arg2); };
+    sqlNoResultlMap[UPDATESCHEDULE] = [](auto && arg1, auto && arg2) { return sqlUpdateSchedule(arg1, arg2); };
+    sqlNoResultlMap[UPDATESTUDIO] = [](auto && arg1, auto && arg2) { return sqlUpdateStudio(arg1, arg2); };
+    sqlNoResultlMap[UPDATETICKET] = [](auto && arg1, auto && arg2) { return sqlUpdateTicket(arg1, arg2); };
     /*********************************************************/
-    sqlNoResultlMap[DELETEUSER] = bind(sqlDeleteUser,_1,_2);
-    sqlNoResultlMap[DELETEMOVIE] = bind(sqlDeleteMovie,_1,_2);
-    sqlNoResultlMap[DELETESEAT] = bind(sqlDeleteSeat,_1,_2);
-    sqlNoResultlMap[DELETESCHEDULE] = bind(sqlDeleteSchedule,_1,_2);
-    sqlNoResultlMap[DELETESTUDIO] = bind(sqlDeleteStudio,_1,_2);
-    sqlNoResultlMap[DELETETICKET] = bind(sqlDeleteTicket,_1,_2);
+    sqlNoResultlMap[DELETEUSER] = [](auto && arg1, auto && arg2) { return sqlDeleteUser(arg1, arg2); };
+    sqlNoResultlMap[DELETEMOVIE] = [](auto && arg1, auto && arg2) { return sqlDeleteMovie(arg1, arg2); };
+    sqlNoResultlMap[DELETESEAT] = [](auto && arg1, auto && arg2) { return sqlDeleteSeat(arg1, arg2); };
+    sqlNoResultlMap[DELETESCHEDULE] = [](auto && arg1, auto && arg2) { return sqlDeleteSchedule(arg1, arg2); };
+    sqlNoResultlMap[DELETESTUDIO] = [](auto && arg1, auto && arg2) { return sqlDeleteStudio(arg1, arg2); };
+    sqlNoResultlMap[DELETETICKET] = [](auto && arg1, auto && arg2) { return sqlDeleteTicket(arg1, arg2); };
     /*********************************************************/
-    sqlHasResultlMap[QUERYUSER] = bind(sqlQueryUser,_1,_2,_3);
-    sqlHasResultlMap[QUERYMOVIE] = bind(sqlQueryMovie,_1,_2,_3);
-    sqlHasResultlMap[QUERYSEAT] = bind(sqlQuerySeat,_1,_2,_3);
-    sqlHasResultlMap[QUERYSCHEDULE] = bind(sqlQuerySchedule,_1,_2,_3);
-    sqlHasResultlMap[QUERYSTUDIO] = bind(sqlQueryStudio,_1,_2,_3);
-    sqlHasResultlMap[QUERYTICKET] = bind(sqlQueryTicket,_1,_2,_3);
+    sqlHasResultlMap[QUERYUSER] = [](auto && arg1, auto && arg2, auto && arg3) { return sqlQueryUser(arg1, arg2, arg3); };
+    sqlHasResultlMap[QUERYMOVIE] = [](auto && arg1, auto && arg2, auto && arg3) { return sqlQueryMovie(arg1, arg2, arg3); };
+    sqlHasResultlMap[QUERYSEAT] = [](auto && arg1, auto && arg2, auto && arg3) { return sqlQuerySeat(arg1, arg2, arg3); };
+    sqlHasResultlMap[QUERYSCHEDULE] = [](auto && arg1, auto && arg2, auto && arg3) { return sqlQuerySchedule(arg1, arg2, arg3); };
+    sqlHasResultlMap[QUERYSTUDIO] = [](auto && arg1, auto && arg2, auto && arg3) { return sqlQueryStudio(arg1, arg2, arg3); };
+    sqlHasResultlMap[QUERYTICKET] = [](auto && arg1, auto && arg2, auto && arg3) { return sqlQueryTicket(arg1, arg2, arg3); };
 }
 
 

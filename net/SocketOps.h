@@ -1,11 +1,7 @@
 #ifndef SSXRVER_NET_SOCKETOPS_H
 #define SSXRVER_NET_SOCKETOPS_H
 #include <arpa/inet.h>
-namespace ssxrver
-{
-namespace net
-{
-namespace socketops
+namespace ssxrver::net::socketops
 {
 
 int createNonblockingOrDie(); //创建一个非阻塞的套接字
@@ -28,7 +24,5 @@ int getSocketError(int sockfd);
 struct sockaddr_in getLocalAddr(int sockfd);
 struct sockaddr_in getPeerAddr(int sockfd);
 
-} // namespace socketops
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net::socketops
 #endif

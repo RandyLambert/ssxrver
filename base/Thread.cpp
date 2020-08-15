@@ -24,7 +24,7 @@ namespace ssxrver
 
         using ThreadFunc = ssxrver::Thread::ThreadFunc;
 
-        void runInThread(ThreadFunc func,const string& name,pid_t *tid,CountDownLatch *latch) //真正创建线程后,穿进去的函数会直接调用他
+        void runInThread(const ThreadFunc& func,const string& name,pid_t *tid,CountDownLatch *latch) //真正创建线程后,穿进去的函数会直接调用他
         {
             *tid = ssxrver::CurrentThread::tid();
             latch->countDown();

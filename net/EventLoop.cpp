@@ -39,10 +39,9 @@ EventLoop::EventLoop()
       eventHandling_(false),
       callingPendingFuctors_(false),
       threadId_(CurrentThread::tid()),
-      Epoller_(new Epoll(this)),
+      Epoller_(std::make_unique<Epoll>(this)),
       wakeupFd_(createEventfd()), //创建一个eventfd
-      wakeupChannel_(new Channel(this, wakeupFd_))
-//      mysql_()
+      wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_))
 {
     LOG_DEBUG << "EventLoop created " << this << "in thread " << threadId_; //每个线程最多一个eventLoop
     if (t_loopInThisThread)
@@ -97,19 +96,19 @@ void EventLoop::quit()
         wakeup();
 }
 
-void EventLoop::runInLoop(Functor cb)
+void EventLoop::runInLoop(const Functor& cb)
 {
     if (isInLoopThread())
         cb();
     else
-        queueInLoop(std::move(cb));
+        queueInLoop(cb);
 }
 
-void EventLoop::queueInLoop(Functor cb)
+void EventLoop::queueInLoop(const Functor& cb)
 {
     {
         std::lock_guard<std::mutex> guard(mutex_);
-        pendingFunctors_.push_back(std::move(cb));
+        pendingFunctors_.emplace_back(cb);
     }
 
     if (!isInLoopThread() || callingPendingFuctors_)

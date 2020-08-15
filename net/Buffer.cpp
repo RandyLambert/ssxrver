@@ -33,12 +33,12 @@ ssize_t Buffer::readFd(int fd, int *savedErrno)
     }
     else if (static_cast<size_t>(n) <= writable) //第一块缓冲区足够容纳
     {
-        writerIndex_ += n;
+        writerIndex_ += static_cast<size_t>(n);
     }
     else //当前缓冲区不够容纳，所以数据被传到了第二块缓冲区extrabuf，将其append到buffer
     {
         writerIndex_ = buffer_.size();
-        append(extrabuf, n - writable);
+        append(extrabuf, static_cast<size_t>(n) - writable);
     }
     return n;
 }

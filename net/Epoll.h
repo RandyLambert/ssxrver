@@ -7,10 +7,9 @@
 #include "EventLoop.h"
 
 struct epoll_event;
-namespace ssxrver
+namespace ssxrver::net
 {
-namespace net
-{
+
 class Channel;
 class TcpConnection;
 class Epoll : boost::noncopyable
@@ -40,6 +39,5 @@ private:
 
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

@@ -5,9 +5,7 @@
 #include "HttpResponse.h"
 #include "http11_parser.h"
 #include "httpclient_parser.h"
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 
 class Buffer;
@@ -19,9 +17,9 @@ public:
     int isFinished();                              //是否解析完成
     int hasError();                                //是否有错
     HttpRequest &getRequest() { return request_; } //获取httprequest
-    const http_parser &getParser() const { return parser_; }
+    [[nodiscard]] const http_parser &getParser() const { return parser_; }
     void setError(int v) { error_ = v; }
-    int getError() const { return error_; }
+    [[nodiscard]] int getError() const { return error_; }
     size_t execute(Buffer *data);
     uint64_t getContentLength();
     void reset();
@@ -40,7 +38,7 @@ public:
     int isFinished();
     int hasError();
     void setError(int v) { error_ = v; }
-    int getError() const { return error_; }
+    [[nodiscard]] int getError() const { return error_; }
     size_t execute(Buffer *data);
     HttpResponse &getResponse() { return response_; } //获取httprequest
     [[nodiscard]] const httpclient_parser &getParser() const { return parser_; }
@@ -52,7 +50,6 @@ private:
     int error_;
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 
 #endif

@@ -2,9 +2,7 @@
 #define SSXRVER_HTTP_HTTPRESPONSE_H
 #include <map>
 #include <string_view>
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 class Buffer;
 using std::string;
@@ -28,7 +26,7 @@ public:
     }
 
     void swap(HttpResponse &that);
-    bool setVersion(const char *start, const int length);
+    bool setVersion(const char *start, size_t length);
     void setClose(std::string_view connection) { closeConnection_ = (connection == "close"); }
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
     void setStatusMessage(std::string_view message) { statusMessage_ = message; }
@@ -48,6 +46,5 @@ private:
     uint8_t version_;                  //http版本
 };
 
-} // namespace net
-} // namespace ssxrver
+} // namespace ssxrver::net
 #endif

@@ -10,9 +10,7 @@
 #include "CallBacks.h"
 #include "../http/HttpParser.h"
 
-namespace ssxrver
-{
-namespace net
+namespace ssxrver::net
 {
 class EventLoop;
 class Channel;
@@ -94,7 +92,6 @@ private:
 };
 
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
-} // namespace net
 } // namespace ssxrver
 
 #endif
