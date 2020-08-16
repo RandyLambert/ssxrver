@@ -24,7 +24,6 @@ HttpServer::HttpServer(EventLoop *loop,
       httpCallback_(detail::defaultHttpCallback)
 {
     server_.setMessageCallback(bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
-    /* server_.setThreadInitCallback(bind(&HttpServer::onThreadInit, this, std::placeholders::_1)); */
 }
 
 void HttpServer::start()

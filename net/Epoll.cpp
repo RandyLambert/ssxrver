@@ -81,9 +81,8 @@ void Epoll::updateChannel(Channel *channel)
         int fd = channel->fd(); //如果是新的通道，取他的fd值
         if (status_ == kNew)
         {
-            channels_[fd] = channel; //新的，就加到关注队列
-            connections_[fd] = channel->getTie();
-
+            channels_.insert({fd,channel}); //新的，就加到关注队列
+            connections_.insert({fd,channel->getTie()});
         }
         channel->setStatus(kAdded);
         update(EPOLL_CTL_ADD, channel);

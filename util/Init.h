@@ -19,7 +19,8 @@ extern std::unique_ptr<ssxrver::base::AsyncLogThread> g_asyncLog;
 extern const char *http11;
 extern const char *http10;
 extern std::unordered_set<std::string> blocksIp;
-
+extern int httpMaxBodySize;
+extern int workerConnections;
 void start();
 }
 

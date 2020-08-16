@@ -61,7 +61,8 @@ void TcpServer::acceptHandRead()
         if (connfd >= 0) //得到了一个连接
         {
     //        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
-            if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0)
+            if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0 &&
+                    (ssxrver::util::workerConnections == -1 || ssxrver::util::workerConnections >= connfd))
                 newConnection(connfd);
             else
                 ::close(connfd);

@@ -31,6 +31,8 @@ namespace ssxrver::util
                                                       {"WARN",ssxrver::Logger::LogLevel::WARN}};
 
     std::unordered_set<string> blocksIp;
+    int httpMaxBodySize;
+    int workerConnections;
 }
 
 void asyncOutput(const char *msg, size_t len)
@@ -72,15 +74,23 @@ void initConf()
             ("flush_second"),
             flushSecond > 0 ? flushSecond : 3);
 
-    int rollSize = getTypeConversion<int>(confData["log"]("roll_size"),65536);
+    int rollSize = getTypeConversion<int>(confData["log"]("roll_size"),67108864);
     confData["log"].Replace(
             ("roll_size"),
-            rollSize > 0 ? rollSize : 65536);
+            rollSize > 0 ? rollSize : 67108864);
 
     int port = getTypeConversion<int>(confData("port"),4507);
     confData.Replace(
             ("port"),
             port > 0 ? port : 4507);
+
+    workerConnections = getTypeConversion<int>(confData("worker_connections"),-1);
+
+    int max_body_size = getTypeConversion<int>(confData["http"]("max_body_size"),67108864);
+    confData["http"].Replace(
+            ("max_body_size"),
+            max_body_size > 0 ? max_body_size : 67108864);
+    httpMaxBodySize = max_body_size;
 
     int workerProcesses = getTypeConversion<int>(confData("worker_processes"),4);
     confData.Replace(
