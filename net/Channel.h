@@ -20,7 +20,7 @@ public:
     using EventCallback = std::function<void()>;
     using ReadEventCallback = std::function<void()>;
 
-    Channel(EventLoop *loop, int fd); //一个eventloop可能会包含多个channel，但一个channel只能包含一个eventloop
+    Channel(EventLoop *loop, int fd); //一个eventLoop可能会包含多个channel，但一个channel只能包含一个eventloop
     ~Channel();
 
     void handleEvent(); //重点，执行epoll的任务
@@ -49,6 +49,7 @@ public:
     void setRevents(unsigned revents) { revents_ = revents; }            //epoll
     void enableEvents(unsigned events) {events_ |= events; update(); }
     void disableEvents(unsigned events) {events_ &= ~events; update(); }
+    void disableAll(){events_ = kNoneEvent; update(); }
 
     [[nodiscard]] bool isNoneEvent() const { return events_ == kNoneEvent; } //判断是否没有事件
     [[nodiscard]] bool isWriting() const { return events_ & kWriteEvent; }
@@ -61,13 +62,13 @@ public:
 
     EventLoop *ownerLoop() { return loop_; }
     void remove();
-
+    void channelReset(int socketId);
 private:
     void update();
     void handleEventWithGuard();
 
-    EventLoop *loop_; //记录所属的eventloop
-    const int fd_;    //文件描述符，负责关闭
+    EventLoop *loop_; //记录所属的eventLoop
+    int fd_;    //文件描述符，负责关闭
     unsigned events_;      //关注的事件
     unsigned revents_;     //epoll实际返回的事件个数
     int status_;      //epoll中通道的状态

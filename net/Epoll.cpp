@@ -1,25 +1,26 @@
-#include <assert.h>
-#include <errno.h>
+#include <cassert>
+#include <cerrno>
 #include <sys/epoll.h>
-#include <poll.h>
 #include "Epoll.h"
 #include "../base/Logging.h"
 #include "Channel.h"
+#include "TcpConnection.h"
+
 using namespace ssxrver;
 using namespace ssxrver::net;
 enum
 {
     kNew = -1,   //三种状态对应的是啥，刚构造了一个channel对象，初始化时是-1，还没有添加到epoll中关注
-    kAdded = 1,  //在epollwait上关注
+    kAdded = 1,  //在epollWait上关注
     kDeleted = 2 //删除
 };
 
 Epoll::Epoll(EventLoop *loop)
-    : epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
+    : epollFd(::epoll_create1(EPOLL_CLOEXEC)),
       events_(kInitEventListSize),
       ownerLoop_(loop)
 {
-    if (epollfd_ < 0)
+    if (epollFd < 0)
     {
         LOG_SYSFATAL << "EPollPoller::EpollPoller";
     }
@@ -32,19 +33,19 @@ Epoll::~Epoll()
      {
          item.second.reset();
      }
-    ::close(epollfd_);
+    ::close(epollFd);
 }
 
 void Epoll::poll(ChannelList *activeChannels)
 {
-    int numEvents = ::epoll_wait(epollfd_,
+    int numEvents = ::epoll_wait(epollFd,
                                  &*events_.begin(), //事件动态数组，提前设好大小
                                  static_cast<int>(events_.size()),
                                  -1);
     int saveErrno = errno;
     if (numEvents > 0)
     {
-        // LOG_INFO << numEvents << "events happned";
+         LOG_DEBUG << numEvents << "events happened";
         fillActiveChannels(numEvents, activeChannels);
         if (static_cast<size_t>(numEvents) == events_.size()) //随着关注的事件个数逐渐增加
         {
@@ -82,7 +83,10 @@ void Epoll::updateChannel(Channel *channel)
         if (status_ == kNew)
         {
             channels_.insert({fd,channel}); //新的，就加到关注队列
-            connections_.insert({fd,channel->getTie()});
+            if(channel->getTie().use_count() != 0) {
+                connections_.insert({fd,channel->getTie()});
+                LOG_INFO<<"fd "<<fd<<" update Channel "<<connections_[fd].use_count();
+            }
         }
         channel->setStatus(kAdded);
         update(EPOLL_CTL_ADD, channel);
@@ -92,12 +96,34 @@ void Epoll::updateChannel(Channel *channel)
         if (channel->isNoneEvent())
         {
             update(EPOLL_CTL_DEL, channel);
-            channel->setStatus(kDeleted); //这里状态需要改变，处理kdeleted，仅仅表示是没有在epoll中关注，并不表示从channelmap中移除了，想要在次关注，执行上面代码
+            channel->setStatus(kDeleted); //这里状态需要改变，处理kDeleted，仅仅表示是没有在epoll中关注，并不表示从channelmap中移除了，想要在次关注，执行上面代码
         }
         else
             update(EPOLL_CTL_MOD, channel); //修改这个通道
     }
 }
+
+//void Epoll::removeChannel1(Channel *channel)
+//{
+//    ownerLoop_->assertInLoopThread();
+//    int fd = channel->fd();
+//    int status_ = channel->status();
+//    if (channels_.erase(fd) == 0)
+//    LOG_FATAL << "erase channel";
+//    LOG_INFO<<"connection shared_ptr num = "<<connections_[fd].use_count();
+//    if (connections_.count(fd) != 0) {
+//        connectionsPool.push(connections_[fd]);
+//        connections_.erase(fd);
+//        ::close(fd);
+//    }
+//    else {
+//        LOG_FATAL << "erase connections_";
+//    }
+//
+//    if (status_ == kAdded)
+//        update(EPOLL_CTL_DEL, channel);
+//    channel->setStatus(kNew);
+//}
 
 void Epoll::removeChannel(Channel *channel)
 {
@@ -106,22 +132,31 @@ void Epoll::removeChannel(Channel *channel)
     int status_ = channel->status();
     if (channels_.erase(fd) == 0)
         LOG_FATAL << "erase channel";
-    if (connections_.erase(fd) == 0)
+    LOG_INFO<<"connection shared_ptr num = "<<connections_[fd].use_count();
+//    if (connections_.erase(fd) == 0)
+//        LOG_FATAL << "erase connection";
+    if (connections_.count(fd) != 0) {
+        connectionsPool.push(connections_[fd]);
+        connections_.erase(fd);
+        ::close(fd);
+    }
+    else {
         LOG_FATAL << "erase connections_";
+    }
 
     if (status_ == kAdded)
         update(EPOLL_CTL_DEL, channel);
     channel->setStatus(kNew);
 }
 
-void Epoll::update(int operation, Channel *channel)
+void Epoll::update(int operation, Channel *channel) const
 {
     struct epoll_event event{}; //准备一个epoll_event
     bzero(&event, sizeof(event));
     event.events = channel->events(); //关注这个事件
     event.data.ptr = channel;
     int fd = channel->fd();
-    if (::epoll_ctl(epollfd_, operation, fd, &event) < 0)
+    if (::epoll_ctl(epollFd, operation, fd, &event) < 0)
     {
         if (operation == EPOLL_CTL_DEL)
             LOG_SYSERR << "epoll_ctl op=" << operation << " fd=" << fd; //添加失败，不会退出程序
@@ -129,3 +164,33 @@ void Epoll::update(int operation, Channel *channel)
             LOG_SYSFATAL << "epoll_ctl op=" << operation << "fd=" << fd; //其他错误直接结束程序
     }
 }
+
+void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallback,
+                             const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback)
+{
+    if(!connectionsPool.empty()){
+        TcpConnectionPtr conn = connectionsPool.front();
+        connectionsPool.pop();
+        conn->connectReset(sockFd);
+        connections_[sockFd] = conn;
+        ownerLoop_->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+    }
+    else {
+        TcpConnectionPtr conn = std::make_shared<TcpConnection>(ownerLoop_, //所属ioLoop
+                                                                sockFd);
+        conn->setConnectionCallback(connectCallback);
+        conn->setMessageCallback(messageCallback);
+        conn->setWriteCompleteCallback(writeCompleteCallback);
+        conn->setCloseCallback(
+                std::bind(&Epoll::removeConnection, this, _1));
+        conn->getChannel()->tie(conn);
+        ownerLoop_->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+    }
+}
+
+void Epoll::removeConnection(const TcpConnectionPtr &conn)
+{
+    ownerLoop_->runInLoop(
+            std::bind(&TcpConnection::connectDestroyed, conn));
+}
+

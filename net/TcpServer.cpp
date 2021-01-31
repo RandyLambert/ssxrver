@@ -16,13 +16,13 @@ TcpServer::TcpServer(EventLoop *loop,
       threadPool_(std::make_unique<EventLoopThreadPool>(loop)),
       messageCallback_(defaultMessageCallback),
       started_(false),
-      acceptfd_(socketops::createNonblockingOrDie()),
+      acceptFd(socketops::createNonblockingOrDie()),
       idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)),
-      acceptChannel_(Channel(loop, acceptfd_))
+      acceptChannel_(Channel(loop, acceptFd))
 {
-    socketops::setReuseAddr(acceptfd_, true);
-    socketops::setReusePort(acceptfd_, true);
-    socketops::bindOrDie(acceptfd_, &listenAddr);
+    socketops::setReuseAddr(acceptFd, true);
+    socketops::setReusePort(acceptFd, true);
+    socketops::bindOrDie(acceptFd, &listenAddr);
     acceptChannel_.setReadCallback(
         std::bind(&TcpServer::acceptHandRead, this));
 }
@@ -42,7 +42,7 @@ void TcpServer::setThreadNum(int numThreads)
 //该函数可以跨线程调用
 void TcpServer::acceptSockListen()
 {
-    socketops::listenOrDie(acceptfd_);
+    socketops::listenOrDie(acceptFd);
     acceptChannel_.enableEvents(kReadEventET);
 //    acceptChannel_.enableEvents(kReadEventLT);
 //    strace -o et.txt trace=all -p 28979
@@ -57,13 +57,13 @@ void TcpServer::acceptHandRead()
     int connfd = 0;
     while (true)
     {
-        connfd = socketops::accept(acceptfd_, &peerAddr);
+        connfd = socketops::accept(acceptFd, &peerAddr);
         if (connfd >= 0) //得到了一个连接
         {
-    //        LOG_INFO << "accept success" << inet_ntoa(peerAddr.sin_addr);
+            LOG_DEBUG << "accept success" << inet_ntoa(peerAddr.sin_addr);
             if(ssxrver::util::blocksIp.count(inet_ntoa(peerAddr.sin_addr)) == 0 &&
                     (ssxrver::util::workerConnections == -1 || ssxrver::util::workerConnections >= connfd))
-                newConnection(connfd);
+                newConnection1(connfd);
             else
                 ::close(connfd);
         }
@@ -76,7 +76,7 @@ void TcpServer::acceptHandRead()
             {
                 LOG_SYSERR << "in TcpServer Accepteror";
                 ::close(idleFd_);                        //先关闭开始的空闲文件描述符
-                idleFd_ = accept(acceptfd_, nullptr, nullptr); //用这个描述符先接收
+                idleFd_ = accept(acceptFd, nullptr, nullptr); //用这个描述符先接收
                 ::close(idleFd_);                        //接收完在关闭，因为使用的是LT模式，不然accept会一直触发
                 idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
             }
@@ -86,7 +86,7 @@ void TcpServer::acceptHandRead()
 
 void TcpServer::start() //这个函数就是的Acceptor处于监听状态
 {
-    if (started_ == false)
+    if (!started_)
     {
         started_ = true;
         threadPool_->start(threadInitCallback_);
@@ -94,19 +94,35 @@ void TcpServer::start() //这个函数就是的Acceptor处于监听状态
     }
 }
 
-void TcpServer::newConnection(int sockfd)
+void TcpServer::newConnection(int sockFd)
 {
     loop_->assertInLoopThread(); //断言在io线程
-    //按照轮叫的方式选择一个eventloop，将这个歌新连接交给这个eventloop
+    //按照轮叫的方式选择一个eventLoop，将这个歌新连接交给这个eventLoop
     EventLoop *ioLoop = threadPool_->getNextLoop(); //选出这个io线程
-    TcpConnectionPtr conn = std::make_shared<TcpConnection>(ioLoop, //所属ioloop
-                                            sockfd);
+    TcpConnectionPtr conn = std::make_shared<TcpConnection>(ioLoop, //所属ioLoop
+                                            sockFd);
+//    conn->setConnectionCallback(connectionCallback_);
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(
         std::bind(&TcpServer::removeConnection, this, _1));
     conn->getChannel()->tie(conn);
+    LOG_INFO<<"newConnection"<<sockFd<<" "<<conn.use_count();
     ioLoop->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+}
+
+void TcpServer::newConnection1(int sockFd)
+{
+    LOG_INFO<<"newConnection1 "<<sockFd;
+    loop_->assertInLoopThread(); //断言在io线程
+    //按照轮叫的方式选择一个eventLoop，将这个歌新连接交给这个eventLoop
+    EventLoop *ioLoop = threadPool_->getNextLoop(); //选出这个io线程
+    ioLoop->queueInLoop(std::bind(&EventLoop::createConnection,
+                                  ioLoop,
+                                  sockFd,
+                                  connectionCallback_,
+                                  messageCallback_,
+                                  writeCompleteCallback_));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr &conn)

@@ -40,7 +40,7 @@ EventLoop::EventLoop()
       callingPendingFuctors_(false),
       threadId_(CurrentThread::tid()),
       Epoller_(std::make_unique<Epoll>(this)),
-      wakeupFd_(createEventfd()), //创建一个eventfd
+      wakeupFd_(createEventfd()), //创建一个eventFd
       wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_))
 {
     LOG_DEBUG << "EventLoop created " << this << "in thread " << threadId_; //每个线程最多一个eventLoop
@@ -52,7 +52,7 @@ EventLoop::EventLoop()
     else
         t_loopInThisThread = this; //否则将刚出案件的线程付给指针
     wakeupChannel_->setReadCallback(
-        std::bind(&EventLoop::handleRead, this)); //注册wakeup的回调函数
+            std::bind(&EventLoop::handleRead, this));; //注册wakeup的回调函数
     wakeupChannel_->enableEvents(kReadEventLT); //在这里收纳到epoller管理便于唤醒
 }
 
@@ -60,7 +60,7 @@ EventLoop::~EventLoop()
 {
     LOG_DEBUG << "EventLoop " << this << "of thread " << threadId_
               << " destructs in thread " << CurrentThread::tid();
-    wakeupChannel_->disableEvents(kNoneEvent);
+    wakeupChannel_->disableAll();
     wakeupChannel_->remove();
     ::close(wakeupFd_);
     t_loopInThisThread = nullptr;
@@ -142,15 +142,15 @@ void EventLoop::abortNotInLoopThread()
               << ", current thread id = " << CurrentThread::tid();
 }
 
-void EventLoop::wakeup()
+void EventLoop::wakeup() const
 {
     uint64_t one = 1;
     if (::write(wakeupFd_, &one, sizeof(one)) != sizeof(one))
-        LOG_ERROR << "eventloop::wakeup() writes "
+        LOG_ERROR << "eventLoop::wakeup() writes "
                   << "another bytes instead of 8";
 }
 
-void EventLoop::handleRead() //处理wakeup
+void EventLoop::handleRead() const //处理wakeup
 {
     uint64_t one = 1;
     if (::read(wakeupFd_, &one, sizeof(one)) != sizeof(one))
@@ -172,4 +172,11 @@ void EventLoop::doPendingFunctors()
         functor();
 
     callingPendingFuctors_ = false;
+}
+
+void EventLoop::createConnection(int sockFd, const ConnectionCallback &connectCallback,
+                                 const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback) {
+
+    Epoller_->createConnection(sockFd,connectCallback,messageCallback,writeCompleteCallback);
+
 }

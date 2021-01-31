@@ -20,7 +20,7 @@ class TcpConnection : boost::noncopyable,
 {
 public:
     TcpConnection(EventLoop *loop,
-                  int socked);
+                  int sockFd);
     ~TcpConnection();
 
     EventLoop *getLoop() const { return loop_; }
@@ -30,7 +30,7 @@ public:
     void send(Buffer *buf);
     void shutdown();
     void forceClose();
-    void setTcpNoDelay(bool on);
+    void setTcpNoDelay(bool on) const;
     void startRead();
     void stopRead();
     bool isReading() const { return reading_; }
@@ -47,6 +47,7 @@ public:
 
     void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
     void setWriteCompleteCallback(const WriteCompleteCallback &cb) { writeCompleteCallback_ = cb; }
+    void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
     std::unique_ptr<Channel>& getChannel(){ return channel_; }
 
     Buffer *inputBuffer() { return &inputBuffer_; }
@@ -55,7 +56,7 @@ public:
 
     void connectEstablished();
     void connectDestroyed();
-
+    void connectReset(int sockFd);
 private:
     enum StateE //连接的状态
     {
@@ -73,14 +74,15 @@ private:
     void shutdownInLoop();
     void forceCloseInLoop();
 
-    void setState(StateE s) { state_ = s; }
+    void setState(StateE s) { state_ = s;}
     void startReadInLoop();
     void stopReadInLoop();
 
-    EventLoop *loop_; //所属eventloop
+    EventLoop *loop_; // 所属eventLoop
     std::atomic_uint8_t state_;
-    int sockfd_;
+    int sockFd_;
     std::unique_ptr<Channel> channel_;
+    ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     CloseCallback closeCallback_;

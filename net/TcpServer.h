@@ -27,20 +27,23 @@ public:
     void start(); //启动线程池
     void setMessageCallback(MessageCallback cb) { messageCallback_ = std::move(cb); }
     void setWriteCompleteCallback(WriteCompleteCallback cb) { writeCompleteCallback_ = std::move(cb); }
+    void setConnectionCallback(ConnectionCallback cb) { connectionCallback_ = std::move(cb); }
     void acceptSockListen();
 
 private:
-    void newConnection(int socked);
+    void newConnection(int sockFd);
+    void newConnection1(int sockFd);
     void removeConnection(const TcpConnectionPtr &conn);
     void acceptHandRead();
 
     EventLoop *loop_;
     std::unique_ptr<EventLoopThreadPool> threadPool_;
+    ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     ThreadInitCallback threadInitCallback_;
     std::atomic<bool> started_;
-    int acceptfd_;
+    int acceptFd;
     int idleFd_;
     Channel acceptChannel_;
 };

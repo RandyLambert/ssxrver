@@ -8,6 +8,8 @@
 #include <mutex>
 #include "../base/CurrentThread.h"
 #include "../base/Thread.h"
+#include "CallBacks.h"
+#include "Logging.h"
 namespace ssxrver::net
 {
 class Channel;
@@ -26,7 +28,7 @@ public:
     void queueInLoop(const Functor& cb);
     size_t queueSize() const;
 
-    void wakeup();
+    void wakeup() const;
     void updateChannel(Channel *channel); //在poller中添加或者更新通道
     void removeChannel(Channel *channel); //在poller中移除通道
 
@@ -37,13 +39,17 @@ public:
             abortNotInLoopThread();
         }
     }
-
+//    void print() const {LOG_INFO<< threadId_ <<" isINLoopThread "<< CurrentThread::tid();}
     bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
     bool eventHandling() const { return eventHandling_; }
+    void createConnection(int sockFd,
+                          const ConnectionCallback& connectCallback,
+                          const MessageCallback& messageCallback,
+                          const WriteCompleteCallback& writeCompleteCallback);
 
 private:
     void abortNotInLoopThread();
-    void handleRead();
+    void handleRead() const;
     void doPendingFunctors(); //执行转交给I\O的任务
 
     using ChannelList = std::vector<Channel *>; //事件分发器列表

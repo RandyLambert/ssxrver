@@ -2,7 +2,6 @@
 #include "EventLoop.h"
 #include "Channel.h"
 #include "TcpConnection.h"
-#include "../base/Logging.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -66,6 +65,7 @@ void Channel::handleEvent()
         guard = tie_.lock(); //weak_ptr的使用
         if (guard)
         {
+            LOG_INFO<<"handle Event "<<"sockFd "<<fd_<<" "<<tie_.use_count();
             handleEventWithGuard();
         }
     }
@@ -105,4 +105,15 @@ void Channel::handleEventWithGuard()
             writeCallback_();
     }
     eventHandling_ = false;
+}
+
+void Channel::channelReset(int socketId) {
+    fd_ = socketId,
+    events_ = 0,
+    revents_ = 0,
+    status_ = -1,
+    logHup_ = true,
+    tied_ = false,
+    eventHandling_ = false,
+    addedToLoop_ = false;
 }

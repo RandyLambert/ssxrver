@@ -33,13 +33,16 @@ int socketops::accept(int sockfd, struct sockaddr_in *addr)
     auto addrlen = static_cast<socklen_t>(sizeof *addr);
     int connfd = ::accept4(sockfd, reinterpret_cast<struct sockaddr *>(addr),
                            &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
-    if (connfd < 0)
+    if (connfd < 0 && errno != EAGAIN)
     {
         int savedErrno = errno;         //先保存错误代码
+        if(savedErrno == EAGAIN) {
+            return connfd;
+        }
         LOG_SYSERR << "Socket::accept"; //因为这里登记了一个错误，所以调用前先保存起来errno    }
         switch (savedErrno)
         {
-        case EAGAIN:
+//        case EAGAIN:
         case ECONNABORTED:
         case EINTR:
         case EPERM:

@@ -14,11 +14,11 @@ void ssxrver::net::defaultMessageCallback(const TcpConnectionPtr &,
 }
 
 TcpConnection::TcpConnection(EventLoop *loop,
-                             int sockfd)
+                             int sockFd)
     : loop_(loop),
-      state_(kConnected),
-      sockfd_(sockfd),
-      channel_(new Channel(loop, sockfd)),
+      state_(kConnecting),
+      sockFd_(sockFd),
+      channel_(new Channel(loop, sockFd)),
       context_(new HttpRequestParser()),
       reading_(true)
 {
@@ -30,7 +30,7 @@ TcpConnection::TcpConnection(EventLoop *loop,
         std::bind(&TcpConnection::handleClose, this));
     channel_->setErrorCallback(
         std::bind(&TcpConnection::handleError, this));
-    socketops::setKeepAlive(sockfd_, true);
+    socketops::setKeepAlive(sockFd_, true);
 }
 
 TcpConnection::~TcpConnection()
@@ -83,7 +83,7 @@ void TcpConnection::sendInLoop(std::string_view data, size_t len)
     bool faultError = false;
     if (state_ == kDisconnected)
     {
-        LOG_WARN << "disconnected ,give uo writing";
+        LOG_WARN << "disconnected ,give up writing";
         return;
     }
     if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0) //没有关注可写时间，且outputbuffer缓冲区没有数据
@@ -133,7 +133,7 @@ void TcpConnection::shutdown()
     //不可以跨线程调用
     if (state_ == kConnected)
     {
-        setState(kDisconnected);
+        setState(kDisconnecting);
         loop_->runInLoop(std::bind(&TcpConnection::shutdownInLoop, shared_from_this()));
     }
 }
@@ -142,7 +142,7 @@ void TcpConnection::shutdownInLoop()
 {
     loop_->assertInLoopThread();
     if (!channel_->isWriting())
-        socketops::shutdownWrite(sockfd_);
+        socketops::shutdownWrite(sockFd_);
 }
 
 void TcpConnection::forceClose()
@@ -163,9 +163,9 @@ void TcpConnection::forceCloseInLoop()
     }
 }
 
-void TcpConnection::setTcpNoDelay(bool on)
+void TcpConnection::setTcpNoDelay(bool on) const
 {
-    socketops::setTcpNoDelay(sockfd_, on);
+    socketops::setTcpNoDelay(sockFd_, on);
 }
 
 void TcpConnection::startRead()
@@ -200,9 +200,10 @@ void TcpConnection::stopReadInLoop()
 
 void TcpConnection::connectEstablished()
 {
+    LOG_INFO<<loop_<<" loop_";
     loop_->assertInLoopThread();
-
-    assert(state_ == kConnected);
+    LOG_INFO<<"TcpConnectionEstablished "<<"sockFd "<<sockFd_<<" "<<shared_from_this().use_count();
+    assert(state_ == kConnecting);
     setState(kConnected);
     channel_->enableEvents(kReadEventLT);
 }
@@ -213,14 +214,15 @@ void TcpConnection::connectDestroyed()
     if (state_ == kConnected)
     {
         setState(kDisconnected);
-        channel_->disableEvents(kNoneEvent);
+        channel_->disableAll();
     }
+    LOG_INFO << "shaped_ptr " << shared_from_this().use_count();
     channel_->remove();
 }
 
 void TcpConnection::handleRead()
 {
-    /* LOG_INFO << "handleRead"; */
+    LOG_DEBUG << "handleRead";
     loop_->assertInLoopThread();
     int saveErrno = 0;
     ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
@@ -276,7 +278,7 @@ void TcpConnection::handleClose()
     loop_->assertInLoopThread();
     assert(state_ == kConnected || state_ == kDisconnecting);
     setState(kDisconnected);
-    channel_->disableEvents(kNoneEvent);
+    channel_->disableAll();
 
     TcpConnectionPtr guardThis(shared_from_this());
     closeCallback_(guardThis); //调用tcpserverremoveconnection
@@ -290,4 +292,16 @@ void TcpConnection::handleError()
         LOG_ERROR << "TcpConnection::handleError "
                   << "- SO_ERROR = " << err << " " << strerror_tl(err);
     }
+}
+
+void TcpConnection::connectReset(int sockFd)
+{
+    state_ = kConnecting;
+    sockFd_ = sockFd;
+    channel_->channelReset(sockFd);
+    context_->reset();
+    reading_ = true;
+    inputBuffer_.retrieveAll();
+    outputBuffer_.retrieveAll();
+    socketops::setKeepAlive(sockFd_, true);
 }
