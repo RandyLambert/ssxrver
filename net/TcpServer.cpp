@@ -54,18 +54,18 @@ void TcpServer::acceptHandRead()
     struct sockaddr_in peerAddr{};
     bzero(&peerAddr, sizeof peerAddr);
 
-    int connfd = 0;
+    int connFd = 0;
     while (true)
     {
-        connfd = socketops::accept(acceptFd, &peerAddr);
-        if (connfd >= 0) //得到了一个连接
+        connFd = socketops::accept(acceptFd, &peerAddr);
+        if (connFd >= 0) //得到了一个连接
         {
             LOG_DEBUG << "accept success" << inet_ntoa(peerAddr.sin_addr);
             if(ssxrver::util::Init::getInstance().getBlocksIp().count(inet_ntoa(peerAddr.sin_addr)) == 0 &&
-                    (ssxrver::util::Init::getInstance().getWorkerConnections() == -1 || ssxrver::util::Init::getInstance().getWorkerConnections() >= connfd))
-                newConnection1(connfd);
+                    (ssxrver::util::Init::getInstance().getWorkerConnections() == -1 || ssxrver::util::Init::getInstance().getWorkerConnections() >= connFd))
+                newConnection1(connFd);
             else
-                ::close(connfd);
+                ::close(connFd);
         }
         else
         {

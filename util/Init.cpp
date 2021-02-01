@@ -20,6 +20,20 @@ using std::string;
 
 namespace ssxrver::util
 {
+void setCPUAffinity() {
+    LOG_INFO << "setCPUAffinity";
+    long cpuNum = Init::getInstance().getUsefulCpuNumber();
+    if(cpuNum != -1){
+//        LOG_INFO << "setCPUAffinity";
+        cpu_set_t mask; // CPU 核的集合
+        CPU_ZERO(&mask); // 置空
+        CPU_SET(cpuNum,&mask);
+        if(pthread_setaffinity_np(pthread_self(), sizeof(mask),&mask) < 0) // 设置 thread CPU 亲和力
+        {
+            LOG_SYSERR << "could not set CPU affinity";
+        }
+    }
+}
 }
 
 void asyncOutput(const char *msg, size_t len)
@@ -96,6 +110,7 @@ void Init::start() {
 }
 
 void Init::initConf() {
+
     file::ReadSmallFile conf("./conf/ssxrver.json");
     ssize_t len = 0;
     [[maybe_unused]] int err = conf.readToBuffer(&len);
@@ -108,6 +123,11 @@ void Init::initConf() {
         }
     } catch (...){
         confData_["log"].Replace("ansync_started","off");
+    }
+
+    if(confData_("cpu_affinity") == "on") {
+        cpuMaxNumber_ = sysconf(_SC_NPROCESSORS_CONF); //获取 CPU 核数
+        setCPUAffinity();
     }
 
     int flushSecond = getTypeConversion<int>(confData_["log"]("flush_second"),3);

@@ -1,8 +1,11 @@
 #include <functional>
+#include <unistd.h>
 #include "HttpServer.h"
 #include "HttpParser.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
+#include "Init.h"
+#include <iostream>
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -15,6 +18,10 @@ void defaultHttpCallback(const HttpRequest &, HttpResponse *resp)
     resp->setStatusMessage("Not Found");
     resp->setCloseConnection(true);
 }
+void threadInitCallback(EventLoop*)
+{
+    ssxrver::util::setCPUAffinity();
+}
 } // namespace ssxrver::net::detail
 
 
@@ -24,6 +31,8 @@ HttpServer::HttpServer(EventLoop *loop,
       httpCallback_(detail::defaultHttpCallback)
 {
     server_.setMessageCallback(bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
+    if(ssxrver::util::Init::getInstance().getConfData()("cpu_affinity") == "on")
+        server_.setThreadInitCallback(bind(ssxrver::net::detail::threadInitCallback,std::placeholders::_1));
 }
 
 void HttpServer::start()

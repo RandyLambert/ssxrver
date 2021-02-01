@@ -25,6 +25,7 @@ public:
     void setThreadNum(int numThreads);
 
     void start(); //启动线程池
+    void setThreadInitCallback(ThreadInitCallback cb) { threadInitCallback_ = std::move(cb); }
     void setMessageCallback(MessageCallback cb) { messageCallback_ = std::move(cb); }
     void setWriteCompleteCallback(WriteCompleteCallback cb) { writeCompleteCallback_ = std::move(cb); }
     void setConnectionCallback(ConnectionCallback cb) { connectionCallback_ = std::move(cb); }
