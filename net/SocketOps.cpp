@@ -120,55 +120,55 @@ int socketops::getSocketError(int sockfd)
     }
 }
 
-struct sockaddr_in socketops::getPeerAddr(int sockfd)
+struct sockaddr_in socketops::getPeerAddr(int sockFd)
 {
     struct sockaddr_in peeraddr{};
     bzero(&peeraddr, sizeof peeraddr);
-    auto addrlen = static_cast<socklen_t>(sizeof peeraddr);
-    if (::getpeername(sockfd, reinterpret_cast<struct sockaddr *>(&peeraddr), &addrlen) < 0) //获取对方地址
+    auto addrLen = static_cast<socklen_t>(sizeof peeraddr);
+    if (::getpeername(sockFd, reinterpret_cast<struct sockaddr *>(&peeraddr), &addrLen) < 0) //获取对方地址
     {
         LOG_SYSERR << "sockets::getPeerAddr";
     }
     return peeraddr;
 }
 
-struct sockaddr_in socketops::getLocalAddr(int sockfd)
+struct sockaddr_in socketops::getLocalAddr(int sockFd)
 {
     struct sockaddr_in localaddr{};
     bzero(&localaddr, sizeof(localaddr));
     auto addrlen = static_cast<socklen_t>(sizeof localaddr);
-    if (::getsockname(sockfd, reinterpret_cast<struct sockaddr *>(&localaddr), &addrlen) < 0)
+    if (::getsockname(sockFd, reinterpret_cast<struct sockaddr *>(&localaddr), &addrlen) < 0)
     {
         LOG_SYSERR << "scokets::getLocalAddr";
     }
     return localaddr;
 }
 
-void socketops::setKeepAlive(int sockfd_, bool on) //禁用或开启
+void socketops::setKeepAlive(int sockFd, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
-    ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
+    ::setsockopt(sockFd, SOL_SOCKET, SO_KEEPALIVE,
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
-void socketops::setTcpNoDelay(int sockfd_, bool on) //禁用或开启
+void socketops::setTcpNoDelay(int sockFd, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
-    ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
+    ::setsockopt(sockFd, IPPROTO_TCP, TCP_NODELAY,
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
-void socketops::setReuseAddr(int sockfd_, bool on) //禁用或开启
+void socketops::setReuseAddr(int sockFd, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
-    ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
+    ::setsockopt(sockFd, SOL_SOCKET, SO_REUSEADDR,
                  &optval, static_cast<socklen_t>(sizeof optval));
 }
 
-void socketops::setReusePort(int sockfd_, bool on) //禁用或开启
+void socketops::setReusePort(int sockFd, bool on) //禁用或开启
 {
     int optval = on ? 1 : 0;
-    int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+    int ret = ::setsockopt(sockFd, SOL_SOCKET, SO_REUSEPORT,
                            &optval, static_cast<socklen_t>(sizeof optval));
     if (ret < 0 && on)
     {

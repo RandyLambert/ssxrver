@@ -1,4 +1,3 @@
-#include <functional>
 #include <cassert>
 #include <utility>
 #include "EventLoopThread.h"
@@ -9,7 +8,7 @@ using namespace ssxrver::net;
 EventLoopThread::EventLoopThread(ThreadInitCallback cb)
     : loop_(nullptr),
       exiting_(false),
-      thread_(std::bind(&EventLoopThread::threadFunc, this)),
+      thread_([this] { threadFunc(); }),
       mutex_(),
       cond_(),
       callback_(std::move(cb))

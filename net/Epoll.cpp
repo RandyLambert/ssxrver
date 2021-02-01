@@ -2,7 +2,6 @@
 #include <cerrno>
 #include <sys/epoll.h>
 #include "Epoll.h"
-#include "../base/Logging.h"
 #include "Channel.h"
 #include "TcpConnection.h"
 
@@ -173,7 +172,7 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
         connectionsPool.pop();
         conn->connectReset(sockFd);
         connections_[sockFd] = conn;
-        ownerLoop_->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+        ownerLoop_->queueInLoop([conn] { conn->connectEstablished(); });
     }
     else {
         TcpConnectionPtr conn = std::make_shared<TcpConnection>(ownerLoop_, //所属ioLoop
@@ -182,15 +181,15 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
         conn->setMessageCallback(messageCallback);
         conn->setWriteCompleteCallback(writeCompleteCallback);
         conn->setCloseCallback(
-                std::bind(&Epoll::removeConnection, this, _1));
+                [this](auto && PH1) { removeConnection(PH1); });
         conn->getChannel()->tie(conn);
-        ownerLoop_->queueInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+        ownerLoop_->queueInLoop([conn] { conn->connectEstablished(); });
     }
 }
 
 void Epoll::removeConnection(const TcpConnectionPtr &conn)
 {
     ownerLoop_->runInLoop(
-            std::bind(&TcpConnection::connectDestroyed, conn));
+            [conn] { conn->connectDestroyed(); });
 }
 

@@ -23,13 +23,13 @@ TcpConnection::TcpConnection(EventLoop *loop,
       reading_(true)
 {
     channel_->setReadCallback(
-        std::bind(&TcpConnection::handleRead, this));
+        [this] { handleRead(); });
     channel_->setWriteCallback(
-        std::bind(&TcpConnection::handleWrite, this));
+        [this] { handleWrite(); });
     channel_->setCloseCallback(
-        std::bind(&TcpConnection::handleClose, this));
+        [this] { handleClose(); });
     channel_->setErrorCallback(
-        std::bind(&TcpConnection::handleError, this));
+        [this] { handleError(); });
     socketops::setKeepAlive(sockFd_, true);
 }
 
@@ -134,7 +134,7 @@ void TcpConnection::shutdown()
     if (state_ == kConnected)
     {
         setState(kDisconnecting);
-        loop_->runInLoop(std::bind(&TcpConnection::shutdownInLoop, shared_from_this()));
+        loop_->runInLoop([capture0 = shared_from_this()] { capture0->shutdownInLoop(); });
     }
 }
 
@@ -150,7 +150,7 @@ void TcpConnection::forceClose()
     if (state_ == kConnected || state_ == kDisconnecting)
     {
         setState(kDisconnecting);
-        loop_->queueInLoop(std::bind(&TcpConnection::forceCloseInLoop, shared_from_this()));
+        loop_->queueInLoop([capture0 = shared_from_this()] { capture0->forceCloseInLoop(); });
     }
 }
 
@@ -170,7 +170,7 @@ void TcpConnection::setTcpNoDelay(bool on) const
 
 void TcpConnection::startRead()
 {
-    loop_->runInLoop(std::bind(&TcpConnection::startReadInLoop, this));
+    loop_->runInLoop([this] { startReadInLoop(); });
 }
 
 void TcpConnection::startReadInLoop()
@@ -185,7 +185,7 @@ void TcpConnection::startReadInLoop()
 
 void TcpConnection::stopRead()
 {
-    loop_->runInLoop(std::bind(&TcpConnection::stopReadInLoop, this));
+    loop_->runInLoop([this] { stopReadInLoop(); });
 }
 
 void TcpConnection::stopReadInLoop()
@@ -200,9 +200,9 @@ void TcpConnection::stopReadInLoop()
 
 void TcpConnection::connectEstablished()
 {
-    LOG_INFO<<loop_<<" loop_";
+    LOG_DEBUG<<loop_<<" loop_";
     loop_->assertInLoopThread();
-    LOG_INFO<<"TcpConnectionEstablished "<<"sockFd "<<sockFd_<<" "<<shared_from_this().use_count();
+    LOG_DEBUG<<"TcpConnectionEstablished "<<"sockFd "<<sockFd_<<" "<<shared_from_this().use_count();
     assert(state_ == kConnecting);
     setState(kConnected);
     channel_->enableEvents(kReadEventLT);

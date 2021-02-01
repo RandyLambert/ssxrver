@@ -1,7 +1,6 @@
 #include <sys/eventfd.h>
 #include <csignal>
 #include "EventLoop.h"
-#include "../base/Logging.h"
 #include "Channel.h"
 #include "Epoll.h"
 
@@ -52,7 +51,7 @@ EventLoop::EventLoop()
     else
         t_loopInThisThread = this; //否则将刚出案件的线程付给指针
     wakeupChannel_->setReadCallback(
-            std::bind(&EventLoop::handleRead, this));; //注册wakeup的回调函数
+            [this] { handleRead(); }); //注册wakeup的回调函数
     wakeupChannel_->enableEvents(kReadEventLT); //在这里收纳到epoller管理便于唤醒
 }
 

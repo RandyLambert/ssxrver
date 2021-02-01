@@ -5,7 +5,6 @@
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 #include "Init.h"
-#include <iostream>
 using namespace ssxrver;
 using namespace ssxrver::net;
 

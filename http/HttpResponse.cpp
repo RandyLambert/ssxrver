@@ -43,7 +43,6 @@ void HttpResponse::appendToBuffer(Buffer *output) const
 
     output->append("\r\n"); //header与body之间的空行
     output->append(body_);
-    // std::cout << output->retrieveAllAsString() << std::endl;
 }
 bool HttpResponse::setVersion(const char *start, const size_t length)
 {
