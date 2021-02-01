@@ -1,6 +1,7 @@
 #include "util/Init.h"
 int main()
 {
-    ssxrver::util::start();
+
+    ssxrver::util::Init::getInstance().start();
     return 0;
 }
