@@ -30,7 +30,7 @@ public:
     const std::unordered_set<std::string>& getBlocksIp() const { return  blocksIp_; }
     const CJsonObject& getConfData() const { return  confData_; }
     long getUsefulCpuNumber() {
-        std::lock_guard<std::mutex> lock(cpuMutex_);
+        std::scoped_lock<std::mutex> lock(cpuMutex_);
         if(cpuUsedNumber_ >= cpuMaxNumber_) {
             return -1;
         } else {
@@ -39,7 +39,7 @@ public:
         }
     }
 private:
-    Init():outPutFlag_(false),
+    explicit Init():outPutFlag_(false),
         http11_("HTTP/1.1"),
         http10_("HTTP/1.0"),
         logMap_({{"DEBUG",ssxrver::Logger::LogLevel::DEBUG},

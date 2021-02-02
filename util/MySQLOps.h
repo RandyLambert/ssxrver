@@ -18,7 +18,7 @@ class MySQLOps : boost::noncopyable
     using sqlNoResultCallBack = std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&)>;
     using sqlHasResultCallBack = std::function<int (const std::unique_ptr<MySQL>&,const CJsonObject&,CJsonObject &)>;
 public:
-    MySQLOps(const string& password,
+    explicit MySQLOps(const string& password,
             const string& dataBaseName,
             const string& addr="127.0.0.1",
             const string& user="root",

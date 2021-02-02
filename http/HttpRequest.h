@@ -23,7 +23,7 @@ public:
         kHead,
         kPost,
     };
-    HttpRequest()
+    explicit HttpRequest()
         : method_(kInvalid),
           version_(0x00)
     {

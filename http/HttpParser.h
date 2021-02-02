@@ -12,7 +12,7 @@ class Buffer;
 class HttpRequestParser
 {
 public:
-    HttpRequestParser();
+    explicit HttpRequestParser();
 
     int isFinished();                              //是否解析完成
     int hasError();                                //是否有错
@@ -33,7 +33,7 @@ private:
 class HttpResponseParser
 {
 public:
-    HttpResponseParser();
+    explicit HttpResponseParser();
 
     int isFinished();
     int hasError();

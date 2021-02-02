@@ -15,7 +15,7 @@ template <int SIZE>
 class FixedBuffer : boost::noncopyable
 {
 public:
-    FixedBuffer()
+    explicit FixedBuffer()
         : cur_(data_)
     {
     }

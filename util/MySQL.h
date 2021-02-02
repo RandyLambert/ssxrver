@@ -15,7 +15,7 @@ class MySQL : boost::noncopyable
 {
 public:
     ~MySQL();
-    MySQL(const string& password,
+    explicit MySQL(const string& password,
             const string& dataBaseName,
             const string& addr="127.0.0.1",
             const string& user="root",

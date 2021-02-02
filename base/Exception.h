@@ -11,8 +11,8 @@ class Exception : public std::exception //继承标准类可以写异常类
 public:
     explicit Exception(const char *what) : message_(what) { fillStackTrace(); }
     explicit Exception(string what) : message_(std::move(what)) { fillStackTrace(); }
-    virtual ~Exception() noexcept = default;
-    virtual const char *what() const noexcept { return message_.c_str(); }
+    ~Exception() noexcept override = default;
+    [[nodiscard]] const char *what() const noexcept override { return message_.c_str(); }
     [[nodiscard]] const char *stackTrace() const noexcept { return stack_.c_str(); }
 
 private:

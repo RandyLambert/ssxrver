@@ -50,11 +50,7 @@ void TcpConnection::send(Buffer *buf)
         }
         else
         {
-            void (TcpConnection::*fp)(std::string_view,size_t) = &TcpConnection::sendInLoop;
-            loop_->runInLoop(
-                std::bind(fp,
-                          this,
-                          buf->retrieveAllAsString(),buf->readableBytes()));
+            loop_->runInLoop([this,buf]{ sendInLoop(buf->retrieveAllAsString(),buf->readableBytes()); });
         }
     }
 }
@@ -67,11 +63,7 @@ void TcpConnection::send(std::string_view message){
     }
     else
     {
-        void (TcpConnection::*fp)(std::string_view,size_t) = &TcpConnection::sendInLoop;
-        loop_->runInLoop(
-                std::bind(fp,
-                          this,
-                          message,message.size()));
+        loop_->runInLoop([this,message]{sendInLoop(message,message.size()); });
     }
 }
 
@@ -97,6 +89,7 @@ void TcpConnection::sendInLoop(std::string_view data, size_t len)
             {
                 /* LOG_INFO << "SENDINLOOP"; */
                 loop_->queueInLoop(std::bind(writeCompleteCallback_, shared_from_this()));
+//                loop_->queueInLoop([test = shared_from_this()]{test->writeCompleteCallback_(test);} );
             }
         }
         else //nwrote < 0，出错了
@@ -216,7 +209,7 @@ void TcpConnection::connectDestroyed()
         setState(kDisconnected);
         channel_->disableAll();
     }
-    LOG_INFO << "shaped_ptr " << shared_from_this().use_count();
+    LOG_DEBUG << "shaped_ptr " << shared_from_this().use_count();
     channel_->remove();
 }
 

@@ -20,7 +20,7 @@ public:
     using EventCallback = std::function<void()>;
     using ReadEventCallback = std::function<void()>;
 
-    Channel(EventLoop *loop, int fd); //一个eventLoop可能会包含多个channel，但一个channel只能包含一个eventloop
+    explicit Channel(EventLoop *loop, int fd); //一个eventLoop可能会包含多个channel，但一个channel只能包含一个eventloop
     ~Channel();
 
     void handleEvent(); //重点，执行epoll的任务

@@ -14,7 +14,7 @@ public:
     ~writeFile();
     void append(const char *log_, size_t len);
     void flush() { ::fflush(fp_); };
-    size_t writeLen() { return writeLen_; }
+    [[nodiscard]] size_t writeLen() const { return writeLen_; }
 
 private:
     size_t write(const char *log_, size_t len) { return ::fwrite_unlocked(log_, 1, len, fp_); }

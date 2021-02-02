@@ -13,7 +13,7 @@ public:
     using ThreadInitCallback = std::function<void(EventLoop *)>;
     using HttpCallback = std::function<void(const HttpRequest &,
                                HttpResponse *)>;
-    HttpServer(EventLoop *loop,
+    explicit HttpServer(EventLoop *loop,
                struct sockaddr_in listenAddr);
     ~HttpServer() = default;
     [[nodiscard]] EventLoop *getLoop() const { return server_.getLoop(); }

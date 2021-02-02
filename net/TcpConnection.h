@@ -19,7 +19,7 @@ class TcpConnection : boost::noncopyable,
                       public std::enable_shared_from_this<TcpConnection>
 {
 public:
-    TcpConnection(EventLoop *loop,
+    explicit TcpConnection(EventLoop *loop,
                   int sockFd);
     ~TcpConnection();
 

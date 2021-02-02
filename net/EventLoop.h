@@ -19,7 +19,7 @@ class EventLoop : boost::noncopyable
 {
 public:
     using Functor = std::function<void()>;
-    EventLoop();
+    explicit EventLoop();
     ~EventLoop();
     void loop();
     void quit();
@@ -39,7 +39,7 @@ public:
             abortNotInLoopThread();
         }
     }
-//    void print() const {LOG_INFO<< threadId_ <<" isINLoopThread "<< CurrentThread::tid();}
+
     bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
     bool eventHandling() const { return eventHandling_; }
     void createConnection(int sockFd,

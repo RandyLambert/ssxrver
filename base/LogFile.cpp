@@ -39,7 +39,7 @@ void LogFile::append(const char *log_, size_t len) //添加日志
 {
     if (mutex_)
     {
-        std::lock_guard<std::mutex> locker(*mutex_);
+        std::scoped_lock<std::mutex> locker(*mutex_);
         append_unlocked(log_, len);
     }
     else
@@ -51,7 +51,7 @@ void LogFile::flush()
 {
     if (mutex_)
     {
-        std::lock_guard<std::mutex> locker(*mutex_);
+        std::scoped_lock<std::mutex> locker(*mutex_);
         file_->flush();
     }
     else

@@ -106,7 +106,7 @@ void EventLoop::runInLoop(const Functor& cb)
 void EventLoop::queueInLoop(const Functor& cb)
 {
     {
-        std::lock_guard<std::mutex> guard(mutex_);
+        std::scoped_lock<std::mutex> guard(mutex_);
         pendingFunctors_.emplace_back(cb);
     }
 
@@ -116,7 +116,7 @@ void EventLoop::queueInLoop(const Functor& cb)
 
 size_t EventLoop::queueSize() const
 {
-    std::lock_guard<std::mutex> guard(mutex_);
+    std::scoped_lock<std::mutex> guard(mutex_);
     return pendingFunctors_.size();
 }
 
@@ -163,7 +163,7 @@ void EventLoop::doPendingFunctors()
     callingPendingFuctors_ = true;
 
     {
-        std::lock_guard<std::mutex> guard(mutex_);
+        std::scoped_lock<std::mutex> guard(mutex_);
         functors.swap(pendingFunctors_);
     }
 

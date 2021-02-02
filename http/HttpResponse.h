@@ -18,7 +18,7 @@ public:
         k404NotFound = 404         //请求的网页不存在
     };
 
-    HttpResponse()
+    explicit HttpResponse()
         : statusCode_(kUnknown),
           closeConnection_(false),
           version_(0x00)

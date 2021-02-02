@@ -84,7 +84,7 @@ void Epoll::updateChannel(Channel *channel)
             channels_.insert({fd,channel}); //新的，就加到关注队列
             if(channel->getTie().use_count() != 0) {
                 connections_.insert({fd,channel->getTie()});
-                LOG_INFO<<"fd "<<fd<<" update Channel "<<connections_[fd].use_count();
+                LOG_DEBUG<<"fd "<<fd<<" update Channel "<<connections_[fd].use_count();
             }
         }
         channel->setStatus(kAdded);
@@ -131,7 +131,7 @@ void Epoll::removeChannel(Channel *channel)
     int status_ = channel->status();
     if (channels_.erase(fd) == 0)
         LOG_FATAL << "erase channel";
-    LOG_INFO<<"connection shared_ptr num = "<<connections_[fd].use_count();
+    LOG_DEBUG<<"connection shared_ptr num = "<<connections_[fd].use_count();
 //    if (connections_.erase(fd) == 0)
 //        LOG_FATAL << "erase connection";
     if (connections_.count(fd) != 0) {

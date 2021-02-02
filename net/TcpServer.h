@@ -17,7 +17,7 @@ class TcpServer : boost::noncopyable
 {
 public:
     using ThreadInitCallback = std::function<void(EventLoop*)>;
-    TcpServer(EventLoop *loop,
+    explicit TcpServer(EventLoop *loop,
               struct sockaddr_in listenAddr);
     ~TcpServer();
 
