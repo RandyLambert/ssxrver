@@ -10,7 +10,7 @@ static const int kFileBufferSize = 64 * 1024;
 class writeFile : boost::noncopyable
 {
 public:
-    explicit writeFile(const string &fileName);
+    explicit writeFile(std::string_view fileName);
     ~writeFile();
     void append(const char *log_, size_t len);
     void flush() { ::fflush(fp_); };
@@ -27,7 +27,7 @@ private:
 class ReadSmallFile : boost::noncopyable
 {
 public:
-    explicit ReadSmallFile(const string &fileName);
+    explicit ReadSmallFile(std::string_view fileName);
     ~ReadSmallFile();
 
 //    int readToString(string& data);

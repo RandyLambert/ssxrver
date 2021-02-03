@@ -96,7 +96,7 @@ public:
     const string &query() const { return query_; }
     void addBody(const char *start, const char *end) { body_.append(start, end); }
     const string &body() const { return body_; }
-    void setHeader(const string key, const string value) { headers_[key] = std::move(value); }
+    void setHeader(std::string_view key, std::string_view value) { headers_.insert({key.data(),value.data()}); }
 
     template <class T>
     T getHeader(const string &key, const T &def = T()) const //根据头域返回值

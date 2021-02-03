@@ -81,9 +81,11 @@ void Epoll::updateChannel(Channel *channel)
         int fd = channel->fd(); //如果是新的通道，取他的fd值
         if (status_ == kNew)
         {
-            channels_.insert({fd,channel}); //新的，就加到关注队列
+//            channels_.insert({fd,channel}); //新的，就加到关注队列
+            channels_[fd] = channel;
             if(channel->getTie().use_count() != 0) {
-                connections_.insert({fd,channel->getTie()});
+//                connections_.insert({fd,channel->getTie()});
+                connections_[fd] = channel->getTie();
                 LOG_DEBUG<<"fd "<<fd<<" update Channel "<<connections_[fd].use_count();
             }
         }
@@ -129,14 +131,14 @@ void Epoll::removeChannel(Channel *channel)
     ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
     int status_ = channel->status();
-    if (channels_.erase(fd) == 0)
-        LOG_FATAL << "erase channel";
-    LOG_DEBUG<<"connection shared_ptr num = "<<connections_[fd].use_count();
+//    if (channels_.erase(fd) == 0)
+//        LOG_FATAL << "erase channel";
 //    if (connections_.erase(fd) == 0)
 //        LOG_FATAL << "erase connection";
+    LOG_DEBUG<<"connection shared_ptr num = "<<connections_[fd].use_count();
     if (connections_.count(fd) != 0) {
-        connectionsPool.push(connections_[fd]);
-        connections_.erase(fd);
+        connectionsPool.push(std::move(connections_[fd]));
+//        connections_.erase(fd);
         ::close(fd);
     }
     else {
@@ -168,11 +170,10 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
                              const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback)
 {
     if(!connectionsPool.empty()){
-        TcpConnectionPtr conn = connectionsPool.front();
+        connectionsPool.front()->connectReset(sockFd);
+        connections_[sockFd] = std::move(connectionsPool.front());
         connectionsPool.pop();
-        conn->connectReset(sockFd);
-        connections_[sockFd] = conn;
-        ownerLoop_->queueInLoop([conn] { conn->connectEstablished(); });
+        ownerLoop_->queueInLoop([conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
     else {
         TcpConnectionPtr conn = std::make_shared<TcpConnection>(ownerLoop_, //所属ioLoop

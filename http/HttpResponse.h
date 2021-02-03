@@ -34,7 +34,7 @@ public:
     [[nodiscard]] bool closeConnection() const { return closeConnection_; }
     //设置文档的媒体类型
     void setContentType(std::string_view contentType) { addHeader("Content-Type", contentType); }
-    void addHeader(const string& key, std::string_view value) { headers_[key] = value; }
+    void addHeader(std::string_view key, std::string_view value) { headers_.insert({key.data(),value.data()}); }
     void setBody(std::string_view body) { body_ = body; }
     void appendToBuffer(Buffer *output) const; //将httpresponse添加到buffer
 private:

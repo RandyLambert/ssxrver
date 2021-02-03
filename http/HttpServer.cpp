@@ -68,7 +68,6 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
         else
         {
             onRequest(conn, parser->getRequest()); //连接和请求对象传过来
-            parser->reset();                       //本次请求处理完毕，重置httpcontext，适用于长连接 */
         }
     }
 }

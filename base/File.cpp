@@ -6,8 +6,8 @@
 using namespace ssxrver;
 using namespace ssxrver::base::file;
 
-writeFile::writeFile(const string &fileName)
-    : fp_(fopen(fileName.c_str(), "ae")),
+writeFile::writeFile(std::string_view fileName)
+    : fp_(fopen(fileName.data(), "ae")),
       writeLen_(0)
 {
     int err = ferror(fp_);
@@ -42,8 +42,8 @@ void writeFile::append(const char *log_, const size_t len)
     writeLen_ += len;
 }
 
-ReadSmallFile::ReadSmallFile(const string &fileName)
-:fd_(::open(fileName.c_str(), O_RDONLY | O_CLOEXEC)),
+ReadSmallFile::ReadSmallFile(std::string_view fileName)
+:fd_(::open(fileName.data(), O_RDONLY | O_CLOEXEC)),
 err_(0)
 {
     buf_[0] = '\0';
