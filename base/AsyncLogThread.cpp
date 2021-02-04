@@ -55,7 +55,7 @@ void AsyncLogThread::append(const char *log_, size_t len)
 void AsyncLogThread::threadFunc()
 {
     assert(running_);
-    latch_.countDown();
+    latch_.count_down();
     file::LogFile output(basename_,rollSize_);
     BufferPtr newBuffer1 = std::make_unique<Buffer>();
     BufferPtr newBuffer2 = std::make_unique<Buffer>();

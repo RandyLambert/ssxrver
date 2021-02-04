@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cerrno>
 #include <sys/epoll.h>
 #include "Epoll.h"
@@ -21,7 +20,7 @@ Epoll::Epoll(EventLoop *loop)
 {
     if (epollFd < 0)
     {
-        LOG_SYSFATAL << "EPollPoller::EpollPoller";
+        LOG_SYSFATAL << "Epoll::Epoll";
     }
 }
 
@@ -104,28 +103,6 @@ void Epoll::updateChannel(Channel *channel)
     }
 }
 
-//void Epoll::removeChannel1(Channel *channel)
-//{
-//    ownerLoop_->assertInLoopThread();
-//    int fd = channel->fd();
-//    int status_ = channel->status();
-//    if (channels_.erase(fd) == 0)
-//    LOG_FATAL << "erase channel";
-//    LOG_INFO<<"connection shared_ptr num = "<<connections_[fd].use_count();
-//    if (connections_.count(fd) != 0) {
-//        connectionsPool.push(connections_[fd]);
-//        connections_.erase(fd);
-//        ::close(fd);
-//    }
-//    else {
-//        LOG_FATAL << "erase connections_";
-//    }
-//
-//    if (status_ == kAdded)
-//        update(EPOLL_CTL_DEL, channel);
-//    channel->setStatus(kNew);
-//}
-
 void Epoll::removeChannel(Channel *channel)
 {
     ownerLoop_->assertInLoopThread();
@@ -137,7 +114,7 @@ void Epoll::removeChannel(Channel *channel)
 //        LOG_FATAL << "erase connection";
     LOG_DEBUG<<"connection shared_ptr num = "<<connections_[fd].use_count();
     if (connections_.count(fd) != 0) {
-        connectionsPool.push(std::move(connections_[fd]));
+        connectionsPool.emplace_back(connections_[fd]);
 //        connections_.erase(fd);
         ::close(fd);
     }
@@ -170,9 +147,9 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
                              const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback)
 {
     if(!connectionsPool.empty()){
-        connectionsPool.front()->connectReset(sockFd);
-        connections_[sockFd] = std::move(connectionsPool.front());
-        connectionsPool.pop();
+        connectionsPool.back()->connectReset(sockFd);
+        connections_[sockFd] = std::move(connectionsPool.back());
+        connectionsPool.pop_back();
         ownerLoop_->queueInLoop([conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
     else {

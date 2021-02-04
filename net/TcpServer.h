@@ -33,8 +33,6 @@ public:
 
 private:
     void newConnection(int sockFd);
-    void newConnection1(int sockFd);
-    void removeConnection(const TcpConnectionPtr &conn);
     void acceptHandRead();
 
     EventLoop *loop_;
@@ -44,7 +42,7 @@ private:
     WriteCompleteCallback writeCompleteCallback_;
     ThreadInitCallback threadInitCallback_;
     std::atomic<bool> started_;
-    int acceptFd;
+    int acceptFd_;
     int idleFd_;
     Channel acceptChannel_;
 };

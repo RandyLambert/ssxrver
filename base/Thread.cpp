@@ -8,7 +8,7 @@
 #include "Thread.h"
 #include "Exception.h"
 #include "Logging.h"
-
+#include <boost/thread/latch.hpp>
 namespace ssxrver
 {
 
@@ -24,10 +24,10 @@ namespace ssxrver
 
         using ThreadFunc = ssxrver::Thread::ThreadFunc;
 
-        void runInThread(const ThreadFunc& func,const string& name,pid_t *tid,CountDownLatch *latch) //真正创建线程后,穿进去的函数会直接调用他
+        void runInThread(const ThreadFunc& func,const string& name,pid_t *tid,boost::latch *latch) //真正创建线程后,穿进去的函数会直接调用他
         {
             *tid = ssxrver::CurrentThread::tid();
-            latch->countDown();
+            latch->count_down();
 
             ssxrver::CurrentThread::t_threadName = name.empty() ? "ssxrverThread" : name;
             ::prctl(PR_SET_NAME, ssxrver::CurrentThread::t_threadName.c_str());

@@ -7,9 +7,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g -Wall -Wconversion -Wredundant-decls -Wcast-align -Wshadow -Werror -Wold-style-cast -march=native -pthread -Wno-unused-variable -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g -lboost_thread -Wall -Wconversion -Wredundant-decls -Wcast-align -Wshadow -Werror -Wold-style-cast -march=native -pthread -Wno-unused-variable -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
 elseif( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -o3 -Wall -Wconversion -Wredundant-decls -Wcast-align -Wshadow -Werror -Wold-style-cast -march=native -pthread -Wno-unused-variable -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -o3 -lboost_thread -Wall -Wconversion -Wredundant-decls -Wcast-align -Wshadow -Werror -Wold-style-cast -march=native -pthread -Wno-unused-variable -fopenmp -L /usr/lib64/mysql -lmysqlclient -I  /usr/include/mysql")
 endif()
 
 message("Build Type:" ${CMAKE_BUILD_TYPE} ${CMAKE_CXX_FLAGS})
@@ -23,8 +23,6 @@ include_directories(util)
 add_executable(ssxrver
         base/AsyncLogThread.cpp
         base/AsyncLogThread.h
-        base/CountDownLatch.cpp
-        base/CountDownLatch.h
         base/CurrentThread.h
         base/Exception.cpp
         base/Exception.h

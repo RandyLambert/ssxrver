@@ -3,11 +3,11 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include "Thread.h"
-#include "CountDownLatch.h"
-#include "LogStream.h"
-#include <vector>
+#include <condition_variable>
 #include <memory>
+#include <boost/thread/latch.hpp>
+#include "Thread.h"
+#include "LogStream.h"
 
 namespace ssxrver::base
 {
@@ -42,7 +42,7 @@ private:
     BufferPtr currentBuffer_;
     BufferPtr nextBuffer_;
     BufferVector buffers_;
-    CountDownLatch latch_;
+    boost::latch latch_;
 };
 } // namespace ssxrver::base
 

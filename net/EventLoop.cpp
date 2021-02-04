@@ -36,9 +36,9 @@ EventLoop::EventLoop()
     : looping_(false),
       quit_(false),
       eventHandling_(false),
-      callingPendingFuctors_(false),
+      callingPendingFunctors_(false),
       threadId_(CurrentThread::tid()),
-      Epoller_(std::make_unique<Epoll>(this)),
+      epoll_(std::make_unique<Epoll>(this)),
       wakeupFd_(createEventfd()), //创建一个eventFd
       wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_))
 {
@@ -75,7 +75,7 @@ void EventLoop::loop()
     while (!quit_)
     {
         activeChannels_.clear();
-        Epoller_->poll(&activeChannels_);
+        epoll_->poll(&activeChannels_);
         eventHandling_ = true;
         for (Channel *channel : activeChannels_)
         {
@@ -110,7 +110,7 @@ void EventLoop::queueInLoop(const Functor& cb)
         pendingFunctors_.emplace_back(cb);
     }
 
-    if (!isInLoopThread() || callingPendingFuctors_)
+    if (!isInLoopThread() || callingPendingFunctors_)
         wakeup();
 }
 
@@ -124,14 +124,14 @@ void EventLoop::updateChannel(Channel *channel)
 {
     assert(channel->ownerLoop() == this);
     assertInLoopThread();
-    Epoller_->updateChannel(channel);
+    epoll_->updateChannel(channel);
 }
 
 void EventLoop::removeChannel(Channel *channel)
 {
     assert(channel->ownerLoop() == this);
     assertInLoopThread();
-    Epoller_->removeChannel(channel);
+    epoll_->removeChannel(channel);
 }
 
 void EventLoop::abortNotInLoopThread()
@@ -160,7 +160,7 @@ void EventLoop::handleRead() const //处理wakeup
 void EventLoop::doPendingFunctors()
 {
     std::vector<Functor> functors;
-    callingPendingFuctors_ = true;
+    callingPendingFunctors_ = true;
 
     {
         std::scoped_lock<std::mutex> guard(mutex_);
@@ -170,12 +170,12 @@ void EventLoop::doPendingFunctors()
     for (const Functor &functor : functors)
         functor();
 
-    callingPendingFuctors_ = false;
+    callingPendingFunctors_ = false;
 }
 
 void EventLoop::createConnection(int sockFd, const ConnectionCallback &connectCallback,
                                  const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback) {
 
-    Epoller_->createConnection(sockFd,connectCallback,messageCallback,writeCompleteCallback);
+    epoll_->createConnection(sockFd, connectCallback, messageCallback, writeCompleteCallback);
 
 }

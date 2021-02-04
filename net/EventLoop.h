@@ -56,10 +56,10 @@ private:
     bool looping_;
     std::atomic<bool> quit_;
     bool eventHandling_;
-    bool callingPendingFuctors_;
+    bool callingPendingFunctors_;
     const pid_t threadId_;
 
-    std::unique_ptr<Epoll> Epoller_;
+    std::unique_ptr<Epoll> epoll_;
 
     int wakeupFd_;
     std::unique_ptr<Channel> wakeupChannel_;

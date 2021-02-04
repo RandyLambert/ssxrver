@@ -22,7 +22,6 @@ public:
     ~Epoll();
     void updateChannel(Channel *channel);
     void removeChannel(Channel *channel);
-//    void removeChannel1(Channel *channel);
     void poll(ChannelList *activeChannels);
     void createConnection(int sockFd, const ConnectionCallback &connectCallback,
                           const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback);
@@ -35,7 +34,7 @@ private:
 
     using ChannelMap = std::unordered_map<int, Channel *>;                      //fd和事件指针
     using TcpConnMap = std::unordered_map<int, TcpConnectionPtr>; //TcpConnectionMap
-    std::queue<TcpConnectionPtr> connectionsPool;
+    std::vector<TcpConnectionPtr> connectionsPool;
     ChannelMap channels_;                                             //监听检测通道
     TcpConnMap connections_;
     int epollFd;
