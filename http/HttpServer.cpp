@@ -29,6 +29,7 @@ HttpServer::HttpServer(EventLoop *loop,
     : server_(loop, listenAddr),
       httpCallback_(detail::defaultHttpCallback)
 {
+    server_.setConnectionCallback(std::bind(&HttpServer::onConnection,this,std::placeholders::_1));
     server_.setMessageCallback(bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
     if(ssxrver::util::Init::getInstance().getConfData()("cpu_affinity") == "on")
         server_.setThreadInitCallback(bind(ssxrver::net::detail::threadInitCallback,std::placeholders::_1));
@@ -44,7 +45,7 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
 {
     HttpRequestParser *parser = conn->getMutableContext().get(); //获取的是可以改变的
     parser->execute(buf);
-    if (parser->hasError()) //获取请求包，更好的做法是让parserequest作为httpcontext的成员函数
+    if (parser->hasError()) //获取请求包，更好的做法是让 parseRequest 作为 httpContext 的成员函数
     {
         conn->send("HTTP/1.1 400 Bad Request\r\n\r\n"); //请求失败
         conn->shutdown();
@@ -61,7 +62,6 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
             if (parser->getRequest().body().size() == length)
             {
                 onRequest(conn, parser->getRequest()); //连接和请求对象传过来
-                parser->reset();                       //本次请求处理完毕，重置httpcontext，适用于长连接 */
             }
             buf->retrieveUntil(end);
         }
@@ -80,9 +80,18 @@ void HttpServer::onRequest(const TcpConnectionPtr &conn, const HttpRequest &req)
     httpCallback_(req, &response);
     Buffer buf;
     response.appendToBuffer(&buf);  //将对象转化为一个字符串到buf中
+    if(response.hasFile())
+    {
+        conn->setSendFile(response.getFile());
+    }
     conn->send(&buf);               //将缓冲区发送到客户端
     if (response.closeConnection()) //如果需要关闭，短连接
         conn->shutdown();
+    else {
+        conn->getContext()->reset();                       //本次请求处理完毕，重置httpContext，适用于长连接 */
+        if(conn->isSendFile())
+            conn->sendFileReset();
+    }
 }
 
 void HttpServer::onConnection(const TcpConnectionPtr &conn) {

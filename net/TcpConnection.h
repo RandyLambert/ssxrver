@@ -9,7 +9,7 @@
 #include "Buffer.h"
 #include "CallBacks.h"
 #include "../http/HttpParser.h"
-
+#include "../base/File.h"
 namespace ssxrver::net
 {
 class EventLoop;
@@ -34,7 +34,8 @@ public:
     void startRead();
     void stopRead();
     bool isReading() const { return reading_; }
-
+    bool isSendFile() const { return sendFile_ != nullptr;}
+    void sendFileReset() { if(sendFile_ != nullptr)  sendFile_.reset(); };
     const std::unique_ptr<HttpRequestParser>& getContext() const //获取未知类型，不能更改
     {
         return context_;
@@ -49,7 +50,7 @@ public:
     void setWriteCompleteCallback(const WriteCompleteCallback &cb) { writeCompleteCallback_ = cb; }
     void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
     std::unique_ptr<Channel>& getChannel(){ return channel_; }
-
+    void setSendFile(std::unique_ptr<base::file::SendFileUtil> file){ sendFile_ = std::move(file); }
     Buffer *inputBuffer() { return &inputBuffer_; }
     Buffer *outputBuffer() { return &outputBuffer_; }
     void setCloseCallback(const CloseCallback &cb) { closeCallback_ = cb; }
@@ -89,6 +90,7 @@ private:
 
     Buffer inputBuffer_;  //应用层的接收缓冲区
     Buffer outputBuffer_; //应用层的发送缓冲区，当outputbuffer高到一定程度
+    std::unique_ptr<base::file::SendFileUtil> sendFile_;
     std::unique_ptr<HttpRequestParser> context_;  //位置类型的上线文对象
     bool reading_;
 };

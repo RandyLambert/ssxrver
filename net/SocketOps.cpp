@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <netinet/tcp.h>
+#include <sys/sendfile.h>
 #include "SocketOps.h"
 #include "../base/Logging.h"
 
@@ -87,6 +88,11 @@ ssize_t socketops::readv(int sockfd, const struct iovec *iov, int iovcnt)
 ssize_t socketops::write(int sockfd, const void *buf, size_t count)
 {
     return ::write(sockfd, buf, count); //writev没封装
+}
+
+ssize_t socketops::sendfile(int outFd, int inFd, off_t *offset, size_t count)
+{
+    return ::sendfile(outFd, inFd, offset, count); //sendfile没封装
 }
 
 void socketops::close(int sockfd)

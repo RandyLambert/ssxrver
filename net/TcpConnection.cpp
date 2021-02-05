@@ -13,12 +13,18 @@ void ssxrver::net::defaultMessageCallback(const TcpConnectionPtr &,
     buf->retrieveAll();
 }
 
+void ssxrver::net::defaultConnectionCallback(const TcpConnectionPtr &conn)
+{
+    LOG_DEBUG << (conn->connected() ? "up" : "down");
+}
+
 TcpConnection::TcpConnection(EventLoop *loop,
                              int sockFd)
     : loop_(loop),
       state_(kConnecting),
       sockFd_(sockFd),
       channel_(new Channel(loop, sockFd)),
+      sendFile_(),
       context_(new HttpRequestParser()),
       reading_(true)
 {
@@ -84,12 +90,19 @@ void TcpConnection::sendInLoop(std::string_view data, size_t len)
         if (nwrote >= 0)
         {
             remaining = len - nwrote;
-            //写完了，回调writecompletecallback
-            if (remaining == 0 && writeCompleteCallback_) //如果等于0，说明都发送完毕，都拷贝到了内核缓冲区
+            // 写完了，回调writeCompleteCallback
+            LOG_DEBUG << "sendInLoop";
+            if(!sendFile_)
             {
-                /* LOG_INFO << "SENDINLOOP"; */
-                loop_->queueInLoop(std::bind(writeCompleteCallback_, shared_from_this()));
-//                loop_->queueInLoop([test = shared_from_this()]{test->writeCompleteCallback_(test);} );
+                if (remaining == 0 && writeCompleteCallback_) //如果等于0，说明都发送完毕，都拷贝到了内核缓冲区
+                {
+                    loop_->queueInLoop([ptr = shared_from_this()]{ ptr->writeCompleteCallback_(ptr);} );
+                }
+            } else {
+                if (remaining == 0 && writeCompleteCallback_ && sendFile_->getSendLen() == 0) //如果等于0，说明都发送完毕，都拷贝到了内核缓冲区
+                {
+                    loop_->queueInLoop([ptr = shared_from_this()]{ ptr->writeCompleteCallback_(ptr);} );
+                }
             }
         }
         else //nwrote < 0，出错了
@@ -110,10 +123,48 @@ void TcpConnection::sendInLoop(std::string_view data, size_t len)
     if (!faultError && remaining > 0)
     {
         outputBuffer_.append(data.begin() + nwrote, remaining);
-        //然后后面还有(data) + nwrote的数据没发送，就把他添加到outputbuffer中
+        // 然后后面还有(data) + nwrote的数据没发送，就把他添加到outputbuffer中
         if (!channel_->isWriting())
-            channel_->enableEvents(kWriteEvent); //关注epollout事件，等对等方接受了数据，tcp的滑动窗口滑动了，
-                                       //这时内核的发送缓冲区有位置了，epollout事件被触发，会回调tcpconnection::handlewrite
+            channel_->enableEvents(kWriteEvent); // 关注epollout事件，等对等方接受了数据，tcp的滑动窗口滑动了，
+                                       // 这时内核的发送缓冲区有位置了，epollout事件被触发，会回调tcpconnection::handlewrite
+    } else if(sendFile_) { // 发完头信息,后面还有文件
+        remaining = sendFile_->getSendLen();
+        faultError = false;
+        nwrote = socketops::sendfile(channel_->fd(), sendFile_->getInId(), sendFile_->getOffset(), remaining); //可以直接write
+        if (nwrote >= 0)
+        {
+            sendFile_->getSendLen() -= nwrote;
+            remaining = sendFile_->getSendLen();
+            *sendFile_->getOffset() += nwrote;
+            //写完了，回调writeCompleteCallback
+            if (remaining == 0 && writeCompleteCallback_) //如果等于0，说明都发送完毕，都拷贝到了内核缓冲区
+            {
+                LOG_DEBUG << "sendInLoop";
+                sendFileReset();
+                loop_->queueInLoop([ptr = shared_from_this()]{ptr->writeCompleteCallback_(ptr);});
+//                loop_->queueInLoop([test = shared_from_this()]{test->writeCompleteCallback_(test);} );
+            }
+        }
+        else //nwrote < 0，出错了
+        {
+            if (errno != EWOULDBLOCK)
+            {
+                LOG_SYSERR << "TcpConnection::sendInLoop";
+                if (errno == EPIPE || errno == ECONNRESET)
+                {
+                    faultError = true;
+                }
+            }
+        }
+        assert(remaining <= sendFile_->getSendLen());
+        //没有错误，并且还有未写完的数据(说明内核发送缓冲区满，要将未写完的数据添加到output buffer中)
+        if (!faultError && remaining > 0)
+        {
+            LOG_DEBUG << "isSendFile_";
+            if (!channel_->isWriting())
+                channel_->enableEvents(kWriteEvent); //关注epollout事件，等对等方接受了数据，tcp的滑动窗口滑动了，
+            //这时内核的发送缓冲区有位置了，epollout事件被触发，会回调tcpconnection::handlewrite
+        }
     }
 }
 
@@ -193,12 +244,13 @@ void TcpConnection::stopReadInLoop()
 
 void TcpConnection::connectEstablished()
 {
-    LOG_DEBUG<<loop_<<" loop_";
     loop_->assertInLoopThread();
     LOG_DEBUG<<"TcpConnectionEstablished "<<"sockFd "<<sockFd_<<" "<<shared_from_this().use_count();
     assert(state_ == kConnecting);
     setState(kConnected);
     channel_->enableEvents(kReadEventLT);
+
+    connectionCallback_(shared_from_this());
 }
 
 void TcpConnection::connectDestroyed()
@@ -208,6 +260,8 @@ void TcpConnection::connectDestroyed()
     {
         setState(kDisconnected);
         channel_->disableAll();
+
+        connectionCallback_(shared_from_this());
     }
     LOG_DEBUG << "shaped_ptr " << shared_from_this().use_count();
     channel_->remove();
@@ -240,29 +294,57 @@ void TcpConnection::handleWrite()
     loop_->assertInLoopThread();
     if (channel_->isWriting()) //如果关注epollout时间
     {
-        ssize_t n = socketops::write(channel_->fd(), //这是就把outputbuffer中写入
-                                     outputBuffer_.peek(),
-                                     outputBuffer_.readableBytes());
-        if (n > 0) //不一定写完了，写了n个字节
+        if(outputBuffer_.readableBytes() > 0)
         {
-            outputBuffer_.retrieve(n);              //缓冲区下标的移动，因为这是已经写了n个字节了
-            if (outputBuffer_.readableBytes() == 0) //==0说明发送缓冲区已经清空
+            ssize_t n = socketops::write(channel_->fd(), //这是就把outputbuffer中写入
+                                         outputBuffer_.peek(),
+                                         outputBuffer_.readableBytes());
+            if (n > 0) //不一定写完了，写了n个字节
             {
-                channel_->disableEvents(kWriteEvent); //停止关注了pollout时间，以免出现busy_loop
-                if (writeCompleteCallback_) //回调writecomplatecallback
+                outputBuffer_.retrieve(n);              //缓冲区下标的移动，因为这是已经写了n个字节了
+                if (outputBuffer_.readableBytes() == 0) //==0说明发送缓冲区已经清空
                 {
-                    //应用层发送缓冲区被清空，就回调writecomplatecallback
-                    loop_->queueInLoop(std::bind(writeCompleteCallback_, shared_from_this()));
-                }
+                    channel_->disableEvents(kWriteEvent); //停止关注了pollout时间，以免出现busy_loop
+                    if (writeCompleteCallback_) //回调writecomplatecallback
+                    {
+                        //应用层发送缓冲区被清空，就回调writecomplatecallback
+                        loop_->queueInLoop([ptr = shared_from_this()]{ ptr->writeCompleteCallback_(ptr);});
+                    }
 
-                if (state_ == kDisconnecting)
-                {
-                    shutdownInLoop(); //关闭连接
+                    if (state_ == kDisconnecting)
+                    {
+                        shutdownInLoop(); //关闭连接
+                    }
                 }
             }
+            else
+                LOG_SYSERR << "TcpConnection::handleWrite"; //发生错误
+        } else if(sendFile_) {
+            ssize_t n = socketops::sendfile(channel_->fd(), sendFile_->getInId(), sendFile_->getOffset(), sendFile_->getSendLen());
+            if (n > 0) //不一定写完了，写了n个字节
+            {
+                sendFile_->getSendLen() -= n;              //缓冲区下标的移动，因为这是已经写了n个字节了
+                *sendFile_->getOffset() += n;
+                if (sendFile_->getSendLen() == 0) // ==0说明发送缓冲区已经清空
+                {
+                    sendFileReset();
+                    channel_->disableEvents(kWriteEvent); //停止关注了pollOut时间，以免出现busy_loop
+                    if (writeCompleteCallback_) //回调writeCompleteCallback
+                    {
+                        //发送缓冲区被清空，就回调WriteCompleteCallback
+                        loop_->queueInLoop([ptr = shared_from_this()]{ ptr->writeCompleteCallback_(ptr); });
+                    }
+
+                    if (state_ == kDisconnecting)
+                    {
+                        shutdownInLoop(); //关闭连接
+                    }
+                }
+            }
+            else
+                LOG_SYSERR << "TcpConnection::handleWrite " << sendFile_->getInId(); //发生错误
+                abort();
         }
-        else
-            LOG_SYSERR << "TcpConnection::handleWrite"; //发生错误
     }
 }
 
@@ -296,5 +378,6 @@ void TcpConnection::connectReset(int sockFd)
     reading_ = true;
     inputBuffer_.retrieveAll();
     outputBuffer_.retrieveAll();
+    sendFileReset();
     socketops::setKeepAlive(sockFd_, true);
 }

@@ -12,7 +12,7 @@
 #include "Logging.h"
 #include "EventLoop.h"
 #include "../http/HttpServer.h"
-#include "../base/File.h"
+
 using namespace ssxrver::base;
 using namespace ssxrver::net;
 using namespace ssxrver::util;
@@ -34,6 +34,10 @@ void setCPUAffinity() {
         }
     }
 }
+
+char favicon[] = {
+#include "favicon.inc"
+};
 }
 
 void asyncOutput(const char *msg, size_t len)
@@ -74,16 +78,40 @@ void message(const HttpRequest &req, HttpResponse *resp)
 //        }
 //         std::cout << req.body() << std::endl;
 //    }
-
-    if (req.path() == "/")
-    {
-        resp->setStatusCode(HttpResponse::k2000k);
+    if(req.path() == "/") {
+        resp->setStatusCode(HttpResponse::k200Ok);
+        resp->setStatusMessage("OK");
+        resp->setContentType("text/plain");
+        resp->setVersion(Init::getInstance().getHttp11(),8);
+        resp->addHeader("Server", "ssxrver");
+        resp->setBody("Hello ssxrver!\n");
+    }
+    else if (req.path() == "/html") {
+        resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");
         resp->setContentType("text/html");
         resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
-        resp->setBody("<html><head><title>This is title</title></head>"
-                      "<body><h1>Hello World</h1></body></html>");
+        resp->setBody("<html><head><title>Fast HttpServer</title></head>"
+                      "<body><h1>Hello html</h1></body></html>");
+    } else if(req.path() == "/index.html") {
+        resp->setStatusCode(HttpResponse::k200Ok);
+        resp->setStatusMessage("OK");
+        resp->setContentType("text/plain");
+        resp->setVersion(Init::getInstance().getHttp11(),8);
+        resp->addHeader("Server", "ssxrver");
+        resp->setFile("./index.html");
+    } else if(req.path() == "/favicon.ico") {
+        resp->setStatusCode(HttpResponse::k200Ok);
+        resp->setStatusMessage("OK");
+        resp->setContentType("image/png");
+        resp->setVersion(Init::getInstance().getHttp11(),8);
+        resp->setBody(string(favicon,sizeof(favicon)));
+    } else {
+        resp->setStatusCode(HttpResponse::k404NotFound);
+        resp->setStatusMessage("Not Found");
+        resp->setVersion(Init::getInstance().getHttp11(),8);
+        resp->setCloseConnection(true);
     }
 }
 

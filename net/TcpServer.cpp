@@ -14,6 +14,7 @@ TcpServer::TcpServer(EventLoop *loop,
                      struct sockaddr_in listenAddr) //在main函数初始化
     : loop_(loop),
       threadPool_(std::make_unique<EventLoopThreadPool>(loop)),
+      connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback),
       started_(false),
       acceptFd_(socketops::createNonblockingOrDie()),

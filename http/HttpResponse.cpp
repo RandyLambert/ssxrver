@@ -27,7 +27,10 @@ void HttpResponse::appendToBuffer(Buffer *output) const
     }
     else
     {
-        snprintf(buf, sizeof(buf), "Content-Length: %zd\r\n", body_.size()); //如果是长连接才需要这一行头部信息，来说明包的实体长度
+        if(file_)
+            snprintf(buf, sizeof(buf), "Content-Length: %zd\r\n", body_.size());
+        else
+            snprintf(buf, sizeof(buf), "Content-Length: %zd\r\n", body_.size() + static_cast<unsigned long>(file_->getSendLen())); //如果是长连接才需要这一行头部信息，来说明包的实体长度
         output->append(buf);
         output->append("Connection: Keep-Alive\r\n"); //长连接的标志
     }
@@ -64,6 +67,7 @@ bool HttpResponse::setVersion(const char *start, const size_t length)
 
 void HttpResponse::swap(HttpResponse &that)
 {
+    file_.swap(that.file_);
     headers_.swap(that.headers_);
     std::swap(statusCode_,that.statusCode_);
     statusMessage_.swap(that.statusMessage_);

@@ -20,7 +20,7 @@ void LogFile::rollFile()
 {
     string fileName;
     getLogFileName(fileName);
-    file_ = std::make_unique<writeFile>(fileName);
+    file_ = std::make_unique<WriteFile>(fileName);
 }
 
 void LogFile::getLogFileName(string &name)

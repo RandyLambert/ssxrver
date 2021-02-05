@@ -137,9 +137,9 @@ void Epoll::update(int operation, Channel *channel) const
     if (::epoll_ctl(epollFd, operation, fd, &event) < 0)
     {
         if (operation == EPOLL_CTL_DEL)
-            LOG_SYSERR << "epoll_ctl op=" << operation << " fd=" << fd; //添加失败，不会退出程序
+            LOG_SYSERR << "epoll_ctl op = " << operation << " fd = " << fd; //添加失败，不会退出程序
         else
-            LOG_SYSFATAL << "epoll_ctl op=" << operation << "fd=" << fd; //其他错误直接结束程序
+            LOG_SYSFATAL << "epoll_ctl op = " << operation << "fd = " << fd; //其他错误直接结束程序
     }
 }
 

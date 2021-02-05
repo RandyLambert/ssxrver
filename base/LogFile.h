@@ -7,7 +7,7 @@
 namespace ssxrver::base::file
 {
 
-class writeFile;
+class WriteFile;
 class LogFile : boost::noncopyable
 {
 public:
@@ -24,7 +24,7 @@ private:
     int count_; //暂时用不上
     size_t rollSize_;
     std::unique_ptr<std::mutex> mutex_;
-    std::unique_ptr<file::writeFile> file_;
+    std::unique_ptr<file::WriteFile> file_;
 
     const static int kFlushInterval_ = 5; // 间隔刷新次数，暂时用不上，因为使用文件的时候只是在异步日志的时候用，但是当使用异步日志等等时候，
                                         // 在超时时间之后或者是缓冲区满了之后会刷新，如果不用异步日志模块的话，默认是给标准输出，也没用到LogFile

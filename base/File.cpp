@@ -3,23 +3,25 @@
 #include <boost/assert.hpp>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/sendfile.h>
+#include<sys/stat.h>
 using namespace ssxrver;
 using namespace ssxrver::base::file;
 
-writeFile::writeFile(std::string_view fileName)
+WriteFile::WriteFile(std::string_view fileName)
     : fp_(fopen(fileName.data(), "ae")),
       writeLen_(0)
 {
     int err = ferror(fp_);
-    BOOST_ASSERT_MSG(err,"writeFile error");
+    BOOST_ASSERT_MSG(err,"WriteFile error");
     setbuffer(fp_, buffer_, sizeof buffer_);
 }
-writeFile::~writeFile()
+WriteFile::~WriteFile()
 {
     flush();
     ::fclose(fp_);
 }
-void writeFile::append(const char *log_, const size_t len)
+void WriteFile::append(const char *log_, const size_t len)
 {
     size_t n = 0;
     size_t remain = len;
@@ -30,7 +32,7 @@ void writeFile::append(const char *log_, const size_t len)
         {
             int err = ferror(fp_);
             if (err)
-                fprintf(stderr, "writeFile error");
+                fprintf(stderr, "WriteFile error");
             break;
         }
 
@@ -85,4 +87,32 @@ ReadSmallFile::~ReadSmallFile()
     if(fd_ >= 0){
         ::close(fd_);
     }
+}
+
+SendFileUtil::SendFileUtil(std::string_view fileName):
+    inFd_(::open(fileName.data(), O_RDONLY | O_CLOEXEC)),
+    offset_(0),
+    err_(0) {
+    if (inFd_ < 0)
+    {
+        err_ = errno;
+    } else {
+        struct stat statBuf{};
+        fstat(inFd_,&statBuf);
+        sendLen_ = static_cast<size_t>(statBuf.st_size);
+    }
+}
+
+SendFileUtil::~SendFileUtil()
+{
+    if(inFd_ >= 0) {
+//        LOG_DEBUG<< " close " <<inFd_;
+        ::close(inFd_);
+    }
+}
+
+SendFileUtil::SendFileUtil() : inFd_(-1),
+offset_(0),
+sendLen_(0),
+err_(0) {
 }

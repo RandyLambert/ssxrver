@@ -65,7 +65,7 @@ void Channel::handleEvent()
         guard = tie_.lock(); //weak_ptr的使用
         if (guard)
         {
-            LOG_INFO<<"handle Event "<<"sockFd "<<fd_<<" "<<tie_.use_count();
+            LOG_DEBUG << "handle Event " << "sockFd " << fd_ <<" "<< tie_.use_count();
             handleEventWithGuard();
         }
     }
