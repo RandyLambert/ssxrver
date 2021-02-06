@@ -26,8 +26,10 @@ void threadInitCallback(EventLoop*)
 
 
 HttpServer::HttpServer(EventLoop *loop,
-                       const struct sockaddr_in listenAddr)
-    : server_(loop, listenAddr),
+                       const struct sockaddr_in listenAddr,
+                       int taskProcesses)
+    : threadPoolNumber_(taskProcesses),
+      server_(loop, listenAddr),
       httpCallback_(detail::defaultHttpCallback)
 {
     server_.setConnectionCallback(std::bind(&HttpServer::onConnection,this,std::placeholders::_1));
@@ -39,6 +41,9 @@ HttpServer::HttpServer(EventLoop *loop,
 void HttpServer::start()
 {
     server_.start();
+    if(threadPoolNumber_ > 0){
+        threadPool_.start(threadPoolNumber_);
+    }
 }
 
 void HttpServer::onMessage(const TcpConnectionPtr &conn,
@@ -99,4 +104,5 @@ void HttpServer::onConnection(const TcpConnectionPtr &conn) {
 //    server_.getLoop()->runAfter(2s,[]{ LOG_WARN<<"runAfter1s"; });
 //    server_.getLoop()->runAfter(3s,[]{ LOG_WARN<<"runAfter2s"; });
 //    server_.getLoop()->runEvery(3s,[]{ LOG_WARN<<"runEvery2s"; });
+//    threadPool_.addTask([]{LOG_WARN<<"ThreadPool Task";});
 }

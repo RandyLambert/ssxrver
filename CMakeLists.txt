@@ -36,6 +36,9 @@ add_executable(ssxrver
         base/LogStream.h
         base/Thread.cpp
         base/Thread.h
+        base/ThreadSafeQueue.hpp
+        base/ThreadPool.cpp
+        base/ThreadPool.h
         http/http11_common.h
         http/http11_parser.cpp
         http/http11_parser.h

@@ -12,7 +12,7 @@
 #include "Logging.h"
 #include "EventLoop.h"
 #include "../http/HttpServer.h"
-
+#include "../base/ThreadPool.h"
 using namespace ssxrver::base;
 using namespace ssxrver::net;
 using namespace ssxrver::util;
@@ -28,7 +28,7 @@ void setCPUAffinity() {
         cpu_set_t mask; // CPU 核的集合
         CPU_ZERO(&mask); // 置空
         CPU_SET(cpuNum,&mask);
-        if(pthread_setaffinity_np(pthread_self(), sizeof(mask),&mask) < 0) // 设置 thread CPU 亲和力
+        if(pthread_setaffinity_np(pthread_self(), sizeof(mask),&mask) != 0) // 设置 thread CPU 亲和力
         {
             LOG_SYSERR << "could not set CPU affinity";
         }
@@ -92,7 +92,7 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setContentType("text/html");
         resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
-        resp->setBody("<html><head><title>Fast HttpServer</title></head>"
+        resp->setBody("<html><head_><title>Fast HttpServer</title></head_>"
                       "<body><h1>Hello html</h1></body></html>");
     } else if(req.path() == "/index.html") {
         resp->setStatusCode(HttpResponse::k200Ok);
@@ -130,7 +130,7 @@ void Init::start() {
         serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     net::EventLoop loop;
-    net::HttpServer server(&loop, serv_addr);
+    net::HttpServer server(&loop, serv_addr,std::stoi(confData_("task_processes")));
     server.setHttpCallback(message);
     server.setThreadNum(std::stoi(confData_("worker_processes")));
     server.start();
@@ -185,6 +185,11 @@ void Init::initConf() {
     confData_.Replace(
             ("worker_processes"),
             workerProcesses > 0 ? workerProcesses : 4);
+    int taskProcesses = getTypeConversion<int>(confData_("task_processes"),0);
+
+    confData_.Replace(
+            ("task_processes"),
+            taskProcesses > 0 ? taskProcesses : 0);
 
     string ip;
     for(int i = 0;i < confData_["blocks_ip"].GetArraySize();i++)

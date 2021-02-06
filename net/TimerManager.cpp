@@ -70,14 +70,12 @@ TimerManager::~TimerManager()
     timerFdChannel_.remove();
     ::close(timerFd_);
 }
-// ????
+
 std::weak_ptr<Timer> TimerManager::addTimer(TimerCallback cb, Timer::TimePoint when, Timer::TimeUnit interval)
 {
     std::shared_ptr<Timer> timer = std::make_shared<Timer>(std::move(cb),when,interval);
             loop_->runInLoop( [this,timer]{addTimerInLoop(timer); });
-    if(timer == nullptr){
-        LOG_WARN<<"timer == nullptr";
-    }
+    assert(timer == nullptr);
     return timer;
 }
 

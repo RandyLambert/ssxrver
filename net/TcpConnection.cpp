@@ -263,7 +263,7 @@ void TcpConnection::connectDestroyed()
 
         connectionCallback_(shared_from_this());
     }
-    LOG_DEBUG << "shaped_ptr " << shared_from_this().use_count();
+    LOG_INFO << "shaped_ptr " << shared_from_this().use_count();
     channel_->remove();
 }
 
