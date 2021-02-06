@@ -91,7 +91,7 @@ public:
     }
 
     void setPath(const char *start, const size_t length) { path_.assign(start, length); } //设置路径
-    const string &path() const { return path_; }
+    const std::string &path() const { return path_; }
     void setQuery(const char *start, const size_t length) { query_.assign(start, length); }
     const string &query() const { return query_; }
     void addBody(const char *start, const char *end) { body_.append(start, end); }

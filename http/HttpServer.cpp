@@ -34,7 +34,7 @@ HttpServer::HttpServer(EventLoop *loop,
 {
     server_.setConnectionCallback(std::bind(&HttpServer::onConnection,this,std::placeholders::_1));
     server_.setMessageCallback(bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
-    if(ssxrver::util::Init::getInstance().getConfData()("cpu_affinity") == "on")
+    if(ssxrver::util::Init::getInstance().getCpuAffinity())
         server_.setThreadInitCallback(bind(ssxrver::net::detail::threadInitCallback,std::placeholders::_1));
 }
 

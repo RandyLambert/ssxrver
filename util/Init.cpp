@@ -5,7 +5,6 @@
 #include <boost/assert.hpp>
 #include <cstdlib>
 #include <memory>
-#include <string>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include "Init.h"
@@ -101,6 +100,7 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
         resp->setFile("./html/index.html");
+//        resp->setFile(Init::getInstance().getRootPath() + req.path().substr(1));
     } else if(req.path() == "/favicon.ico") {
         resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");
@@ -115,8 +115,8 @@ void message(const HttpRequest &req, HttpResponse *resp)
     }
 }
 
-void Init::start() {
-    initConf();
+void Init::start(const string& confFilePath) {
+    initConf(confFilePath);
     if(confData_["log"]("ansync_started") == "on")
         initAsyncLogThreadLog();
     ssxrver::Logger::setLogLevel(logMap_[confData_["log"]("level")]);
@@ -137,13 +137,20 @@ void Init::start() {
     loop.loop();
 }
 
-void Init::initConf() {
-
-    file::ReadSmallFile conf("./conf/ssxrver.json");
+void Init::initConf(const string& confFilePath) {
     ssize_t len = 0;
-    [[maybe_unused]] int err = conf.readToBuffer(&len);
-    BOOST_ASSERT_MSG(err >= 0,"读取conf文件失败,请在conf目录下按照ssxrver.json.example的格式创建ssxrver.json文件");
-    confData_ = CJsonObject(conf.buffer());
+    if(confFilePath.empty()) {
+        file::ReadSmallFile conf("./conf/ssxrver.json");
+        [[maybe_unused]] int err = conf.readToBuffer(&len);
+        BOOST_ASSERT_MSG(err >= 0,"读取conf文件失败,请在conf目录下按照ssxrver.json.example的格式创建ssxrver.json文件");
+        confData_ = CJsonObject(conf.buffer());
+    }
+    else {
+        file::ReadSmallFile conf(confFilePath);
+        [[maybe_unused]] int err = conf.readToBuffer(&len);
+        BOOST_ASSERT_MSG(err >= 0,"读取conf文件失败,请在conf目录下按照ssxrver.json.example的格式创建ssxrver.json文件");
+        confData_ = CJsonObject(conf.buffer());
+    }
 
     try{
         if(!(confData_["log"]("ansync_started") == "on") && !(confData_["log"]("ansync_started") == "off")){
@@ -154,7 +161,7 @@ void Init::initConf() {
     }
 
     if(confData_("cpu_affinity") == "on") {
-        cpuMaxNumber_ = sysconf(_SC_NPROCESSORS_CONF); //获取 CPU 核数
+        cpuAffinity_ = true;
         setCPUAffinity();
     }
 
@@ -190,6 +197,8 @@ void Init::initConf() {
     confData_.Replace(
             ("task_processes"),
             taskProcesses > 0 ? taskProcesses : 0);
+
+    rootPath_ = confData_["http"]("root_path").empty() ? "./" : confData_["http"]("root_path");
 
     string ip;
     for(int i = 0;i < confData_["blocks_ip"].GetArraySize();i++)

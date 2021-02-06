@@ -10,7 +10,7 @@
 #include "../http/HttpRequest.h"
 #include "../http/HttpResponse.h"
 #include <unordered_set>
-
+#include <string>
 namespace ssxrver::util
 {
 void setCPUAffinity();
@@ -21,14 +21,15 @@ public:
         static Init instance;
         return instance;
     }
-    void start();
+    void start(const std::string& confFilePath);
     const char* getHttp11() const { return http11_;}
     const char* getHttp10() const {return http10_; }
     const std::unique_ptr<ssxrver::base::AsyncLogThread>& getAsyncLog() const { return asyncLog_;}
     const int& getWorkerConnections() const { return workerConnections_;}
     const int& getHttpMaxBodySize() const { return  httpMaxBodySize_; }
     const std::unordered_set<std::string>& getBlocksIp() const { return  blocksIp_; }
-    const CJsonObject& getConfData() const { return  confData_; }
+    bool getCpuAffinity() const { return cpuAffinity_; }
+    const std::string& getRootPath() const { return rootPath_; }
     long getUsefulCpuNumber() {
         std::scoped_lock<std::mutex> lock(cpuMutex_);
         if(cpuUsedNumber_ >= cpuMaxNumber_) {
@@ -45,10 +46,14 @@ private:
         logMap_({{"DEBUG",ssxrver::Logger::LogLevel::DEBUG},
                 {"INFO",ssxrver::Logger::LogLevel::INFO},
                 {"WARN",ssxrver::Logger::LogLevel::WARN}}),
-        cpuUsedNumber_(0)
+        httpMaxBodySize_(0),
+        workerConnections_(0),
+        cpuUsedNumber_(0),
+        cpuMaxNumber_(sysconf(_SC_NPROCESSORS_CONF)), //获取 CPU 核数
+        cpuAffinity_(false)
     {}
     ~Init() = default;
-    void initConf();
+    void initConf(const std::string& confFilePath);
     void initAsyncLogThreadLog();
     CJsonObject confData_;
     std::unique_ptr<ssxrver::base::AsyncLogThread> asyncLog_;
@@ -61,6 +66,8 @@ private:
     int workerConnections_;
     long cpuUsedNumber_;
     long cpuMaxNumber_;
+    bool cpuAffinity_;
+    std::string rootPath_;
     std::mutex cpuMutex_;
 };
 }
