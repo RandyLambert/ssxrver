@@ -75,6 +75,10 @@ add_executable(ssxrver
         net/TcpConnection.h
         net/TcpServer.cpp
         net/TcpServer.h
+        net/Timer.cpp
+        net/Timer.h
+        net/TimerManager.cpp
+        net/TimerManager.h
         util/Init.cpp
         util/Init.h
         main.cpp)

@@ -100,7 +100,7 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setContentType("text/plain");
         resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
-        resp->setFile("./index.html");
+        resp->setFile("./html/index.html");
     } else if(req.path() == "/favicon.ico") {
         resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");

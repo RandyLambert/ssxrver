@@ -3,7 +3,7 @@
 #include "EventLoop.h"
 #include "Channel.h"
 #include "Epoll.h"
-
+#include "TimerManager.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 namespace
@@ -39,6 +39,7 @@ EventLoop::EventLoop()
       callingPendingFunctors_(false),
       threadId_(CurrentThread::tid()),
       epoll_(std::make_unique<Epoll>(this)),
+      timerManger_(std::make_unique<TimerManager>(this)),
       wakeupFd_(createEventfd()), //创建一个eventFd
       wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_))
 {
@@ -178,4 +179,20 @@ void EventLoop::createConnection(int sockFd, const ConnectionCallback &connectCa
 
     epoll_->createConnection(sockFd, connectCallback, messageCallback, writeCompleteCallback);
 
+}
+
+std::weak_ptr<Timer> EventLoop::runAt(const Timer::TimePoint& time, TimerCallback cb)
+{
+    return timerManger_->addTimer(std::move(cb),time,Timer::TimeUnit());
+}
+
+std::weak_ptr<Timer> EventLoop::runEvery(const Timer::TimeUnit &interval, TimerCallback cb)
+{
+    Timer::TimePoint time = std::chrono::steady_clock::now() + interval;
+    return timerManger_->addTimer(std::move(cb),time,interval);
+}
+
+std::weak_ptr<Timer> EventLoop::runAfter(const Timer::TimeUnit &delay, TimerCallback cb) {
+    Timer::TimePoint time = std::chrono::steady_clock::now() + delay;
+    return timerManger_->addTimer(std::move(cb),time,Timer::TimeUnit());
 }

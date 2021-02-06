@@ -27,7 +27,7 @@ void HttpResponse::appendToBuffer(Buffer *output) const
     }
     else
     {
-        if(file_)
+        if(file_ == nullptr)
             snprintf(buf, sizeof(buf), "Content-Length: %zd\r\n", body_.size());
         else
             snprintf(buf, sizeof(buf), "Content-Length: %zd\r\n", body_.size() + static_cast<unsigned long>(file_->getSendLen())); //如果是长连接才需要这一行头部信息，来说明包的实体长度

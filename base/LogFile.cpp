@@ -29,9 +29,9 @@ void LogFile::getLogFileName(string &name)
     struct tm tm{};
     now = time(nullptr);
     gmtime_r(&now, &tm);
-    char timebuf[32];
-    strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
-    name = baseName_ + timebuf;
+    char timeBuf[32];
+    strftime(timeBuf, sizeof timeBuf, ".%Y%m%d-%H%M%S.", &tm);
+    name = baseName_ + timeBuf;
     name += "log";
 }
 

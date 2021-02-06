@@ -6,6 +6,7 @@
 #include <atomic>
 #include <boost/noncopyable.hpp>
 #include <mutex>
+#include <chrono>
 #include "../base/CurrentThread.h"
 #include "../base/Thread.h"
 #include "CallBacks.h"
@@ -14,7 +15,8 @@ namespace ssxrver::net
 {
 class Channel;
 class Epoll;
-
+class TimerManager;
+class Timer;
 class EventLoop : boost::noncopyable
 {
 public:
@@ -26,6 +28,10 @@ public:
 
     void runInLoop(const Functor& cb);
     void queueInLoop(const Functor& cb);
+    std::weak_ptr<Timer> runAt(const std::chrono::steady_clock::time_point &time,TimerCallback cb);
+    std::weak_ptr<Timer> runEvery(const std::chrono::nanoseconds &interval,TimerCallback cb);
+    std::weak_ptr<Timer> runAfter(const std::chrono::nanoseconds &delay,TimerCallback cb);
+
     size_t queueSize() const;
 
     void wakeup() const;
@@ -60,7 +66,7 @@ private:
     const pid_t threadId_;
 
     std::unique_ptr<Epoll> epoll_;
-
+    std::unique_ptr<TimerManager> timerManger_;
     int wakeupFd_;
     std::unique_ptr<Channel> wakeupChannel_;
 
