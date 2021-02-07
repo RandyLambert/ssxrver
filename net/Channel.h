@@ -41,9 +41,9 @@ public:
         errorCallback_ = std::move(cb);
     }
 
-    void tie(std::shared_ptr<TcpConnection> &); //和tcpconnection对象有关系，防止对象销毁
-    std::shared_ptr<TcpConnection> getTie();
-
+//    void tie(std::shared_ptr<TcpConnection> &); //和tcpconnection对象有关系，防止对象销毁
+//    std::shared_ptr<TcpConnection> getTie();
+//    [[nodiscard]] bool isTie() const { return tied_;}
     [[nodiscard]] int fd() const { return fd_; }                             //channel对应的文件描述符
     [[nodiscard]] unsigned events() const { return events_; }                //channel注册了那些时间保存在events中
     void setRevents(unsigned revents) { revents_ = revents; }            //epoll
@@ -74,8 +74,8 @@ private:
     int status_;      //epoll中通道的状态
     bool logHup_;     //for EPOLLHUP
 
-    std::weak_ptr<TcpConnection> tie_;
-    bool tied_;
+//    std::weak_ptr<TcpConnection> tie_;
+//    bool tied_;
     bool eventHandling_; //是否在处理事件中
     bool addedToLoop_;
     ReadEventCallback readCallback_;

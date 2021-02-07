@@ -41,7 +41,7 @@ void TcpServer::setThreadNum(int numThreads)
 }
 
 //该函数可以跨线程调用
-void TcpServer::acceptSockListen()
+void TcpServer::acceptSocketListen()
 {
     socketops::listenOrDie(acceptFd_);
     acceptChannel_.enableEvents(kReadEventET);
@@ -91,13 +91,12 @@ void TcpServer::start() //这个函数就是的Acceptor处于监听状态
     {
         started_ = true;
         threadPool_->start(threadInitCallback_);
-        loop_->runInLoop([this] { acceptSockListen(); });
+        loop_->runInLoop([this] { acceptSocketListen(); });
     }
 }
 
 void TcpServer::newConnection(int sockFd)
 {
-    LOG_DEBUG<<"newConnection "<<sockFd;
     loop_->assertInLoopThread(); //断言在io线程
     //按照轮叫的方式选择一个eventLoop，将这个歌新连接交给这个eventLoop
     EventLoop *ioLoop = threadPool_->getNextLoop(); //选出这个io线程

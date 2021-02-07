@@ -20,7 +20,7 @@ Channel::Channel(EventLoop *loop, int fd)
       revents_(0),
       status_(-1),
       logHup_(true),
-      tied_(false),
+//      tied_(false),
       eventHandling_(false),
       addedToLoop_(false)
 {
@@ -33,16 +33,16 @@ Channel::~Channel()
     close(fd_);
 }
 
-std::shared_ptr<TcpConnection> Channel::getTie()
-{
-    std::shared_ptr<TcpConnection> temp(tie_.lock());
-    return temp;
-}
-void Channel::tie(std::shared_ptr<TcpConnection> &obj)
-{
-    tie_ = obj;
-    tied_ = true;
-}
+//std::shared_ptr<TcpConnection> Channel::getTie()
+//{
+//    std::shared_ptr<TcpConnection> temp(tie_.lock());
+//    return temp;
+//}
+//void Channel::tie(std::shared_ptr<TcpConnection> &obj)
+//{
+//    tie_ = obj;
+//    tied_ = true;
+//}
 
 void Channel::update()
 {
@@ -59,20 +59,20 @@ void Channel::remove()
 
 void Channel::handleEvent()
 {
-    std::shared_ptr<void> guard;
-    if (tied_)
-    {
-        guard = tie_.lock(); //weak_ptr的使用
-        if (guard)
-        {
-            LOG_DEBUG << "handle Event " << "sockFd " << fd_ <<" "<< tie_.use_count();
-            handleEventWithGuard();
-        }
-    }
-    else
-    {
+//    std::shared_ptr<void> guard;
+//    if (tied_)
+//    {
+//        guard = tie_.lock(); //weak_ptr的使用
+//        if (guard)
+//        {
+//            LOG_DEBUG << "handle Event " << "sockFd " << fd_ <<" "<< tie_.use_count();
+//            handleEventWithGuard();
+//        }
+//    }
+//    else
+//    {
         handleEventWithGuard();
-    }
+//    }
 }
 
 void Channel::handleEventWithGuard()
@@ -113,7 +113,7 @@ void Channel::channelReset(int socketId) {
     revents_ = 0,
     status_ = -1,
     logHup_ = true,
-    tied_ = false,
+//    tied_ = false,
     eventHandling_ = false,
     addedToLoop_ = false;
 }

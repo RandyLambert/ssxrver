@@ -17,11 +17,9 @@ ThreadPool::~ThreadPool() {
         stop();
     }
 }
-
+// FIXME: stop have problem
 void ThreadPool::stop() {
     running_ = false;
-    for(unsigned i = 0;i < threads_.size();i++)
-        taskQueue_.push([]{});
 }
 
 void ThreadPool::start(unsigned numThreads) {

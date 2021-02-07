@@ -29,7 +29,7 @@ public:
     void setMessageCallback(MessageCallback cb) { messageCallback_ = std::move(cb); }
     void setWriteCompleteCallback(WriteCompleteCallback cb) { writeCompleteCallback_ = std::move(cb); }
     void setConnectionCallback(ConnectionCallback cb) { connectionCallback_ = std::move(cb); }
-    void acceptSockListen();
+    void acceptSocketListen();
 
 private:
     void newConnection(int sockFd);

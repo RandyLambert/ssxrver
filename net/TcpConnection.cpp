@@ -141,8 +141,7 @@ void TcpConnection::sendInLoop(std::string_view data, size_t len)
             {
                 LOG_DEBUG << "sendInLoop";
                 sendFileReset();
-                loop_->queueInLoop([ptr = shared_from_this()]{ptr->writeCompleteCallback_(ptr);});
-//                loop_->queueInLoop([test = shared_from_this()]{test->writeCompleteCallback_(test);} );
+                loop_->queueInLoop([ptr = shared_from_this()]{ptr->writeCompleteCallback_(ptr);});;
             }
         }
         else //nwrote < 0，出错了
@@ -245,7 +244,6 @@ void TcpConnection::stopReadInLoop()
 void TcpConnection::connectEstablished()
 {
     loop_->assertInLoopThread();
-    LOG_DEBUG<<"TcpConnectionEstablished "<<"sockFd "<<sockFd_<<" "<<shared_from_this().use_count();
     assert(state_ == kConnecting);
     setState(kConnected);
     channel_->enableEvents(kReadEventLT);
@@ -260,10 +258,8 @@ void TcpConnection::connectDestroyed()
     {
         setState(kDisconnected);
         channel_->disableAll();
-
         connectionCallback_(shared_from_this());
     }
-    LOG_INFO << "shaped_ptr " << shared_from_this().use_count();
     channel_->remove();
 }
 
@@ -343,7 +339,6 @@ void TcpConnection::handleWrite()
             }
             else
                 LOG_SYSERR << "TcpConnection::handleWrite " << sendFile_->getInId(); //发生错误
-                abort();
         }
     }
 }
@@ -355,8 +350,7 @@ void TcpConnection::handleClose()
     setState(kDisconnected);
     channel_->disableAll();
 
-    TcpConnectionPtr guardThis(shared_from_this());
-    closeCallback_(guardThis); //调用tcpserverremoveconnection
+    closeCallback_(shared_from_this()); //调用tcpserverremoveconnection
 }
 
 void TcpConnection::handleError()

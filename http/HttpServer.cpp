@@ -32,10 +32,10 @@ HttpServer::HttpServer(EventLoop *loop,
       server_(loop, listenAddr),
       httpCallback_(detail::defaultHttpCallback)
 {
-    server_.setConnectionCallback(std::bind(&HttpServer::onConnection,this,std::placeholders::_1));
-    server_.setMessageCallback(bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2));
+    server_.setConnectionCallback([this](auto &&PH1){ onConnection(PH1);});
+    server_.setMessageCallback([this] (auto &&PH1,auto &&PH2){ onMessage(PH1, PH2); });
     if(ssxrver::util::Init::getInstance().getCpuAffinity())
-        server_.setThreadInitCallback(bind(ssxrver::net::detail::threadInitCallback,std::placeholders::_1));
+        server_.setThreadInitCallback([] (auto &&PH1){ return ssxrver::net::detail::threadInitCallback(PH1); });
 }
 
 void HttpServer::start()

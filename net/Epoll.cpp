@@ -82,11 +82,6 @@ void Epoll::updateChannel(Channel *channel)
         {
 //            channels_.insert({fd,channel}); //新的，就加到关注队列
             channels_[fd] = channel;
-            if(channel->getTie().use_count() != 0) {
-//                connections_.insert({fd,channel->getTie()});
-                connections_[fd] = channel->getTie();
-                LOG_DEBUG<<"fd "<<fd<<" update Channel "<<connections_[fd].use_count();
-            }
         }
         channel->setStatus(kAdded);
         update(EPOLL_CTL_ADD, channel);
@@ -108,13 +103,8 @@ void Epoll::removeChannel(Channel *channel)
     ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
     int status_ = channel->status();
-//    if (channels_.erase(fd) == 0)
-//        LOG_FATAL << "erase channel";
-//    if (connections_.erase(fd) == 0)
-//        LOG_FATAL << "erase connection";
-    LOG_DEBUG<<"connection shared_ptr num = "<<connections_[fd].use_count();
     if (connections_.count(fd) != 0) {
-        connectionsPool.emplace_back(connections_[fd]);
+        connectionsPool.emplace_back(std::move(connections_[fd]));
 //        connections_.erase(fd);
         ::close(fd);
     }
@@ -150,7 +140,7 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
         connectionsPool.back()->connectReset(sockFd);
         connections_[sockFd] = std::move(connectionsPool.back());
         connectionsPool.pop_back();
-        ownerLoop_->queueInLoop([conn = connections_[sockFd]] { conn->connectEstablished(); });
+        ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
     else {
         TcpConnectionPtr conn = std::make_shared<TcpConnection>(ownerLoop_, //所属ioLoop
@@ -160,14 +150,15 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
         conn->setWriteCompleteCallback(writeCompleteCallback);
         conn->setCloseCallback(
                 [this](auto && PH1) { removeConnection(PH1); });
-        conn->getChannel()->tie(conn);
-        ownerLoop_->queueInLoop([conn] { conn->connectEstablished(); });
+//        conn->getChannel()->tie(conn);
+        connections_[sockFd] = std::move(conn);
+        ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
 }
 
 void Epoll::removeConnection(const TcpConnectionPtr &conn)
 {
     ownerLoop_->runInLoop(
-            [conn] { conn->connectDestroyed(); });
+            [&conn] { conn->connectDestroyed(); });
 }
 
