@@ -69,11 +69,11 @@ void TcpConnection::send(std::string_view message){
     }
     else
     {
-        loop_->runInLoop([this,message]{sendInLoop(message,message.size()); });
+        loop_->runInLoop([this,&message]{sendInLoop(message,message.size()); });
     }
 }
 
-void TcpConnection::sendInLoop(std::string_view data, size_t len)
+void TcpConnection::sendInLoop(const std::string_view& data, size_t len)
 {
     loop_->assertInLoopThread();
     ssize_t nwrote = 0;

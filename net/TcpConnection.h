@@ -71,7 +71,7 @@ private:
     void handleClose();
     void handleError();
 
-    void sendInLoop(std::string_view message, size_t len);
+    void sendInLoop(const std::string_view& message, size_t len);
     void shutdownInLoop();
     void forceCloseInLoop();
 
