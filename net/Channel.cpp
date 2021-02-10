@@ -1,7 +1,7 @@
 #include <sys/epoll.h>
 #include "EventLoop.h"
 #include "Channel.h"
-#include "TcpConnection.h"
+#include "Connection.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 
@@ -19,8 +19,6 @@ Channel::Channel(EventLoop *loop, int fd)
       events_(0),
       revents_(0),
       status_(-1),
-      logHup_(true),
-//      tied_(false),
       eventHandling_(false),
       addedToLoop_(false)
 {
@@ -32,17 +30,6 @@ Channel::~Channel()
     assert(!addedToLoop_);
     close(fd_);
 }
-
-//std::shared_ptr<TcpConnection> Channel::getTie()
-//{
-//    std::shared_ptr<TcpConnection> temp(tie_.lock());
-//    return temp;
-//}
-//void Channel::tie(std::shared_ptr<TcpConnection> &obj)
-//{
-//    tie_ = obj;
-//    tied_ = true;
-//}
 
 void Channel::update()
 {
@@ -59,31 +46,9 @@ void Channel::remove()
 
 void Channel::handleEvent()
 {
-//    std::shared_ptr<void> guard;
-//    if (tied_)
-//    {
-//        guard = tie_.lock(); //weak_ptr的使用
-//        if (guard)
-//        {
-//            LOG_DEBUG << "handle Event " << "sockFd " << fd_ <<" "<< tie_.use_count();
-//            handleEventWithGuard();
-//        }
-//    }
-//    else
-//    {
-        handleEventWithGuard();
-//    }
-}
-
-void Channel::handleEventWithGuard()
-{
     eventHandling_ = true;
     if ((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN)) //判断一下返回的事件，进行处理
     {
-        if (logHup_)
-        {
-            LOG_WARN << "Channel::handle_event() EPOLLHUP";
-        }
         if (closeCallback_)
             closeCallback_();
     }
@@ -112,8 +77,6 @@ void Channel::channelReset(int socketId) {
     events_ = 0,
     revents_ = 0,
     status_ = -1,
-    logHup_ = true,
-//    tied_ = false,
     eventHandling_ = false,
     addedToLoop_ = false;
 }

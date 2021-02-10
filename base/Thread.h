@@ -13,12 +13,11 @@ class Thread : boost::noncopyable
 {
 public:
     using ThreadFunc = std::function<void()>;
-    explicit Thread(ThreadFunc,std::string name = "DefaultThread");
+    explicit Thread(ThreadFunc);
     ~Thread();
 
     void start(); //初始化
     [[nodiscard]] bool started() const { return started_; }
-    const std::string &name() { return name_; }
 
 private:
 
@@ -26,7 +25,6 @@ private:
     std::unique_ptr<std::thread> thread_;
     pid_t tid_;           //该线程在计算机中的唯一标识
     ThreadFunc func_;     //函数接口
-    std::string name_;
     boost::latch latch_;
 
 };

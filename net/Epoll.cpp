@@ -2,20 +2,14 @@
 #include <sys/epoll.h>
 #include "Epoll.h"
 #include "Channel.h"
-#include "TcpConnection.h"
+#include "Connection.h"
 
 using namespace ssxrver;
 using namespace ssxrver::net;
-enum
-{
-    kNew = -1,   //三种状态对应的是啥，刚构造了一个channel对象，初始化时是-1，还没有添加到epoll中关注
-    kAdded = 1,  //在epollWait上关注
-    kDeleted = 2 //删除
-};
 
 Epoll::Epoll(EventLoop *loop)
     : epollFd(::epoll_create1(EPOLL_CLOEXEC)),
-      events_(kInitEventListSize),
+      events_(kInitEventSize),
       ownerLoop_(loop)
 {
     if (epollFd < 0)
@@ -34,7 +28,7 @@ Epoll::~Epoll()
     ::close(epollFd);
 }
 
-void Epoll::poll(ChannelList *activeChannels)
+void Epoll::poll(ChannelVec *activeChannels)
 {
     int numEvents = ::epoll_wait(epollFd,
                                  &*events_.begin(), //事件动态数组，提前设好大小
@@ -61,7 +55,7 @@ void Epoll::poll(ChannelList *activeChannels)
 }
 
 void Epoll::fillActiveChannels(int numEvents,                     //返回活跃的事件个数
-                                 ChannelList *activeChannels) const //返回活跃的事件
+                                 ChannelVec *activeChannels) const //返回活跃的事件
 {
     for (int i = 0; i < numEvents; i++)
     {
@@ -80,7 +74,6 @@ void Epoll::updateChannel(Channel *channel)
         int fd = channel->fd(); //如果是新的通道，取他的fd值
         if (status_ == kNew)
         {
-//            channels_.insert({fd,channel}); //新的，就加到关注队列
             channels_[fd] = channel;
         }
         channel->setStatus(kAdded);
@@ -104,8 +97,6 @@ void Epoll::removeChannel(Channel *channel)
     int fd = channel->fd();
     int status_ = channel->status();
     if (connections_.count(fd) != 0) {
-        connectionsPool.emplace_back(std::move(connections_[fd]));
-//        connections_.erase(fd);
         ::close(fd);
     }
     else {
@@ -136,22 +127,19 @@ void Epoll::update(int operation, Channel *channel) const
 void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallback,
                              const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback)
 {
-    if(!connectionsPool.empty()){
-        connectionsPool.back()->connectReset(sockFd);
-        connections_[sockFd] = std::move(connectionsPool.back());
-        connectionsPool.pop_back();
+    if(connections_.count(sockFd) != 0){
+        connections_[sockFd]->connectReset(sockFd);
         ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
     else {
-        TcpConnectionPtr conn = std::make_shared<TcpConnection>(ownerLoop_, //所属ioLoop
+        TcpConnectionPtr conn = std::make_shared<Connection>(ownerLoop_, //所属ioLoop
                                                                 sockFd);
         conn->setConnectionCallback(connectCallback);
         conn->setMessageCallback(messageCallback);
         conn->setWriteCompleteCallback(writeCompleteCallback);
         conn->setCloseCallback(
                 [this](auto && PH1) { removeConnection(PH1); });
-//        conn->getChannel()->tie(conn);
-        connections_[sockFd] = std::move(conn);
+        connections_.insert({sockFd,std::move(conn)});
         ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
 }

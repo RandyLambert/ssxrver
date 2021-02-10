@@ -1,5 +1,5 @@
-#ifndef SSXRVER_NET_TCPCONNECTION_H
-#define SSXRVER_NET_TCPCONNECTION_H
+#ifndef SSXRVER_NET_CONNECTION_H
+#define SSXRVER_NET_CONNECTION_H
 #include <memory>
 #include <netinet/in.h>
 #include <functional>
@@ -15,13 +15,13 @@ namespace ssxrver::net
 class EventLoop;
 class Channel;
 
-class TcpConnection : boost::noncopyable,
-                      public std::enable_shared_from_this<TcpConnection>
+class Connection : boost::noncopyable,
+                   public std::enable_shared_from_this<Connection>
 {
 public:
-    explicit TcpConnection(EventLoop *loop,
-                  int sockFd);
-    ~TcpConnection();
+    explicit Connection(EventLoop *loop,
+                        int sockFd);
+    ~Connection();
 
     EventLoop *getLoop() const { return loop_; }
 
@@ -95,7 +95,7 @@ private:
     bool reading_;
 };
 
-typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::shared_ptr<Connection> TcpConnectionPtr;
 } // namespace ssxrver
 
 #endif

@@ -32,8 +32,6 @@ public:
     std::weak_ptr<Timer> runEvery(const std::chrono::nanoseconds &interval,TimerCallback cb);
     std::weak_ptr<Timer> runAfter(const std::chrono::nanoseconds &delay,TimerCallback cb);
 
-    size_t queueSize() const;
-
     void wakeup() const;
     void updateChannel(Channel *channel); //在poller中添加或者更新通道
     void removeChannel(Channel *channel); //在poller中移除通道
@@ -56,13 +54,13 @@ public:
 private:
     void abortNotInLoopThread();
     void handleRead() const;
-    void doPendingFunctors(); //执行转交给I\O的任务
+    void runFunctors(); //执行转交给I\O的任务
 
-    using ChannelList = std::vector<Channel *>; //事件分发器列表
+    using ChannelVec = std::vector<Channel *>; //事件分发器列表
     bool looping_;
     std::atomic<bool> quit_;
     bool eventHandling_;
-    bool callingPendingFunctors_;
+    bool callingFunctors_;
     const pid_t threadId_;
 
     std::unique_ptr<Epoll> epoll_;
@@ -70,10 +68,10 @@ private:
     int wakeupFd_;
     std::unique_ptr<Channel> wakeupChannel_;
 
-    ChannelList activeChannels_;
+    ChannelVec activeChannels_;
 
     mutable std::mutex mutex_;
-    std::vector<Functor> pendingFunctors_;
+    std::vector<Functor> functors_;
 };
 } // namespace ssxrver::net
 #endif

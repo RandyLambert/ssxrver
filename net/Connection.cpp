@@ -1,6 +1,6 @@
 #include <cerrno>
 #include "../base/Logging.h"
-#include "TcpConnection.h"
+#include "Connection.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "SocketOps.h"
@@ -18,8 +18,8 @@ void ssxrver::net::defaultConnectionCallback(const TcpConnectionPtr &conn)
     LOG_DEBUG << (conn->connected() ? "up" : "down");
 }
 
-TcpConnection::TcpConnection(EventLoop *loop,
-                             int sockFd)
+Connection::Connection(EventLoop *loop,
+                       int sockFd)
     : loop_(loop),
       state_(kConnecting),
       sockFd_(sockFd),
@@ -39,13 +39,13 @@ TcpConnection::TcpConnection(EventLoop *loop,
     socketops::setKeepAlive(sockFd_, true);
 }
 
-TcpConnection::~TcpConnection()
+Connection::~Connection()
 {
     assert(state_ == kDisconnected);
 }
 
 
-void TcpConnection::send(Buffer *buf)
+void Connection::send(Buffer *buf)
 {
     if (state_ == kConnected)
     {
@@ -61,7 +61,7 @@ void TcpConnection::send(Buffer *buf)
     }
 }
 
-void TcpConnection::send(std::string_view message){
+void Connection::send(std::string_view message){
     if (state_ == kConnected)
     {
         if (loop_->isInLoopThread())
@@ -73,7 +73,7 @@ void TcpConnection::send(std::string_view message){
     }
 }
 
-void TcpConnection::sendInLoop(const std::string_view& data, size_t len)
+void Connection::sendInLoop(const std::string_view& data, size_t len)
 {
     loop_->assertInLoopThread();
     ssize_t nwrote = 0;
@@ -110,7 +110,7 @@ void TcpConnection::sendInLoop(const std::string_view& data, size_t len)
             nwrote = 0;
             if (errno != EWOULDBLOCK)
             {
-                LOG_SYSERR << "TcpConnection::sendInLoop";
+                LOG_SYSERR << "Connection::sendInLoop";
                 if (errno == EPIPE || errno == ECONNRESET)
                 {
                     faultError = true;
@@ -141,14 +141,14 @@ void TcpConnection::sendInLoop(const std::string_view& data, size_t len)
             {
                 LOG_DEBUG << "sendInLoop";
                 sendFileReset();
-                loop_->queueInLoop([ptr = shared_from_this()]{ptr->writeCompleteCallback_(ptr);});;
+                loop_->queueInLoop([ptr = shared_from_this()]{ptr->writeCompleteCallback_(ptr);});
             }
         }
         else //nwrote < 0，出错了
         {
             if (errno != EWOULDBLOCK)
             {
-                LOG_SYSERR << "TcpConnection::sendInLoop";
+                LOG_SYSERR << "Connection::sendInLoop";
                 if (errno == EPIPE || errno == ECONNRESET)
                 {
                     faultError = true;
@@ -167,7 +167,7 @@ void TcpConnection::sendInLoop(const std::string_view& data, size_t len)
     }
 }
 
-void TcpConnection::shutdown()
+void Connection::shutdown()
 {
     //应用程序想关闭连接，但是有可能正处于发送数据的过程中，output buffer中有数据还没发送完，不能调用close()
     //保证conn->send(buff);只要网络没有故障，保证必须发到对端
@@ -181,14 +181,14 @@ void TcpConnection::shutdown()
     }
 }
 
-void TcpConnection::shutdownInLoop()
+void Connection::shutdownInLoop()
 {
     loop_->assertInLoopThread();
     if (!channel_->isWriting())
         socketops::shutdownWrite(sockFd_);
 }
 
-void TcpConnection::forceClose()
+void Connection::forceClose()
 {
     if (state_ == kConnected || state_ == kDisconnecting)
     {
@@ -197,7 +197,7 @@ void TcpConnection::forceClose()
     }
 }
 
-void TcpConnection::forceCloseInLoop()
+void Connection::forceCloseInLoop()
 {
     loop_->assertInLoopThread();
     if (state_ == kConnected || state_ == kDisconnecting)
@@ -206,17 +206,17 @@ void TcpConnection::forceCloseInLoop()
     }
 }
 
-void TcpConnection::setTcpNoDelay(bool on) const
+void Connection::setTcpNoDelay(bool on) const
 {
     socketops::setTcpNoDelay(sockFd_, on);
 }
 
-void TcpConnection::startRead()
+void Connection::startRead()
 {
     loop_->runInLoop([this] { startReadInLoop(); });
 }
 
-void TcpConnection::startReadInLoop()
+void Connection::startReadInLoop()
 {
     loop_->assertInLoopThread();
     if (!reading_ || !channel_->isReading())
@@ -226,12 +226,12 @@ void TcpConnection::startReadInLoop()
     }
 }
 
-void TcpConnection::stopRead()
+void Connection::stopRead()
 {
     loop_->runInLoop([this] { stopReadInLoop(); });
 }
 
-void TcpConnection::stopReadInLoop()
+void Connection::stopReadInLoop()
 {
     loop_->assertInLoopThread();
     if (reading_ || channel_->isReading())
@@ -241,7 +241,7 @@ void TcpConnection::stopReadInLoop()
     }
 }
 
-void TcpConnection::connectEstablished()
+void Connection::connectEstablished()
 {
     loop_->assertInLoopThread();
     assert(state_ == kConnecting);
@@ -251,7 +251,7 @@ void TcpConnection::connectEstablished()
     connectionCallback_(shared_from_this());
 }
 
-void TcpConnection::connectDestroyed()
+void Connection::connectDestroyed()
 {
     loop_->assertInLoopThread();
     if (state_ == kConnected)
@@ -263,7 +263,7 @@ void TcpConnection::connectDestroyed()
     channel_->remove();
 }
 
-void TcpConnection::handleRead()
+void Connection::handleRead()
 {
     LOG_DEBUG << "handleRead";
     loop_->assertInLoopThread();
@@ -280,12 +280,12 @@ void TcpConnection::handleRead()
     else
     {
         errno = saveErrno;
-        LOG_SYSERR << "TcpConnection::handleRead";
+        LOG_SYSERR << "Connection::handleRead";
         handleError();
     }
 }
 
-void TcpConnection::handleWrite()
+void Connection::handleWrite()
 {
     loop_->assertInLoopThread();
     if (channel_->isWriting()) //如果关注epollout时间
@@ -314,7 +314,7 @@ void TcpConnection::handleWrite()
                 }
             }
             else
-                LOG_SYSERR << "TcpConnection::handleWrite"; //发生错误
+                LOG_SYSERR << "Connection::handleWrite"; //发生错误
         } else if(sendFile_) {
             ssize_t n = socketops::sendfile(channel_->fd(), sendFile_->getInId(), sendFile_->getOffset(), sendFile_->getSendLen());
             if (n > 0) //不一定写完了，写了n个字节
@@ -338,12 +338,12 @@ void TcpConnection::handleWrite()
                 }
             }
             else
-                LOG_SYSERR << "TcpConnection::handleWrite " << sendFile_->getInId(); //发生错误
+                LOG_SYSERR << "Connection::handleWrite " << sendFile_->getInId(); //发生错误
         }
     }
 }
 
-void TcpConnection::handleClose()
+void Connection::handleClose()
 {
     loop_->assertInLoopThread();
     assert(state_ == kConnected || state_ == kDisconnecting);
@@ -353,17 +353,17 @@ void TcpConnection::handleClose()
     closeCallback_(shared_from_this()); //调用tcpserverremoveconnection
 }
 
-void TcpConnection::handleError()
+void Connection::handleError()
 {
     int err = socketops::getSocketError(channel_->fd());
     if(err != 104) //忽略Connection reset by peer错误,不输出log
     {
-        LOG_ERROR << "TcpConnection::handleError "
+        LOG_ERROR << "Connection::handleError "
                   << "- SO_ERROR = " << err << " " << strerror_tl(err);
     }
 }
 
-void TcpConnection::connectReset(int sockFd)
+void Connection::connectReset(int sockFd)
 {
     state_ = kConnecting;
     sockFd_ = sockFd;

@@ -9,7 +9,7 @@ AsyncLogThread::AsyncLogThread(std::string basename, int flushSecond,size_t roll
       rollSize_(rollSize),
       running_(false),
       basename_(std::move(basename)),
-      thread_([this] { threadFunc(); }, "AsyncLogThread"),
+      thread_([this] { threadFunc(); }),
       mutex_(),
       cond_(),
       currentBuffer_(std::make_unique<Buffer>()),

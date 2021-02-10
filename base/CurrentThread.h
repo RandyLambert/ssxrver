@@ -8,7 +8,6 @@ namespace ssxrver::CurrentThread
 {
 extern thread_local int t_cachedTid;
 extern thread_local std::string t_tidString;
-extern thread_local std::string t_threadName;
 
 inline int tid()
 {
@@ -21,7 +20,6 @@ inline int tid()
 }
 
 inline const char *tidString() { return t_tidString.c_str(); }
-inline const char *name() { return t_threadName.c_str(); }
 bool isMainThread();
 
 } // namespace ssxrver::CurrentThread

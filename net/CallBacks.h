@@ -16,28 +16,22 @@
 #include <functional>
 #include <memory>
 
-namespace ssxrver
+namespace ssxrver::net
 {
-    using std::placeholders::_1;
-    using std::placeholders::_2;
-    namespace net
-    {
-        class Buffer;
-        class TcpConnection;
-        using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
-        using ConnectionCallback = std::function<void (const TcpConnectionPtr&)>;
-        using CloseCallback = std::function<void (const TcpConnectionPtr&)>;
-        using WriteCompleteCallback = std::function<void (const TcpConnectionPtr&)>;
-        using TimerCallback = std::function<void()>;
-        using MessageCallback = std::function<void (const TcpConnectionPtr&,
-                                    Buffer*)>;
+    class Buffer;
+    class Connection;
+    using TcpConnectionPtr = std::shared_ptr<Connection>;
+    using ConnectionCallback = std::function<void (const TcpConnectionPtr&)>;
+    using CloseCallback = std::function<void (const TcpConnectionPtr&)>;
+    using WriteCompleteCallback = std::function<void (const TcpConnectionPtr&)>;
+    using TimerCallback = std::function<void()>;
+    using MessageCallback = std::function<void (const TcpConnectionPtr&,
+                                Buffer*)>;
 
-        void defaultConnectionCallback(const TcpConnectionPtr& conn);
-        void defaultMessageCallback(const TcpConnectionPtr& conn,
-                                    Buffer* buffer);
-
-    }  // namespace net
-}  // namespace ssxrver
+    void defaultConnectionCallback(const TcpConnectionPtr& conn);
+    void defaultMessageCallback(const TcpConnectionPtr& conn,
+                                Buffer* buffer);
+}  // namespace ssxrver::net
 
 
 #endif //SSXRVER_NET_CALLBACKS_H

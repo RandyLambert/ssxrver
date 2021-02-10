@@ -41,3 +41,4 @@ build/
 logs/
 cmake-build-debug
 conf/ssxrver.json
+.idea/
