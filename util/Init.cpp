@@ -81,7 +81,6 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");
         resp->setContentType("text/plain");
-        resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
         resp->setBody("Hello ssxrver!\n");
     }
@@ -89,7 +88,6 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");
         resp->setContentType("text/html");
-        resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
         resp->setBody("<html><head_><title>Fast HttpServer</title></head_>"
                       "<body><h1>Hello html</h1></body></html>");
@@ -97,7 +95,6 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");
         resp->setContentType("text/plain");
-        resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->addHeader("Server", "ssxrver");
         resp->setFile("./html/index.html");
 //        resp->setFile(Init::getInstance().getRootPath() + req.path().substr(1));
@@ -105,12 +102,10 @@ void message(const HttpRequest &req, HttpResponse *resp)
         resp->setStatusCode(HttpResponse::k200Ok);
         resp->setStatusMessage("OK");
         resp->setContentType("image/png");
-        resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->setBody(string(favicon,sizeof(favicon)));
     } else {
         resp->setStatusCode(HttpResponse::k404NotFound);
         resp->setStatusMessage("Not Found");
-        resp->setVersion(Init::getInstance().getHttp11(),8);
         resp->setCloseConnection(true);
     }
 }

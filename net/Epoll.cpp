@@ -97,6 +97,7 @@ void Epoll::removeChannel(Channel *channel)
     int fd = channel->fd();
     int status_ = channel->status();
     if (connections_.count(fd) != 0) {
+        connectionsPool.emplace_back(std::move(connections_[fd]));
         ::close(fd);
     }
     else {
@@ -127,8 +128,10 @@ void Epoll::update(int operation, Channel *channel) const
 void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallback,
                              const MessageCallback &messageCallback, const WriteCompleteCallback &writeCompleteCallback)
 {
-    if(connections_.count(sockFd) != 0){
-        connections_[sockFd]->connectReset(sockFd);
+    if(!connectionsPool.empty()){
+        connectionsPool.back()->connectReset(sockFd);
+        connections_[sockFd] = std::move(connectionsPool.back());
+        connectionsPool.pop_back();
         ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
     else {
@@ -139,7 +142,7 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
         conn->setWriteCompleteCallback(writeCompleteCallback);
         conn->setCloseCallback(
                 [this](auto && PH1) { removeConnection(PH1); });
-        connections_.insert({sockFd,std::move(conn)});
+        connections_[sockFd] = std::move(conn);
         ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
 }

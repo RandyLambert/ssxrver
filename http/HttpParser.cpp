@@ -83,13 +83,6 @@ void onResponseChunk(void *data, const char *at, size_t length)
 
 void onResponseVersion(void *data, const char *at, size_t length)
 {
-    auto *parser = static_cast<HttpResponseParser *>(data);
-    bool flag = parser->getResponse().setVersion(at, length);
-    if (!flag)
-    {
-        LOG_ERROR << "invalid http response version: " << string(at, length);
-        parser->setError(1001);
-    }
 }
 
 void onResponseHeaderDone(void *data, const char *at, size_t length)

@@ -7,14 +7,7 @@ using namespace ssxrver::net;
 void HttpResponse::appendToBuffer(Buffer *output) const
 {                 //http响应类的封装
     char buf[32]; //添加响应头
-    if(version_ == 0x11)
-    {
-        snprintf(buf, sizeof(buf), "HTTP/1.1 %d ", statusCode_);
-    }
-    else if(version_ == 0x10)
-    {
-        snprintf(buf, sizeof(buf), "HTTP/1.0 %d ", statusCode_);
-    }
+    snprintf(buf, sizeof(buf), "HTTP/1.1 %d ", statusCode_);
     output->append(buf);
     output->append(statusMessage_); //添加响应信息
     output->append("\r\n");
@@ -47,23 +40,6 @@ void HttpResponse::appendToBuffer(Buffer *output) const
     output->append("\r\n"); //header与body之间的空行
     output->append(body_);
 }
-bool HttpResponse::setVersion(const char *start, const size_t length)
-{
-    assert(version_ == 0x00);
-    if (strncmp(start, "HTTP/1.1", length) == 0)
-    {
-        version_ = 0x11;
-    }
-    else if (strncmp(start, "HTTP/1.0", length) == 0)
-    {
-        version_ = 0x10;
-    }
-    else
-    {
-        version_ = 0x00;
-    }
-    return version_ != 0x00;
-}
 
 void HttpResponse::swap(HttpResponse &that)
 {
@@ -73,5 +49,4 @@ void HttpResponse::swap(HttpResponse &that)
     statusMessage_.swap(that.statusMessage_);
     std::swap(closeConnection_,that.closeConnection_);
     body_.swap(that.body_);
-    std::swap(version_,that.version_);
 }

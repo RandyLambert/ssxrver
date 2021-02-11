@@ -22,8 +22,6 @@ public:
         return instance;
     }
     void start(const std::string& confFilePath);
-    const char* getHttp11() const { return http11_;}
-    const char* getHttp10() const {return http10_; }
     const std::unique_ptr<ssxrver::base::AsyncLogThread>& getAsyncLog() const { return asyncLog_;}
     const int& getWorkerConnections() const { return workerConnections_;}
     const int& getHttpMaxBodySize() const { return  httpMaxBodySize_; }
@@ -41,8 +39,6 @@ public:
     }
 private:
     explicit Init():outPutFlag_(false),
-        http11_("HTTP/1.1"),
-        http10_("HTTP/1.0"),
         logMap_({{"DEBUG",ssxrver::Logger::LogLevel::DEBUG},
                 {"INFO",ssxrver::Logger::LogLevel::INFO},
                 {"WARN",ssxrver::Logger::LogLevel::WARN}}),
@@ -58,8 +54,6 @@ private:
     CJsonObject confData_;
     std::unique_ptr<ssxrver::base::AsyncLogThread> asyncLog_;
     bool outPutFlag_;
-    const char *http11_;
-    const char *http10_;
     std::map<std::string,ssxrver::Logger::LogLevel> logMap_;
     std::unordered_set<std::string> blocksIp_;
     int httpMaxBodySize_;

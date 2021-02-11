@@ -31,13 +31,11 @@ public:
     explicit HttpResponse()
         : file_(),
           statusCode_(kUnknown),
-          closeConnection_(false),
-          version_(0x00)
+          closeConnection_(false)
     {
     }
 
     void swap(HttpResponse &that);
-    bool setVersion(const char *start, size_t length);
     void setClose(std::string_view connection) { closeConnection_ = (connection == "close"); }
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
     void setStatusMessage(std::string_view message) { statusMessage_ = message; }
@@ -58,7 +56,6 @@ private:
     string statusMessage_;             //状态响应码对应的文本信息
     bool closeConnection_;             //是否关闭连接
     string body_;                      //实体
-    uint8_t version_;                  //http版本
 };
 
 } // namespace ssxrver::net

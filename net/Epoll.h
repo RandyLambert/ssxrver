@@ -40,6 +40,7 @@ private:
 
     using ChannelMap = std::unordered_map<int, Channel *>;                      //fd和事件指针
     using TcpConnMap = std::unordered_map<int, TcpConnectionPtr>; //TcpConnectionMap
+    std::vector<TcpConnectionPtr> connectionsPool;
     ChannelMap channels_;                                             //监听检测通道
     TcpConnMap connections_;
     int epollFd;
