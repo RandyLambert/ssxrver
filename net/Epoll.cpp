@@ -96,13 +96,8 @@ void Epoll::removeChannel(Channel *channel)
     ownerLoop_->assertInLoopThread();
     int fd = channel->fd();
     int status_ = channel->status();
-    if (connections_.count(fd) != 0) {
-        connectionsPool.emplace_back(std::move(connections_[fd]));
-        ::close(fd);
-    }
-    else {
-        LOG_FATAL << "erase connections_";
-    }
+    connectionsPool.emplace_back(std::move(connections_[fd]));
+    ::close(fd);
 
     if (status_ == kAdded)
         update(EPOLL_CTL_DEL, channel);

@@ -36,7 +36,7 @@ public:
     }
 
     void swap(HttpResponse &that);
-    void setClose(std::string_view connection) { closeConnection_ = (connection == "close"); }
+    void setClose(std::string_view connection) { closeConnection_ = (connection == "close" || connection.empty()); }
     void setStatusCode(HttpStatus code) { statusCode_ = code; }
     void setStatusMessage(std::string_view message) { statusMessage_ = message; }
     void setCloseConnection(bool on) { closeConnection_ = on; }

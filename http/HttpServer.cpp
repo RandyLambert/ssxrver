@@ -51,7 +51,7 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
 {
     HttpRequestParser *parser = conn->getMutableContext().get(); //获取的是可以改变的
     parser->execute(buf);
-    if (parser->hasError()) //获取请求包，更好的做法是让 parseRequest 作为 httpContext 的成员函数
+    if (parser->hasError()) //获取请求包
     {
         conn->send("HTTP/1.1 400 Bad Request\r\n\r\n"); //请求失败
         conn->shutdown();
