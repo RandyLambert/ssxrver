@@ -74,8 +74,8 @@ add_executable(ssxrver
         util/MySQLOps.h
         net/SocketOps.cpp
         net/SocketOps.h
-        net/Connection.cpp
-        net/Connection.h
+        net/TcpConnection.cpp
+        net/TcpConnection.h
         net/TcpServer.cpp
         net/TcpServer.h
         net/Timer.cpp
@@ -84,4 +84,4 @@ add_executable(ssxrver
         net/TimerManager.h
         util/Init.cpp
         util/Init.h
-        main.cpp)
+        main.cpp net/UdpServer.cpp net/UdpServer.h)

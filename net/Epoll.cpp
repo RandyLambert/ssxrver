@@ -2,7 +2,7 @@
 #include <sys/epoll.h>
 #include "Epoll.h"
 #include "Channel.h"
-#include "Connection.h"
+#include "TcpConnection.h"
 
 using namespace ssxrver;
 using namespace ssxrver::net;
@@ -130,7 +130,7 @@ void Epoll::createConnection(int sockFd, const ConnectionCallback &connectCallba
         ownerLoop_->runInLoop([&conn = connections_[sockFd]] { conn->connectEstablished(); });
     }
     else {
-        TcpConnectionPtr conn = std::make_shared<Connection>(ownerLoop_, //所属ioLoop
+        TcpConnectionPtr conn = std::make_shared<TcpConnection>(ownerLoop_, //所属ioLoop
                                                                 sockFd);
         conn->setConnectionCallback(connectCallback);
         conn->setMessageCallback(messageCallback);

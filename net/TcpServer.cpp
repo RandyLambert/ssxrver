@@ -17,7 +17,7 @@ TcpServer::TcpServer(EventLoop *loop,
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback),
       started_(false),
-      acceptFd_(socketops::createNonblockingOrDie()),
+      acceptFd_(socketops::createStreamNonblockingOrDie()),
       idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)),
       acceptChannel_(Channel(loop, acceptFd_))
 {

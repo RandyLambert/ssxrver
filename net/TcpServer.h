@@ -5,7 +5,7 @@
 #include <functional>
 #include <atomic>
 #include <boost/noncopyable.hpp>
-#include "Connection.h"
+#include "TcpConnection.h"
 #include "Channel.h"
 #include "CallBacks.h"
 namespace ssxrver::net

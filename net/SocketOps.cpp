@@ -18,13 +18,25 @@ void socketops::listenOrDie(int sockfd)
     if (::listen(sockfd, SOMAXCONN) < 0)
         LOG_SYSFATAL << "listen error";
 }
-int socketops::createNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
+
+int socketops::createStreamNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
 {
     //linux 2.6.27以上的内核支持sock_nonblock和sock_cloexec的检测
     int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     if (sockfd < 0)
     {
-        LOG_SYSFATAL << "sockets::createNonblockingOrDie";
+        LOG_SYSFATAL << "sockets::createStreamNonblockingOrDie";
+    }
+    return sockfd;
+}
+
+int socketops::createDgramNonblockingOrDie() //创建非阻塞套接字，创建失败就终止
+{
+    //linux 2.6.27以上的内核支持sock_nonblock和sock_cloexec的检测
+    int sockfd = ::socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP);
+    if (sockfd < 0)
+    {
+        LOG_SYSFATAL << "sockets::createDgramNonblockingOrDie";
     }
     return sockfd;
 }
@@ -90,6 +102,16 @@ ssize_t socketops::write(int sockfd, const void *buf, size_t count)
     return ::write(sockfd, buf, count); //writev没封装
 }
 
+ssize_t socketops::recvfrom(int sockfd, void *buf,size_t count,struct sockaddr_in* addr)
+{
+    return ::recvfrom(sockfd, buf, count, 0 , reinterpret_cast<sockaddr *>(addr),
+                      reinterpret_cast<socklen_t *>(sizeof(struct sockaddr_in)));
+}
+ssize_t socketops::sendto(int sockfd, const void *buf,size_t count,struct sockaddr_in* addr)
+{
+    return ::sendto(sockfd, buf, count, 0 , reinterpret_cast<sockaddr *>(addr),
+                    sizeof(struct sockaddr_in));
+}
 ssize_t socketops::sendfile(int outFd, int inFd, off_t *offset, size_t count)
 {
     return ::sendfile(outFd, inFd, offset, count); //sendfile没封装

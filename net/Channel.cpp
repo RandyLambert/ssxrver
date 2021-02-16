@@ -1,7 +1,7 @@
 #include <sys/epoll.h>
 #include "EventLoop.h"
 #include "Channel.h"
-#include "Connection.h"
+#include "TcpConnection.h"
 using namespace ssxrver;
 using namespace ssxrver::net;
 

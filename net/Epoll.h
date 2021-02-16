@@ -13,7 +13,7 @@ namespace ssxrver::net
 {
 
 class Channel;
-class Connection;
+class TcpConnection;
 class Epoll : boost::noncopyable
 {
 public:

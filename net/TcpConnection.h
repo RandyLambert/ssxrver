@@ -15,13 +15,13 @@ namespace ssxrver::net
 class EventLoop;
 class Channel;
 
-class Connection : boost::noncopyable,
-                   public std::enable_shared_from_this<Connection>
+class TcpConnection : boost::noncopyable,
+                      public std::enable_shared_from_this<TcpConnection>
 {
 public:
-    explicit Connection(EventLoop *loop,
-                        int sockFd);
-    ~Connection();
+    explicit TcpConnection(EventLoop *loop,
+                           int sockFd);
+    ~TcpConnection();
 
     EventLoop *getLoop() const { return loop_; }
 
@@ -95,7 +95,7 @@ private:
     bool reading_;
 };
 
-typedef std::shared_ptr<Connection> TcpConnectionPtr;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 } // namespace ssxrver
 
 #endif

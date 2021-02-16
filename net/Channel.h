@@ -7,7 +7,7 @@
 namespace ssxrver::net
 {
 class EventLoop;
-class Connection;
+class TcpConnection;
 
 extern const unsigned kNoneEvent; //初始化为默认值
 extern const unsigned kReadEventLT;

@@ -19,8 +19,8 @@
 namespace ssxrver::net
 {
     class Buffer;
-    class Connection;
-    using TcpConnectionPtr = std::shared_ptr<Connection>;
+    class TcpConnection;
+    using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
     using ConnectionCallback = std::function<void (const TcpConnectionPtr&)>;
     using CloseCallback = std::function<void (const TcpConnectionPtr&)>;
     using WriteCompleteCallback = std::function<void (const TcpConnectionPtr&)>;

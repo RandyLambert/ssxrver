@@ -80,7 +80,7 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn,
 
 void HttpServer::onRequest(const TcpConnectionPtr &conn, const HttpRequest &req)
 {
-    const string &connection = req.getHeader<string>("Connection");
+    const string &connection = req.getHeader<string>("TcpConnection");
     HttpResponse response;
     response.setClose(connection);
     httpCallback_(req, &response);

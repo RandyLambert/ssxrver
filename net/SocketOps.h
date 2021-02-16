@@ -12,8 +12,8 @@
 namespace ssxrver::net::socketops
 {
 
-int createNonblockingOrDie(); //创建一个非阻塞的套接字
-
+int createStreamNonblockingOrDie(); //创建一个非阻塞的套接字
+int createDgramNonblockingOrDie(); //创建非阻塞套接字，创建失败就终止
 int connect(int sockfd, struct sockaddr_in* addr);    //链接
 void bindOrDie(int sockfd, struct sockaddr_in* addr); //绑定监听
 void listenOrDie(int sockfd);
@@ -21,6 +21,8 @@ int accept(int sockfd, struct sockaddr_in *addr);
 ssize_t read(int sockfd, void *buf, size_t count);
 ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt);
 ssize_t write(int sockfd, const void *buf, size_t count);
+ssize_t recvfrom(int sockfd, void *buf,size_t count,struct sockaddr_in* addr);
+ssize_t sendto(int sockfd, const void *buf,size_t count,struct sockaddr_in* addr);
 ssize_t sendfile(int outFd, int inFd, off_t *offset, size_t count);
 void close(int sockfd);
 void shutdownWrite(int sockfd);
