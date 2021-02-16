@@ -1,0 +1,31 @@
+{
+  "port": 4507,
+  "address": "127.0.0.1",
+  "worker_processes": 4,
+  "worker_connections": -1,
+  "task_processes": 0,
+  "cpu_affinity": "off",
+  "http": {
+    "max_body_size": 67108864,
+    "root_path": "/home/randylambert/sunshouxun/ssxrver/html/"
+  },
+  "log": {
+    "level": "INFO",
+    "ansync_started": "off",
+    "flush_second": 3,
+    "roll_size": 67108864,
+    "path": "/home/randylambert/sunshouxun/ssxrver/logs/",
+    "base_name": "ssxrver"
+  },
+  "mysql": {
+    "mysql_started": "off",
+    "address": "127.0.0.1",
+    "user": "root",
+    "password": "123456",
+    "database_name": "ttms",
+    "port": 0,
+    "unix_socket": null,
+    "client_flag": 0
+  },
+  "blocks_ip": ["122.0.0.2","198.1.2.33"]
+}
