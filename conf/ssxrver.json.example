@@ -27,5 +27,5 @@
     "unix_socket": null,
     "client_flag": 0
   },
-  "blocks_ip": ["122.0.0.2","198.1.2.33"]
+  "blocks_ip": []
 }

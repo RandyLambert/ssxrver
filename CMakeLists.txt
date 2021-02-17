@@ -82,6 +82,8 @@ add_executable(ssxrver
         net/Timer.h
         net/TimerManager.cpp
         net/TimerManager.h
+        net/UdpServer.cpp
+        net/UdpServer.h
         util/Init.cpp
         util/Init.h
-        main.cpp net/UdpServer.cpp net/UdpServer.h)
+        main.cpp)

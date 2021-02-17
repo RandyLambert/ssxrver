@@ -173,6 +173,11 @@ ssxrver 的测试结果还不错,但是奇怪的是,我本以为数据会更高�
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210217002722770.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU3NDk2Mg==,size_16,color_FFFFFF,t_70)
 而当时 nginx/1.14.2 最多也超过 5000000 pages/min ,  不过无论是 ssxrver 还是 nginx/1.14.2 ,现在我怎么测也测不出来那么高的值了,我也不清楚是什么原因,导致最终结果能出现这么大的差距,(难道是我电脑老化了?￣□￣｜｜)
 
+## 关于取舍
+
+1. 我在写线程池的时候,在到底使用 无锁线程池 还是 细粒度锁线程池 上犹豫了很久,最后还是选择了细粒度锁线程池,因为无锁线程池虽然在高并发场景下,会更少的进入内核态,性能一般也会更高,但是在任务量很少的情况下,会白白消耗 CPU 资源,为了保证 ssxrver 在任何场景下的通用性,我折中选取了细粒度锁线程池.
+2. 在实现定时器功能时,我任务性能最好的应该是使用细粒度时间轮实现的定时器,时间粒度易于调配,添加和获取定时任务的时间复杂度接近与 O(1) , 但是在网络库的场景之下,我发现很难控制时间轮按照固定时间单位向前滚动,使用 sleep  睡一会? 这会直接阻塞正常的 IO 事件. 使用信号? 多线程编程中,信号处理十分困难,而且性能上也没有优势,得不偿失. 使用 epoll_wait() 设置超时时间 ?每当触发可读事件还要重新修改新的超时时间,万一处理的时间过久,超过了单位时间还会导致精度下降,直接在开一个单独的定时器线程只负责定时任务 ? 这倒是能完美的解决上面的问题,定时器线程只负责添加和触发相应的定时任务,触发之后将任务传递到 IO 线程或者计算线程执行,也不会导致精度下降,但是这样做我又感觉没什么必要, 索性我直接把定时任务交给内核管理, 使用 优先队列 + timefd 的组合,优先队列保证不错的时间复杂度(O(log(n))) , timefd 保证极高的精度 , 还能将定时任务和 IO 时间一起处理 , 虽然定时器我没有采用时间轮实现, 但是时间轮这种思想其实还是有一定的用武之地的,比如在某些场景下,TCP KeepAlive 没办法满足我们对空闲长连接断开的要求时, 如果我们要实现用户态的 KeepAlive , 我们要为每一个连接创建定时任务 , 从而将长时间没有进行 socket 通信的空闲长连接踢掉 , 或者创建定时任务,每次遍历整个连接池 (当然可以使用一个排序的连接 List ,这样就不用遍历整个连接池),去判断是否要踢掉对应的连接 , 不过这两种办法都不够优雅,我们这时可以借用时间轮的思想,将连接放在轮盘槽中,通过设置定时任务来控制时间轮向前滚动,每滚动一步处理一下当前槽中的连接,这样不会每次遍历所有连接,也不会有过多的定时任务出现.
+
 ## 关于未来
 
 1. 目前我个人如果有时间的话会修改 ssxrver 的 Buffer 模块和 Log 模块.
@@ -187,11 +192,11 @@ ssxrver 的测试结果还不错,但是奇怪的是,我本以为数据会更高�
 - 替换前
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2021021700303993.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU3NDk2Mg==,size_16,color_FFFFFF,t_70)
 - 替换后
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210217003044753.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU3NDk2Mg==,size_16,color_FFFFFF,t_70)
-5. 在实现 http 解析模块时,第一版我采用的是直接匹配字符串的手写状态机,之后我替换为了 Ragel 实现的状态机,但是最近测试的时候我发现 http 解析函数的负载十分夸张,达到了 10% , 难道说使用 Ragel 之后反而导致了性能下降 ?(如果说解析 header 会出现如此高的系统负载,那么看来 HTTP/2.0 对性能的提高还是很可观的) 遗憾的是在之前我手写状态机的时候,我并没有测试对应解析函数的负载情况,现在我一下子我拿不出来两者的数据比较,有机会写一个 BenchMark 测测.
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210217003013283.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU3NDk2Mg==,size_16,color_FFFFFF,t_70)
+- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210217003044753.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU3NDk2Mg==,size_16,color_FFFFFF,t_70)
+4. 在实现 http 解析模块时,第一版我采用的是直接匹配字符串的手写状态机,之后我替换为了 Ragel 实现的状态机,但是最近测试的时候我发现 http 解析函数的负载十分夸张,达到了 10% , 难道说使用 Ragel 之后反而导致了性能下降 ?(如果说解析 header 会出现如此高的系统负载,那么看来 HTTP/2.0 对性能的提高还是很可观的) 遗憾的是在之前我手写状态机的时候,我并没有测试对应解析函数的负载情况,现在我一下子我拿不出来两者的数据比较,有机会写一个 BenchMark 测测.
+   ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210217003013283.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzU3NDk2Mg==,size_16,color_FFFFFF,t_70)
 
-6. ssxrver 支持简单的 UDP 传输,但是我个人认为一个没有拥塞控制,流量控制,丢包重传功能的 UDP 框架基本可以说是没办法正常应用的,以后我有时间去学习学习 QUIC, KCP 这些协议,在补充补充 UDP 相关知识,相信更高效更灵活的 UDP 协议在未来的应用会越来越广泛的!
+5. ssxrver 支持简单的 UDP 传输,但是我个人认为一个没有拥塞控制,流量控制,丢包重传功能的 UDP 框架基本可以说是没办法正常应用的,以后我有时间去学习学习 QUIC, KCP 这些协议,在补充补充 UDP 相关知识,相信更高效更灵活的 UDP 协议在未来的应用会越来越广泛的!
 
 ## 关于框架
 

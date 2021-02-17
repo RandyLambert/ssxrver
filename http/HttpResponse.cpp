@@ -16,7 +16,7 @@ void HttpResponse::appendToBuffer(Buffer *output) const
     {
         //如果是短连接，不需要告诉浏览器content-length，浏览器也能正常处理
         //短连接不惜要告诉包的长度，因为他处理完就直接断开了，所以不存在粘包问题
-        output->append("TcpConnection: close\r\n");
+        output->append("Connection: close\r\n");
     }
     else
     {
@@ -25,7 +25,7 @@ void HttpResponse::appendToBuffer(Buffer *output) const
         else
             snprintf(buf, sizeof(buf), "Content-Length: %zd\r\n", body_.size() + static_cast<unsigned long>(file_->getSendLen())); //如果是长连接才需要这一行头部信息，来说明包的实体长度
         output->append(buf);
-        output->append("TcpConnection: Keep-Alive\r\n"); //长连接的标志
+        output->append("Connection: Keep-Alive\r\n"); //长连接的标志
     }
 
     //header列表
